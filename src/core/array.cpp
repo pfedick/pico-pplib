@@ -544,8 +544,7 @@ void Array::list(const String& prefix) const
             PrintDebug("Array \"%s\" ist leer\n", (const char*)prefix);
         }
         for (size_t i = 0; i < numElements; i++) {
-            if (r[i].value != NULL)
-                PrintDebug("%s, %6zu: %s\n", (const char*)prefix, i, (const char*)r[i].value->getPtr());
+            if (r[i].value != NULL) PrintDebug("%s, %6zu: %s\n", (const char*)prefix, i, (const char*)r[i].value->getPtr());
         }
     }
 }
@@ -607,7 +606,7 @@ const String& Array::getRandom() const
 {
     if (!numElements) return EmptyString;
     ROW* r = (ROW*)rows;
-    size_t index = ppl7light::rand(0, numElements - 1);
+    size_t index = picopplib::rand(0, numElements - 1);
     if (index < numElements && r[index].value != NULL) return *r[index].value;
     return EmptyString;
 }
@@ -624,7 +623,7 @@ String& Array::getRandom()
 {
     if (!numElements) return EmptyString;
     ROW* r = (ROW*)rows;
-    size_t index = ppl7light::rand(0, numElements - 1);
+    size_t index = picopplib::rand(0, numElements - 1);
     if (index < numElements && r[index].value != NULL) return *r[index].value;
     return EmptyString;
 }
@@ -657,7 +656,7 @@ const char* Array::getRandomPtr() const
 {
     if (!numElements) return String();
     ROW* r = (ROW*)rows;
-    size_t index = ppl7light::rand(0, numElements - 1);
+    size_t index = picopplib::rand(0, numElements - 1);
     if (index < numElements && r[index].value != NULL) return r[index].value->getPtr();
     return "";
 }
