@@ -1,14 +1,9 @@
 /*******************************************************************************
- * This file is part of "Patrick's Programming Library", Version 7 (PPL7).
- * Web: http://www.pfp.de/ppl/
- *
- * $Author$
- * $Revision$
- * $Date$
- * $Id$
- *
+ * This file is part of "Patrick's Programming Library" for Raspberry Pico,
+ * based on PPLib Version 7.
+ * Web: https://github.com/pfedick/pico-pplib
  *******************************************************************************
- * Copyright (c) 2013, Patrick Fedick <patrick@pfp.de>
+ * Copyright (c) 2026, Patrick Fedick <patrick@pfp.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,19 +27,20 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-//#define _GNU_SOURCE
+// #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "ppl7-light.h"
+#include "picopplib.h"
 
-namespace ppl7light {
+namespace picopplib
+{
 
 ByteArrayPtr::ByteArrayPtr()
 {
-    ptradr=NULL;
-    ptrsize=0;
+    ptradr = NULL;
+    ptrsize = 0;
 }
 
 /*!\brief Copy-Konstruktor
@@ -57,14 +53,14 @@ ByteArrayPtr::ByteArrayPtr()
  */
 ByteArrayPtr::ByteArrayPtr(const ByteArrayPtr& other)
 {
-    ptradr=other.ptradr;
-    ptrsize=other.ptrsize;
+    ptradr = other.ptradr;
+    ptrsize = other.ptrsize;
 }
 
 ByteArrayPtr::ByteArrayPtr(const String& data)
 {
-    ptradr=(void*)data.getPtr();
-    ptrsize=data.size();
+    ptradr = (void*)data.getPtr();
+    ptrsize = data.size();
 }
 
 /*!\brief Konstruktor mit Angabe einer Speicheradresse und Größe
@@ -78,14 +74,14 @@ ByteArrayPtr::ByteArrayPtr(const String& data)
  */
 ByteArrayPtr::ByteArrayPtr(void* adr, size_t size)
 {
-    ptradr=adr;
-    ptrsize=size;
+    ptradr = adr;
+    ptrsize = size;
 }
 
 ByteArrayPtr::ByteArrayPtr(const void* adr, size_t size)
 {
-    ptradr=(void*)adr;
-    ptrsize=size;
+    ptradr = (void*)adr;
+    ptrsize = size;
 }
 
 /*!\brief Prüfen, ob Speicher referenziert ist
@@ -121,7 +117,6 @@ bool ByteArrayPtr::isEmpty() const
     return false;
 }
 
-
 /*!\brief Größe des Speicherblocks auslesen
  *
  * \desc
@@ -148,9 +143,10 @@ const void* ByteArrayPtr::adr() const
 
 void ByteArrayPtr::truncate(size_t position)
 {
-    if (position > ptrsize) throw Exception("OverflowException", "ByteArrayPtr::truncate position exceeds size of ByteArray (%zu > %zu)",
-        position, ptrsize);
-    ptrsize=position;
+    if (position > ptrsize)
+        throw Exception("OverflowException", "ByteArrayPtr::truncate position exceeds size of ByteArray (%zu > %zu)",
+                        position, ptrsize);
+    ptrsize = position;
 }
 
 /*!\brief Adresse des Speicherblocks auslesen
@@ -165,7 +161,6 @@ const void* ByteArrayPtr::ptr() const
     return ptradr;
 }
 
-
 /*!\brief Speicherreferenz von anderem ByteArrayPtr-Objekt übernehmen
  *
  * \desc
@@ -177,11 +172,10 @@ const void* ByteArrayPtr::ptr() const
  */
 ByteArrayPtr& ByteArrayPtr::operator=(const ByteArrayPtr& other)
 {
-    ptradr=other.ptradr;
-    ptrsize=other.ptrsize;
+    ptradr = other.ptradr;
+    ptrsize = other.ptrsize;
     return *this;
 }
-
 
 /*!\brief Adresse des Speicherblocks auslesen
  *
@@ -190,7 +184,7 @@ ByteArrayPtr& ByteArrayPtr::operator=(const ByteArrayPtr& other)
  *
  * @return Adresse des Speicherblocks
  */
-ByteArrayPtr::operator const void* () const
+ByteArrayPtr::operator const void*() const
 {
     return ptradr;
 }
@@ -202,7 +196,7 @@ ByteArrayPtr::operator const void* () const
  *
  * @return Adresse des Speicherblocks
  */
-ByteArrayPtr::operator const unsigned char* () const
+ByteArrayPtr::operator const unsigned char*() const
 {
     return (const unsigned char*)ptradr;
 }
@@ -214,7 +208,7 @@ ByteArrayPtr::operator const unsigned char* () const
  *
  * @return Adresse des Speicherblocks
  */
-ByteArrayPtr::operator const char* () const
+ByteArrayPtr::operator const char*() const
 {
     return (const char*)ptradr;
 }
@@ -238,11 +232,12 @@ unsigned char ByteArrayPtr::operator[](size_t pos) const
     throw Exception("OutOfBoundsEception");
 }
 
-
 void ByteArrayPtr::set(size_t pos, unsigned char value)
 {
-    if (pos < ptrsize) ((unsigned char*)ptradr)[pos]=value;
-    else throw Exception("OutOfBoundsEception");
+    if (pos < ptrsize)
+        ((unsigned char*)ptradr)[pos] = value;
+    else
+        throw Exception("OutOfBoundsEception");
 }
 
 unsigned char ByteArrayPtr::get(size_t pos) const
@@ -250,7 +245,6 @@ unsigned char ByteArrayPtr::get(size_t pos) const
     if (ptradr != NULL && pos < ptrsize) return ((unsigned char*)ptradr)[pos];
     throw Exception("OutOfBoundsEception");
 }
-
 
 /*!\brief Adresse des Speicherblocks auslesen
  *
@@ -278,11 +272,11 @@ void ByteArrayPtr::memset(int value)
 
 const char* ByteArrayPtr::map(size_t position, size_t size) const
 {
-    if (position + size > ptrsize) throw Exception("OverflowException", "ByteArrayPtr::map position (%u) + size (%u) exceeds size of ByteArray (%u > %u)",
-        position, size, position + size, ptrsize);
+    if (position + size > ptrsize)
+        throw Exception("OverflowException",
+                        "ByteArrayPtr::map position (%u) + size (%u) exceeds size of ByteArray (%u > %u)", position,
+                        size, position + size, ptrsize);
     return (const char*)ptradr + position;
 }
 
-
-
-}   // EOF namespace
+} // namespace picopplib

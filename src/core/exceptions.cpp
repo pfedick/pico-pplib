@@ -1,10 +1,9 @@
 /*******************************************************************************
- * This file is part of "Patrick's Programming Library", Version 7 (PPL7).
- * Web: http://www.pfp.de/ppl/
- *
- *
+ * This file is part of "Patrick's Programming Library" for Raspberry Pico,
+ * based on PPLib Version 7.
+ * Web: https://github.com/pfedick/pico-pplib
  *******************************************************************************
- * Copyright (c) 2015, Patrick Fedick <patrick@pfp.de>
+ * Copyright (c) 2026, Patrick Fedick <patrick@pfp.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,23 +27,23 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 
-#include "ppl7-light.h"
+#include "picopplib.h"
 
-namespace ppl7light {
+namespace picopplib
+{
 
-static const char* default_type="PPLException";
+static const char* default_type = "PPLException";
 
 Exception::Exception(const char* type) throw()
 {
-    ErrorText=NULL;
-    ExceptionType=NULL;
-    ExceptionType=strdup(type);
+    ErrorText = NULL;
+    ExceptionType = NULL;
+    ExceptionType = strdup(type);
 }
 
 Exception::~Exception() throw()
@@ -62,67 +61,71 @@ const char* Exception::what() const throw()
 Exception::Exception(const Exception& other) throw()
 {
     if (other.ExceptionType) {
-        ExceptionType=strdup(other.ExceptionType);
+        ExceptionType = strdup(other.ExceptionType);
     } else {
-        ExceptionType=NULL;
+        ExceptionType = NULL;
     }
     if (other.ErrorText) {
-        ErrorText=strdup(other.ErrorText);
+        ErrorText = strdup(other.ErrorText);
     } else {
-        ErrorText=NULL;
+        ErrorText = NULL;
     }
 }
 
-Exception& Exception::operator= (const Exception& other) throw()
+Exception& Exception::operator=(const Exception& other) throw()
 {
     if (&other == this) return *this;
     if (ErrorText) free(ErrorText);
     if (ExceptionType) free(ExceptionType);
     if (other.ExceptionType) {
-        ExceptionType=strdup(other.ExceptionType);
+        ExceptionType = strdup(other.ExceptionType);
     } else {
-        ExceptionType=NULL;
+        ExceptionType = NULL;
     }
     if (other.ErrorText) {
-        ErrorText=strdup(other.ErrorText);
+        ErrorText = strdup(other.ErrorText);
     } else {
-        ErrorText=NULL;
+        ErrorText = NULL;
     }
     return *this;
 }
 
 Exception::Exception(const char* type, const char* msg, ...) throw()
 {
-    ErrorText=NULL;
-    ExceptionType=NULL;
-    if (type) ExceptionType=strdup(type);
+    ErrorText = NULL;
+    ExceptionType = NULL;
+    if (type) ExceptionType = strdup(type);
     if (msg) {
         String Msg;
         va_list args;
         va_start(args, msg);
         try {
             Msg.vasprintf(msg, args);
-            ErrorText=strdup((const char*)Msg);
+            ErrorText = strdup((const char*)Msg);
         }
         catch (...) {
-            ErrorText=NULL;
+            ErrorText = NULL;
         }
         va_end(args);
     } else {
-        ErrorText=NULL;
+        ErrorText = NULL;
     }
 }
 
 const char* Exception::text() const throw()
 {
-    if (ErrorText) return ErrorText;
-    else return "";
+    if (ErrorText)
+        return ErrorText;
+    else
+        return "";
 }
 
 const char* Exception::type() const throw()
 {
-    if (ExceptionType) return ExceptionType;
-    else return default_type;
+    if (ExceptionType)
+        return ExceptionType;
+    else
+        return default_type;
 }
 
 String Exception::toString() const throw()
@@ -153,72 +156,115 @@ void Exception::print() const
 void throwExceptionFromErrno(int e, const String& info)
 {
     switch (e) {
-    case ENOMEM: throw Exception("OutOfMemoryException");
-    case EINVAL: throw Exception("InvalidArgumentsException");
+    case ENOMEM:
+        throw Exception("OutOfMemoryException");
+    case EINVAL:
+        throw Exception("InvalidArgumentsException");
     case ENOTDIR:
-    case ENAMETOOLONG: throw Exception("InvalidFileNameException", info);
+    case ENAMETOOLONG:
+        throw Exception("InvalidFileNameException", info);
     case EACCES:
-    case EPERM: throw Exception("PermissionDeniedException", info);
-    case ENOENT: throw Exception("FileNotFoundException", info);
+    case EPERM:
+        throw Exception("PermissionDeniedException", info);
+    case ENOENT:
+        throw Exception("FileNotFoundException", info);
 #ifdef ELOOP
-    case ELOOP: throw Exception("TooManySymbolicLinksException", info);
+    case ELOOP:
+        throw Exception("TooManySymbolicLinksException", info);
 #endif
-    case EISDIR: throw Exception("NoRegularFileException", info);
-    case EROFS: throw Exception("ReadOnlyException", info);
-    case EMFILE: throw Exception("TooManyOpenFilesException");
+    case EISDIR:
+        throw Exception("NoRegularFileException", info);
+    case EROFS:
+        throw Exception("ReadOnlyException", info);
+    case EMFILE:
+        throw Exception("TooManyOpenFilesException");
 #ifdef EOPNOTSUPP
-    case EOPNOTSUPP: throw Exception("UnsupportedFileOperationException", info);
+    case EOPNOTSUPP:
+        throw Exception("UnsupportedFileOperationException", info);
 #endif
-    case ENOSPC: throw Exception("FilesystemFullException");
+    case ENOSPC:
+        throw Exception("FilesystemFullException");
 #ifdef EDQUOT
-    case EDQUOT: throw Exception("QuotaExceededException");
+    case EDQUOT:
+        throw Exception("QuotaExceededException");
 #endif
-    case EIO: throw Exception("IOErrorException");
-    case EBADF: throw Exception("BadFiledescriptorException");
-    case EFAULT: throw Exception("BadAddressException");
+    case EIO:
+        throw Exception("IOErrorException");
+    case EBADF:
+        throw Exception("BadFiledescriptorException");
+    case EFAULT:
+        throw Exception("BadAddressException");
 #ifdef EOVERFLOW
-    case EOVERFLOW: throw Exception("OverflowException");
+    case EOVERFLOW:
+        throw Exception("OverflowException");
 #endif
-    case EEXIST: throw Exception("FileExistsException");
-    case EAGAIN: throw Exception("OperationBlockedException");
-    case EDEADLK: throw Exception("DeadlockException");
-    case EINTR: throw Exception("OperationInterruptedException");
-    case ENOLCK: throw Exception("TooManyLocksException");
-    case ESPIPE: throw Exception("IllegalOperationOnPipeException");
-    case ETIMEDOUT: throw Exception("TimeoutException", info);
+    case EEXIST:
+        throw Exception("FileExistsException");
+    case EAGAIN:
+        throw Exception("OperationBlockedException");
+    case EDEADLK:
+        throw Exception("DeadlockException");
+    case EINTR:
+        throw Exception("OperationInterruptedException");
+    case ENOLCK:
+        throw Exception("TooManyLocksException");
+    case ESPIPE:
+        throw Exception("IllegalOperationOnPipeException");
+    case ETIMEDOUT:
+        throw Exception("TimeoutException", info);
 
-    case ENETDOWN: throw Exception("NetworkDownException", info);
-    case ENETUNREACH: throw Exception("NetworkUnreachableException", info);
-    case ENETRESET: throw Exception("NetworkDroppedConnectionOnResetException", info);
-    case ECONNABORTED: throw Exception("SoftwareCausedConnectionAbortException", info);
-    case ECONNRESET: throw Exception("ConnectionResetByPeerException", info);
-    case ENOBUFS: throw Exception("NoBufferSpaceException", info);
-    case EISCONN: throw Exception("SocketIsAlreadyConnectedException", info);
-    case ENOTCONN: throw Exception("NotConnectedException", info);
+    case ENETDOWN:
+        throw Exception("NetworkDownException", info);
+    case ENETUNREACH:
+        throw Exception("NetworkUnreachableException", info);
+    case ENETRESET:
+        throw Exception("NetworkDroppedConnectionOnResetException", info);
+    case ECONNABORTED:
+        throw Exception("SoftwareCausedConnectionAbortException", info);
+    case ECONNRESET:
+        throw Exception("ConnectionResetByPeerException", info);
+    case ENOBUFS:
+        throw Exception("NoBufferSpaceException", info);
+    case EISCONN:
+        throw Exception("SocketIsAlreadyConnectedException", info);
+    case ENOTCONN:
+        throw Exception("NotConnectedException", info);
 #ifdef ETOOMANYREFS
-    case ETOOMANYREFS: throw Exception("TooManyReferencesException", info);
+    case ETOOMANYREFS:
+        throw Exception("TooManyReferencesException", info);
 #endif
-    case ECONNREFUSED: throw Exception("ConnectionRefusedException", info);
+    case ECONNREFUSED:
+        throw Exception("ConnectionRefusedException", info);
 #ifdef EHOSTDOWN
-    case EHOSTDOWN: throw Exception("HostDownException", info);
+    case EHOSTDOWN:
+        throw Exception("HostDownException", info);
 #endif
-    case EHOSTUNREACH: throw Exception("NoRouteToHostException", info);
-    case ENOTSOCK: throw Exception("InvalidSocketException", info);
-    case ENOPROTOOPT: throw Exception("UnknownOptionException", info);
-    case EPIPE: throw Exception("BrokenPipeException", info);
-    case EINPROGRESS: throw Exception("OperationBlockedException", info);
-    case EALREADY: throw Exception("OperationAlreadyInProgressException", info);
-    case EDESTADDRREQ: throw Exception("DestinationAddressRequiredException", info);
-    case EMSGSIZE: throw Exception("MessageTooLongException", info);
-    case EPROTOTYPE: throw Exception("ProtocolWrongTypeForSocketException", info);
+    case EHOSTUNREACH:
+        throw Exception("NoRouteToHostException", info);
+    case ENOTSOCK:
+        throw Exception("InvalidSocketException", info);
+    case ENOPROTOOPT:
+        throw Exception("UnknownOptionException", info);
+    case EPIPE:
+        throw Exception("BrokenPipeException", info);
+    case EINPROGRESS:
+        throw Exception("OperationBlockedException", info);
+    case EALREADY:
+        throw Exception("OperationAlreadyInProgressException", info);
+    case EDESTADDRREQ:
+        throw Exception("DestinationAddressRequiredException", info);
+    case EMSGSIZE:
+        throw Exception("MessageTooLongException", info);
+    case EPROTOTYPE:
+        throw Exception("ProtocolWrongTypeForSocketException", info);
     default: {
         String ret;
-        ret=strerror(e);
-        ret+=": " + info;
+        ret = strerror(e);
+        ret += ": " + info;
         throw Exception("UnknownException", ret);
     }
     }
 }
 #endif
 
-} // EOF namespace
+} // namespace picopplib

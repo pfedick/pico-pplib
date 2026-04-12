@@ -1,10 +1,37 @@
+/*******************************************************************************
+ * This file is part of "Patrick's Programming Library" for Raspberry Pico,
+ * based on PPLib Version 7.
+ * Web: https://github.com/pfedick/pico-pplib
+ *******************************************************************************
+ * Copyright (c) 2026, Patrick Fedick <patrick@pfp.de>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    1. Redistributions of source code must retain the above copyright notice, this
+ *       list of conditions and the following disclaimer.
+ *    2. Redistributions in binary form must reproduce the above copyright notice,
+ *       this list of conditions and the following disclaimer in the documentation
+ *       and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER AND CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************/
 
-#include "ppl7-light.h"
-#include "grafix.h"
+#include "picopplib-grafix.h"
 #include <stdio.h>
 #include <map>
 
-namespace ppl7light
+namespace picopplib
 {
 
 class Font6Glyph
@@ -48,8 +75,8 @@ private:
 
     const Font6Face* getFace(int size, int flags);
 
-    void renderInternal(
-        const Font6Face& face, Drawable& draw, const Font& font, int x, int y, const WideStringRepresentation& text, int color);
+    void renderInternal(const Font6Face& face, Drawable& draw, const Font& font, int x, int y,
+                        const WideStringRepresentation& text, int color);
 
 public:
     Font6Renderer();
@@ -398,8 +425,8 @@ static BltGlyphFunction getBlitter(const Font6Face& face, const Drawable& draw, 
     throw Exception("InvalidFontException");
 }
 
-void Font6Renderer::renderInternal(
-    const Font6Face& face, Drawable& draw, const Font& font, int x, int y, const WideStringRepresentation& text, int color)
+void Font6Renderer::renderInternal(const Font6Face& face, Drawable& draw, const Font& font, int x, int y,
+                                   const WideStringRepresentation& text, int color)
 {
     const Font6Glyph *glyph = NULL, *previous = NULL;
     void (*BltGlyph)(Drawable& draw, const Font6Glyph& glyph, int x, int y, int c) = NULL;
@@ -653,7 +680,8 @@ void FontEngineFont6::deleteFont(FontFile* file)
     file->engine = NULL;
 }
 
-void FontEngineFont6::render(const FontFile& file, const Font& font, Drawable& draw, int x, int y, const String& text, int color) const
+void FontEngineFont6::render(const FontFile& file, const Font& font, Drawable& draw, int x, int y, const String& text,
+                             int color) const
 {
     Font6Renderer* render = static_cast<Font6Renderer*>(file.priv);
     render->render(draw, font, x, y, text, color);
@@ -671,4 +699,4 @@ Rect FontEngineFont6::boundary(const FontFile& file, const Font& font, const Str
     return render->boundary(font, text, x, y);
 }
 
-} // namespace ppl7light
+} // namespace picopplib

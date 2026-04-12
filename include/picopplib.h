@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of "Patrick's Programming Library" for Raspberry Pico,
- * Version 7 (PPL7).
- * Web: http://www.pfp.de/ppl/
+ * based on PPLib Version 7.
+ * Web: https://github.com/pfedick/pico-pplib
  *******************************************************************************
  * Copyright (c) 2026, Patrick Fedick <patrick@pfp.de>
  * All rights reserved.
@@ -27,8 +27,8 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef PPL7LIGHT_H_
-#define PPL7LIGHT_H_
+#ifndef PICOPPLIB_H_
+#define PICOPPLIB_H_
 
 #include <stdlib.h>
 #include <stdarg.h>
@@ -37,7 +37,7 @@
 #include <list>
 #include <exception>
 
-namespace ppl7light
+namespace picopplib
 {
 
 class String;
@@ -569,6 +569,6 @@ public:
     void print() const;
 };
 
-} // namespace ppl7light
+} // namespace picopplib
 
 #endif

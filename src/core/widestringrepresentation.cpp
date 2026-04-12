@@ -1,9 +1,9 @@
 /*******************************************************************************
- * This file is part of "Patrick's Programming Library", Version 7 (PPL7).
- * Web: http://www.pfp.de/ppl/
- *
+ * This file is part of "Patrick's Programming Library" for Raspberry Pico,
+ * based on PPLib Version 7.
+ * Web: https://github.com/pfedick/pico-pplib
  *******************************************************************************
- * Copyright (c) 2013, Patrick Fedick <patrick@pfp.de>
+ * Copyright (c) 2026, Patrick Fedick <patrick@pfp.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,9 +34,9 @@
 #include <stdarg.h>
 #include <ctype.h>
 
-#include "ppl7-light.h"
+#include "picopplib.h"
 
-namespace ppl7light
+namespace picopplib
 {
 
 WideStringRepresentation::WideStringRepresentation(const String& str) throw()
@@ -79,4 +79,4 @@ wchar_t WideStringRepresentation::operator[](ssize_t pos) const
     return ptr[pos];
 }
 
-} // namespace ppl7light
+} // namespace picopplib

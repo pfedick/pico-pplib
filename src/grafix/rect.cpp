@@ -1,59 +1,84 @@
+/*******************************************************************************
+ * This file is part of "Patrick's Programming Library" for Raspberry Pico,
+ * based on PPLib Version 7.
+ * Web: https://github.com/pfedick/pico-pplib
+ *******************************************************************************
+ * Copyright (c) 2026, Patrick Fedick <patrick@pfp.de>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    1. Redistributions of source code must retain the above copyright notice, this
+ *       list of conditions and the following disclaimer.
+ *    2. Redistributions in binary form must reproduce the above copyright notice,
+ *       this list of conditions and the following disclaimer in the documentation
+ *       and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER AND CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************/
 
-#include "ppl7-light.h"
-#include "grafix.h"
+#include "picopplib-grafix.h"
 
-namespace ppl7light {
-
+namespace picopplib
+{
 
 Rect::Rect()
 {
-    x1=0;
-    y1=0;
-    x2=0;
-    y2=0;
+    x1 = 0;
+    y1 = 0;
+    x2 = 0;
+    y2 = 0;
 }
 
 Rect::Rect(const Point& p1, const Point& p2)
 {
-    x1=p1.x;
-    y1=p1.y;
-    x2=p2.x;
-    y2=p2.y;
+    x1 = p1.x;
+    y1 = p1.y;
+    x2 = p2.x;
+    y2 = p2.y;
 }
 
 Rect::Rect(const Point& p, const Size& s)
 {
-    x1=p.x;
-    y1=p.y;
-    x2=x1 + s.width;
-    y2=y1 + s.height;
+    x1 = p.x;
+    y1 = p.y;
+    x2 = x1 + s.width;
+    y2 = y1 + s.height;
 }
 
 Rect::Rect(const Rect& other)
 {
-    x1=other.x1;
-    y1=other.y1;
-    x2=other.x2;
-    y2=other.y2;
+    x1 = other.x1;
+    y1 = other.y1;
+    x2 = other.x2;
+    y2 = other.y2;
 }
 
 Rect::Rect(int x, int y, int width, int height)
 {
-    x1=x;
-    y1=y;
-    x2=x + width;
-    y2=y + height;
+    x1 = x;
+    y1 = y;
+    x2 = x + width;
+    y2 = y + height;
 }
 
 Rect::Rect(const RECT& r)
 {
-    x1=r.left;
-    y1=r.top;
-    x2=r.right;
-    y2=r.bottom;
+    x1 = r.left;
+    y1 = r.top;
+    x2 = r.right;
+    y2 = r.bottom;
 }
-
-
 
 bool Rect::isNull() const
 {
@@ -118,9 +143,9 @@ Point Rect::bottomRight() const
 
 inline static void swap_int(int& i1, int& i2)
 {
-    int t=i1;
-    i1=i2;
-    i2=t;
+    int t = i1;
+    i1 = i2;
+    i2 = t;
 }
 
 Rect Rect::normalized() const
@@ -133,10 +158,7 @@ Rect Rect::normalized() const
 
 bool Rect::intersects(const Rect& other)
 {
-    return (other.x1< x2
-        && other.x2 > x1
-        && other.y1 < y2
-        && other.y2 > y1);
+    return (other.x1 < x2 && other.x2 > x1 && other.y1 < y2 && other.y2 > y1);
 }
 
 #ifndef max
@@ -160,115 +182,112 @@ Rect Rect::intersected(const Rect& other)
     Rect r;
     if (isNull() == true || other.isNull() == true) return r;
     if (!intersects(other)) return r;
-    r.x1=max(x1, other.x1);
-    r.y1=max(y1, other.y1);
-    r.x2=min(x2, other.x2);
-    r.y2=min(y2, other.y2);
+    r.x1 = max(x1, other.x1);
+    r.y1 = max(y1, other.y1);
+    r.x2 = min(x2, other.x2);
+    r.y2 = min(y2, other.y2);
     return r;
 }
 
 void Rect::setTopLeft(const Point& topLeft)
 {
-    x1=topLeft.x;
-    y1=topLeft.y;
+    x1 = topLeft.x;
+    y1 = topLeft.y;
 }
 
 void Rect::setBottomRight(const Point& bottomRight)
 {
-    x2=bottomRight.x;
-    y2=bottomRight.y;
+    x2 = bottomRight.x;
+    y2 = bottomRight.y;
 }
 
 void Rect::setRect(int x, int y, int width, int height)
 {
-    x1=x;
-    y1=y;
-    x2=x + width;
-    y2=y + height;
+    x1 = x;
+    y1 = y;
+    x2 = x + width;
+    y2 = y + height;
 }
 
 void Rect::setRect(const RECT& r)
 {
-    x1=r.left;
-    y1=r.top;
-    x2=r.right;
-    y2=r.bottom;
+    x1 = r.left;
+    y1 = r.top;
+    x2 = r.right;
+    y2 = r.bottom;
 }
-
 
 void Rect::setRect(const Rect& other)
 {
-    x1=other.x1;
-    y1=other.y1;
-    x2=other.x2;
-    y2=other.y2;
+    x1 = other.x1;
+    y1 = other.y1;
+    x2 = other.x2;
+    y2 = other.y2;
 }
-
 
 void Rect::setCoords(int x1, int y1, int x2, int y2)
 {
-    this->x1=x1;
-    this->y1=y1;
-    this->x2=x2;
-    this->y2=y2;
+    this->x1 = x1;
+    this->y1 = y1;
+    this->x2 = x2;
+    this->y2 = y2;
 }
 
 void Rect::setCoords(const Point& p1, const Point& p2)
 {
-    x1=p1.x;
-    y1=p1.y;
-    x2=p2.x;
-    y2=p2.y;
+    x1 = p1.x;
+    y1 = p1.y;
+    x2 = p2.x;
+    y2 = p2.y;
 }
 
 void Rect::setLeft(int left)
 {
-    x1=left;
+    x1 = left;
 }
 
 void Rect::setRight(int right)
 {
-    x2=right;
+    x2 = right;
 }
 
 void Rect::setTop(int top)
 {
-    y1=top;
+    y1 = top;
 }
 
 void Rect::setBottom(int bottom)
 {
-    y2=bottom;
+    y2 = bottom;
 }
 
 void Rect::setX(int x)
 {
-    x1=x;
+    x1 = x;
 }
 
 void Rect::setY(int y)
 {
-    y1=y;
+    y1 = y;
 }
 
 void Rect::setSize(const Size& size)
 {
-    x2=x1 + size.width;
-    y2=y1 + size.height;
+    x2 = x1 + size.width;
+    y2 = y1 + size.height;
 }
 
 void Rect::setWidth(int width)
 {
-    x2=x1 + width;
+    x2 = x1 + width;
 }
 
 void Rect::setHeight(int height)
 {
-    y2=y1 + height;
+    y2 = y1 + height;
 }
 
-
-bool operator!= (const Rect& r1, const Rect& r2)
+bool operator!=(const Rect& r1, const Rect& r2)
 {
     if (r1.x1 != r2.x1) return true;
     if (r1.y1 != r2.y1) return true;
@@ -277,7 +296,7 @@ bool operator!= (const Rect& r1, const Rect& r2)
     return false;
 }
 
-bool operator== (const Rect& r1, const Rect& r2)
+bool operator==(const Rect& r1, const Rect& r2)
 {
     if (r1.x1 != r2.x1) return false;
     if (r1.y1 != r2.y1) return false;
@@ -286,6 +305,4 @@ bool operator== (const Rect& r1, const Rect& r2)
     return true;
 }
 
-
-
-} // EOF namespace
+} // namespace picopplib

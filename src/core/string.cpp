@@ -1,9 +1,9 @@
 /*******************************************************************************
- * This file is part of "Patrick's Programming Library", Version 7 (PPL7).
- * Web: http://www.pfp.de/ppl/
- *
+ * This file is part of "Patrick's Programming Library" for Raspberry Pico,
+ * based on PPLib Version 7.
+ * Web: https://github.com/pfedick/pico-pplib
  *******************************************************************************
- * Copyright (c) 2013, Patrick Fedick <patrick@pfp.de>
+ * Copyright (c) 2026, Patrick Fedick <patrick@pfp.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,12 +33,12 @@
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <unistd.h>
 
-#include "ppl7-light.h"
+#include "picopplib.h"
 
-namespace ppl7light
+namespace picopplib
 {
-
 static size_t InitialBuffersize = 128;
 static char* empty_string = (char*)"";
 
@@ -350,7 +350,8 @@ bool String::isTrue() const
  * - Der String enthält die Ziffer 0
  * - Der String enthält nicht das Wort "true", "wahr", "yes" oder "ja" (Gross-/Kleinschreibung egal)
  *
- * \returns Liefert true (1) zurück, wenn der String "unwahr" ist, sonst false (0). Ein Fehlercode wird nicht gesetzt
+ * \returns Liefert true (1) zurück, wenn der String "unwahr" ist, sonst false (0). Ein Fehlercode wird nicht
+ * gesetzt
  * \see CWString::IsTrue()
  */
 bool String::isFalse() const
@@ -1471,7 +1472,8 @@ ssize_t String::find(const String& needle, ssize_t start) const
         /* Beginning at the start of the contained string, start searching for
                every occurence of the str and make it the position last found as long
                as the found string doesn't exceed the defined end of the search */
-        while ((found = ::strstr((tmp == NULL ? ptr : tmp + 1), needle.ptr)) != NULL && found - ptr + lstr <= stringlen + start)
+        while ((found = ::strstr((tmp == NULL ? ptr : tmp + 1), needle.ptr)) != NULL &&
+               found - ptr + lstr <= stringlen + start)
             tmp = found;
 
         // Calculate the position to return if str was found
@@ -1665,12 +1667,12 @@ String& String::replace(const String& search, const String& replacement)
 
 /*! \brief Schiebt den String nach links
  *
- * Der String wird um die mit \c size angegebenen Zeichen nach links verschoben und rechts mit dem durch \c c angegebenen
- * Zeichen aufgefüllt.
- * \param c Das Zeichen, mit dem der String auf der rechten Seite aufgefüllt werden soll. Wird der Wert 0 verwendet, findet keine
- * Auffüllung statt, d.h. der String verkürzt sich einfach.
- * \param size Die Anzahl Zeichen, um die der String nach links verschoben werden soll. Ist \c size größer als die Länge
- * des Strings, wird der String komplett geleert und ist anschließend so groß wie size, sofern c>0 war.
+ * Der String wird um die mit \c size angegebenen Zeichen nach links verschoben und rechts mit dem durch \c c
+ * angegebenen Zeichen aufgefüllt.
+ * \param c Das Zeichen, mit dem der String auf der rechten Seite aufgefüllt werden soll. Wird der Wert 0 verwendet,
+ * findet keine Auffüllung statt, d.h. der String verkürzt sich einfach.
+ * \param size Die Anzahl Zeichen, um die der String nach links verschoben werden soll. Ist \c size größer als die
+ * Länge des Strings, wird der String komplett geleert und ist anschließend so groß wie size, sofern c>0 war.
  */
 void String::shl(char c, size_t size)
 {
@@ -1688,11 +1690,11 @@ void String::shl(char c, size_t size)
 
 /*! \brief Schiebt den String nach rechts
  *
- * Der String wird um die mit \c size angegebenen Zeichen nach rechts verschoben und links mit dem durch \c c angegebenen
- * Zeichen aufgefüllt.
+ * Der String wird um die mit \c size angegebenen Zeichen nach rechts verschoben und links mit dem durch \c c
+ * angegebenen Zeichen aufgefüllt.
  * \param c Das Zeichen, mit dem der String auf der linken Seite aufgefüllt werden soll. \c c muß größer 0 sein.
- * \param size Die Anzahl Zeichen, um die der String nach rechts verschoben werden soll. Ist \c size größer als die Länge
- * des Strings, wird der String komplett geleert und ist anschließend so groß wie size.
+ * \param size Die Anzahl Zeichen, um die der String nach rechts verschoben werden soll. Ist \c size größer als die
+ * Länge des Strings, wird der String komplett geleert und ist anschließend so groß wie size.
  */
 void String::shr(char c, size_t size)
 {
@@ -2149,4 +2151,4 @@ String operator+(const String& str1, const char* str2)
     return s;
 }
 
-} // namespace ppl7light
+} // namespace picopplib

@@ -1,9 +1,39 @@
+/*******************************************************************************
+ * This file is part of "Patrick's Programming Library" for Raspberry Pico,
+ * based on PPLib Version 7.
+ * Web: https://github.com/pfedick/pico-pplib
+ *******************************************************************************
+ * Copyright (c) 2026, Patrick Fedick <patrick@pfp.de>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    1. Redistributions of source code must retain the above copyright notice, this
+ *       list of conditions and the following disclaimer.
+ *    2. Redistributions in binary form must reproduce the above copyright notice,
+ *       this list of conditions and the following disclaimer in the documentation
+ *       and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER AND CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************/
+
 #include <string.h>
 #include <stdio.h>
-#include "ppl7-light.h"
 
+#include "picopplib.h"
 
-namespace ppl7light {
+namespace picopplib
+{
 
 /*!\class PFPChunk
  * \brief Daten-Chunk eines PFP-File Version 3
@@ -29,9 +59,9 @@ PFPChunk::PFPChunk()
  *
  */
 {
-    chunkname="UNKN";
-    chunkdata=NULL;
-    chunksize=0;
+    chunkname = "UNKN";
+    chunkdata = NULL;
+    chunksize = 0;
 }
 
 PFPChunk::~PFPChunk()
@@ -44,9 +74,8 @@ PFPChunk::~PFPChunk()
  *
  */
 {
-    chunkdata=NULL;
+    chunkdata = NULL;
 }
-
 
 size_t PFPChunk::size() const
 /*!\brief Größe des Chunks auslesen
@@ -90,9 +119,6 @@ const String& PFPChunk::name() const
 {
     return chunkname;
 }
-
-
-
 
 /*!\class PFPFile
  * \brief Klasse zum Lesen und schreiben von PFP-Files Version 3
@@ -151,7 +177,6 @@ const String& PFPChunk::name() const
  * \since Version 6.1.0
  */
 
-
 PFPFile::PFPFile()
 /*!\brief Konstruktor der Klasse
  *
@@ -161,8 +186,8 @@ PFPFile::PFPFile()
  * \since Version 6.1.0
  */
 {
-    id="UNKN";
-    mainversion=subversion=comp=0;
+    id = "UNKN";
+    mainversion = subversion = comp = 0;
 }
 
 PFPFile::~PFPFile()
@@ -187,14 +212,13 @@ void PFPFile::clear()
  */
 {
     std::list<PFPChunk*>::iterator it;
-    for (it=Chunks.begin();it != Chunks.end();++it) {
+    for (it = Chunks.begin(); it != Chunks.end(); ++it) {
         delete (*it);
     }
     Chunks.clear();
-    id="UNKN";
-    mainversion=subversion=comp=0;
+    id = "UNKN";
+    mainversion = subversion = comp = 0;
 }
-
 
 const String& PFPFile::getID() const
 /*!\brief ID auslesen
@@ -266,7 +290,6 @@ void PFPFile::addChunk(PFPChunk* chunk)
     Chunks.push_back(chunk);
 }
 
-
 /*!\brief Prüfen, ob es sich um ein PFP-File handelt
  *
  * \desc
@@ -284,13 +307,13 @@ bool PFPFile::ident(const ByteArrayPtr& data)
 {
     try {
         const char* p;
-        p=data.map(0, 24);
+        p = data.map(0, 24);
         if (strncmp(p, "PFP-File", 8) != 0) return false;
         if (Peek8(p + 8) != 3) return false;
         id.set(p + 10, 4);
-        mainversion=Peek8(p + 15);
-        subversion=Peek8(p + 14);
-        comp=Peek8(p + 16);
+        mainversion = Peek8(p + 15);
+        subversion = Peek8(p + 14);
+        comp = Peek8(p + 16);
         return true;
     }
     catch (...) {
@@ -324,7 +347,7 @@ void PFPFile::load(const ByteArrayPtr& data)
 {
     const char* p;
     try {
-        p=data.map(0, 24);
+        p = data.map(0, 24);
     }
     catch (...) {
         throw Exception("InvalidFormatException");
@@ -334,43 +357,43 @@ void PFPFile::load(const ByteArrayPtr& data)
     size_t z, fsize;
 
     char tmpid[5];
-    tmpid[4]=0;
+    tmpid[4] = 0;
     strncpy(tmpid, p + 10, 4);
     int t1, t2;
-    t1=Peek8(p + 15);
-    t2=Peek8(p + 14);
+    t1 = Peek8(p + 15);
+    t2 = Peek8(p + 14);
     clear();
     id.set(p + 10, 4);
-    mainversion=Peek8(p + 15);
-    subversion=Peek8(p + 14);
-    comp=Peek8(p + 16);
-    size_t hsize=Peek8(p + 9);
+    mainversion = Peek8(p + 15);
+    subversion = Peek8(p + 14);
+    comp = Peek8(p + 16);
+    size_t hsize = Peek8(p + 9);
     if (comp) {
         throw Exception("Compression is not supported");
     }
-    p=data.map(hsize, data.size() - hsize);
-    fsize=data.size() - hsize;
+    p = data.map(hsize, data.size() - hsize);
+    fsize = data.size() - hsize;
 
     // Wir haben nun den ersten Chunk ab Pointer p
-    //printf("PFPFile: lade chunks, fsize=%zu\n", fsize);
-    z=0;
+    // printf("PFPFile: lade chunks, fsize=%zu\n", fsize);
+    z = 0;
     try {
-        size_t size=0;
+        size_t size = 0;
         while (z < fsize) {
-            size=Peek32((p + z + 4));
-            //HexDump(p + z, size);
+            size = Peek32((p + z + 4));
+            // HexDump(p + z, size);
             if (strncmp(p + z, "ENDF", 4) == 0) break;
             if (!size) break;
             // Falls z+size über das Ende der Datei geht, stimmt mit diesem Chunk was nicht
             if (z + size > fsize) break;
-            PFPChunk* chunk=new PFPChunk;
+            PFPChunk* chunk = new PFPChunk;
             if (!chunk) throw Exception("OutOfMemoryException");
             chunk->chunkname.set(p + z, 4);
-            chunk->chunkdata=(p + z + 8);
-            chunk->chunksize=size - 8;
-            //printf("add chunk\n");
+            chunk->chunkdata = (p + z + 8);
+            chunk->chunksize = size - 8;
+            // printf("add chunk\n");
             addChunk(chunk);
-            z+=size;
+            z += size;
         }
         printf("Ende\n");
     }
@@ -379,8 +402,7 @@ void PFPFile::load(const ByteArrayPtr& data)
         clear();
         throw;
     }
-    //printf("done loading chunks\n\n");
+    // printf("done loading chunks\n\n");
 }
 
-
-} // EOF ppl7light
+} // namespace picopplib
