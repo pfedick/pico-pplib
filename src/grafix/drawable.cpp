@@ -34,49 +34,121 @@
 namespace picopplib
 {
 
+// ========== 1-Bit Monochrome (VERTIKAL) ==========
+void Drawable::putPixel1Bit(Drawable& self, int x, int y, uint32_t c)
+{
+    if (!self.buffer) return;
+    if (x < 0 || x >= (int)self.my_width || y < 0 || y >= (int)self.my_height) return;
+
+    // Adresse: x + (y/8) * pitch
+    // pitch = Bytes pro "Zeilen-Block" (8 Pixel hoch)
+    uint8_t* ptr = self.buffer + x + (y >> 3) * self.pitch;
+    int bit_offset = y & 7; // Bit innerhalb des Bytes (vertikal!)
+
+    if (c)
+        *ptr |= (1 << bit_offset);
+    else
+        *ptr &= ~(1 << bit_offset);
+}
+
+uint32_t Drawable::getPixel1Bit(const Drawable& self, int x, int y)
+{
+    if (!self.buffer) return 0;
+    if (x < 0 || x >= (int)self.my_width || y < 0 || y >= (int)self.my_height) return 0;
+
+    const uint8_t* ptr = self.buffer + x + (y >> 3) * self.pitch;
+    int bit_offset = y & 7;
+
+    return (*ptr & (1 << bit_offset)) ? 1 : 0;
+}
+
+// ========== 16-Bit R5G6B5 ==========
+void Drawable::putPixel16BitR5G6B5(Drawable& self, int x, int y, uint32_t c)
+{
+    if (!self.buffer) return;
+    if (x < 0 || x >= (int)self.my_width || y < 0 || y >= (int)self.my_height) return;
+    uint16_t* row = (uint16_t*)(self.buffer + y * self.pitch);
+    row[x] = c & 0xFFFF;
+}
+
+uint32_t Drawable::getPixel16BitR5G6B5(const Drawable& self, int x, int y)
+{
+    if (!self.buffer) return 0;
+    if (x < 0 || x >= (int)self.my_width || y < 0 || y >= (int)self.my_height) return 0;
+    uint16_t* row = (uint16_t*)(self.buffer + y * self.pitch);
+    return row[x];
+}
+
 Drawable::Drawable()
 {
     buffer = NULL;
-    buffer_size = 0;
     my_width = my_height = 0;
-    // pitch=0;
+    pitch = 0;
 }
 
-Drawable::Drawable(unsigned int width, unsigned int height)
+Drawable::Drawable(const Drawable& other)
+{
+    buffer = other.buffer;
+    pitch = other.pitch;
+    my_width = other.my_width;
+    my_height = other.my_height;
+    rgb_format = other.rgb_format;
+    putPixelImpl = other.putPixelImpl;
+    getPixelImpl = other.getPixelImpl;
+}
+
+Drawable::Drawable(void* buffer, uint32_t pitch, uint16_t width, uint16_t height, const RGBFormat& format)
 {
     buffer = NULL;
-    buffer_size = 0;
-    this->my_width = this->my_height = 0;
-    create(width, height);
+    my_width = my_height = 0;
+    pitch = 0;
+    create(buffer, pitch, width, height, format);
 }
 
-Drawable::~Drawable()
+void Drawable::create(void* buffer, uint32_t pitch, uint16_t width, uint16_t height, const RGBFormat& format)
 {
-    free(buffer);
-}
-
-void Drawable::create(unsigned int width, unsigned int height)
-{
-    free(buffer);
-    buffer_size = width * height / 8;
-    buffer = (uint8_t*)malloc(buffer_size);
-    if (!buffer) {
-        buffer_size = 0;
-        return;
-    }
-    memset(buffer, 0, buffer_size);
+    this->buffer = (uint8_t*)buffer;
+    this->pitch = pitch;
     this->my_width = width;
     this->my_height = height;
+    this->rgb_format = format;
+    switch (format.format()) {
+    case RGBFormat::Monochrome1Bit:
+        putPixelImpl = putPixel1Bit;
+        getPixelImpl = getPixel1Bit;
+        break;
+    case RGBFormat::R5G6B5:
+        putPixelImpl = putPixel16BitR5G6B5;
+        getPixelImpl = getPixel16BitR5G6B5;
+        break;
+    case RGBFormat::A8R8G8B8:
+        // putPixelImpl = putPixel32BitA8R8G8B8;
+        // getPixelImpl = getPixel32BitA8R8G8B8;
+    }
 }
 
-unsigned int Drawable::width() const
+Drawable Drawable::getDrawable(const Rect& rect) const
 {
-    return my_width;
+    return getDrawable(rect.x1, rect.y1, rect.x2, rect.y2);
 }
 
-unsigned int Drawable::height() const
+Drawable Drawable::getDrawable(const Point& p, const Size& s) const
 {
-    return my_height;
+    return getDrawable(p.x, p.y, p.x + s.width - 1, p.y + s.height - 1);
+}
+
+Drawable Drawable::getDrawable(int x1, int y1, int x2, int y2) const
+{
+    // Schnittmenge mit diesem Drawable berechnen
+    Rect r(x1, y1, x2, y2);
+    Rect self_rect(0, 0, my_width - 1, my_height - 1);
+    Rect intersect = r.intersected(self_rect);
+    if (intersect.isNull()) {
+        // Leeres Drawable zurückgeben
+        return Drawable();
+    }
+    return Drawable(buffer + intersect.y1 * pitch + intersect.x1 * (rgb_format.bitdepth() / 8), pitch, intersect.width(),
+                    intersect.height(), rgb_format);
 }
 
 bool Drawable::isEmpty() const
@@ -85,12 +157,52 @@ bool Drawable::isEmpty() const
     return false;
 }
 
-void Drawable::clear(int color)
+uint32_t Drawable::toNativeColor(const Color& c) const
 {
-    if (color)
-        memset(buffer, 255, buffer_size);
-    else
-        memset(buffer, 0, buffer_size);
+    switch (rgb_format.format()) {
+    case RGBFormat::Monochrome1Bit:
+        return c.brightness() > 127 ? 1 : 0;
+
+    case RGBFormat::R5G6B5:
+        return ((c.red() >> 3) << 11) | ((c.green() >> 2) << 5) | (c.blue() >> 3);
+
+    case RGBFormat::A8R8G8B8:
+        return (c.alpha() << 24) | (c.red() << 16) | (c.green() << 8) | c.blue();
+
+    default:
+        return 0;
+    }
+}
+
+Color Drawable::fromNativeColor(uint32_t native) const
+{
+    switch (rgb_format.format()) {
+    case RGBFormat::Monochrome1Bit:
+        return Color(native ? 255 : 0, native ? 255 : 0, native ? 255 : 0);
+
+    case RGBFormat::R5G6B5: {
+        uint8_t r = ((native >> 11) & 0x1F) << 3; // 5→8 Bit
+        uint8_t g = ((native >> 5) & 0x3F) << 2;  // 6→8 Bit
+        uint8_t b = (native & 0x1F) << 3;         // 5→8 Bit
+        return Color(r, g, b);
+    }
+
+    case RGBFormat::A8R8G8B8: {
+        uint8_t a = (native >> 24) & 0xFF;
+        uint8_t r = (native >> 16) & 0xFF;
+        uint8_t g = (native >> 8) & 0xFF;
+        uint8_t b = native & 0xFF;
+        return Color(r, g, b, a);
+    }
+
+    default:
+        return Color(0, 0, 0);
+    }
+}
+
+void Drawable::clear(const Color& color)
+{
+    fillRect(0, 0, my_width - 1, my_height - 1, color);
 }
 
 uint8_t* Drawable::ptr() const
@@ -98,64 +210,45 @@ uint8_t* Drawable::ptr() const
     return buffer;
 }
 
-size_t Drawable::size() const
+Size Drawable::size() const
 {
-    return buffer_size;
+    return Size(my_width, my_height);
 }
 
-void Drawable::putPixel(int x, int y, int color)
+void Drawable::drawRect(int x1, int y1, int x2, int y2, const Color& color)
 {
-    if (!buffer) return;
-    if (x < 0 || x >= my_width || y < 0 || y >= my_height) return;
-    int adr = x + (y / 8) * my_width;
-    if (adr >= buffer_size) return;
-    if (color)
-        buffer[adr] |= (1 << (y & 7));
-    else
-        buffer[adr] &= -(1 << (y & 7));
-}
-
-int Drawable::getPixel(int x, int y) const
-{
-    if (!buffer) return 0;
-    if (x < 0 || x >= my_width || y < 0 || y >= my_height) return 0;
-    int adr = x + (y / 8) * my_width;
-    if (adr >= buffer_size) return 0;
-    if (buffer[adr] & (1 << (y & 7))) return 1;
-    return 0;
-}
-
-void Drawable::drawRect(int x1, int y1, int x2, int y2, int color)
-{
+    uint32_t native_color = toNativeColor(color);
     for (int x = x1; x <= x2; x++) {
-        putPixel(x, y1, color);
-        putPixel(x, y2, color);
+        putPixelImpl(*this, x, y1, native_color);
+        putPixelImpl(*this, x, y2, native_color);
     }
     for (int y = y1 + 1; y <= y2; y++) {
-        putPixel(x1, y, color);
-        putPixel(x2, y, color);
+        putPixelImpl(*this, x1, y, native_color);
+        putPixelImpl(*this, x2, y, native_color);
     }
 }
 
-void Drawable::fillRect(int x1, int y1, int x2, int y2, int color)
+void Drawable::fillRect(int x1, int y1, int x2, int y2, const Color& color)
 {
+    uint32_t native_color = toNativeColor(color);
     for (int y = y1; y <= y2; y++) {
         for (int x = x1; x <= x2; x++) {
-            putPixel(x, y, color);
+            putPixelImpl(*this, x, y, native_color);
         }
     }
 }
 
 void Drawable::invertRect(int x1, int y1, int x2, int y2)
+// Das ist nur für 1-Bit Monochrom
 {
     int c;
     for (int y = y1; y <= y2; y++) {
         for (int x = x1; x <= x2; x++) {
-            int c = getPixel(x, y);
+            int c = getPixelImpl(*this, x, y);
             if (c)
-                putPixel(x, y, 0);
+                putPixelImpl(*this, x, y, 0);
             else
-                putPixel(x, y, 1);
+                putPixelImpl(*this, x, y, 1);
         }
     }
 }
@@ -166,10 +259,10 @@ static int sgn(int x)
     return (x > 0) ? 1 : (x < 0) ? -1 : 0;
 }
 
-void Drawable::line(int x1, int y1, int x2, int y2, int color)
+void Drawable::line(int x1, int y1, int x2, int y2, const Color& color)
 {
     int x, y, t, dx, dy, incx, incy, pdx, pdy, ddx, ddy, es, el, err;
-
+    uint32_t native_color = toNativeColor(color);
     /* Entfernung in beiden Dimensionen berechnen */
     dx = x2 - x1;
     dy = y2 - y1;
@@ -203,7 +296,7 @@ void Drawable::line(int x1, int y1, int x2, int y2, int color)
     x = x1;
     y = y1;
     err = el / 2;
-    putPixel(x, y, color);
+    putPixelImpl(*this, x, y, native_color);
 
     /* Pixel berechnen */
     for (t = 0; t < el; ++t) /* t zaehlt die Pixel, el ist auch Anzahl */
@@ -221,12 +314,10 @@ void Drawable::line(int x1, int y1, int x2, int y2, int color)
             x += pdx;
             y += pdy;
         }
-        putPixel(x, y, color);
+        putPixelImpl(*this, x, y, native_color);
     }
 }
 
-void Drawable::blendPixel(int x, int y, int c, int brightness)
-{
-}
+// void Drawable::blendPixel(int x, int y, int c, int brightness) {}
 
 } // namespace picopplib

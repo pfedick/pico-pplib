@@ -40,9 +40,7 @@ Font::Font()
     flags = 0;
     ori = 0;
     rotationDegrees = 0.0;
-    cForeground = 1;
-    cBorder = 0;
-    cShadow = 0;
+    cForeground.setColor(255, 255, 255, 255);
 }
 
 Font::Font(const Font& other)
@@ -75,17 +73,17 @@ const String& Font::name() const
     return Name;
 }
 
-int Font::color() const
+Color Font::color() const
 {
     return cForeground;
 }
 
-int Font::borderColor() const
+Color Font::borderColor() const
 {
     return cBorder;
 }
 
-int Font::shadowColor() const
+Color Font::shadowColor() const
 {
     return cShadow;
 }
@@ -148,17 +146,17 @@ int Font::setName(const String& name)
     return 1;
 }
 
-void Font::setColor(int c)
+void Font::setColor(const Color& c)
 {
     cForeground = c;
 }
 
-void Font::setBorderColor(int c)
+void Font::setBorderColor(const Color& c)
 {
     cBorder = c;
 }
 
-void Font::setShadowColor(int c)
+void Font::setShadowColor(const Color& c)
 {
     cShadow = c;
 }
@@ -392,16 +390,16 @@ void Drawable::print(const Font& font, int x, int y, const String& text)
     Grafix* gfx = GetGrafix();
     const FontFile* file = gfx->findFont(font.name());
     if (font.drawShadow()) {
-        file->engine->render(*file, font, *this, x + 2, y + 2, text, font.shadowColor());
+        file->engine->render(*file, font, *this, x + 2, y + 2, text, toNativeColor(font.shadowColor()));
     }
     if (font.drawBorder()) {
         for (int a = -1; a < 2; a++) {
             for (int b = -1; b < 2; b++) {
-                file->engine->render(*file, font, *this, x + a, y + b, text, font.borderColor());
+                file->engine->render(*file, font, *this, x + a, y + b, text, toNativeColor(font.borderColor()));
             }
         }
     }
-    file->engine->render(*file, font, *this, x, y, text, font.color());
+    file->engine->render(*file, font, *this, x, y, text, toNativeColor(font.color()));
 }
 
 /*!\brief Formatierten Text ausgeben

@@ -42,4 +42,5 @@ BraceWrapping:
 
 # Kompakter Code
 AllowShortIfStatementsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
 SortIncludes: false

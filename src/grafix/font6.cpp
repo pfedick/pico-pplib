@@ -75,8 +75,8 @@ private:
 
     const Font6Face* getFace(int size, int flags);
 
-    void renderInternal(const Font6Face& face, Drawable& draw, const Font& font, int x, int y,
-                        const WideStringRepresentation& text, int color);
+    void renderInternal(
+        const Font6Face& face, Drawable& draw, const Font& font, int x, int y, const WideStringRepresentation& text, int color);
 
 public:
     Font6Renderer();
@@ -112,7 +112,7 @@ static void DrawGlyphMono8_0(Drawable& data, const Font6Glyph& glyph, int x, int
     for (int yy = 0; yy < glyph.height; yy++) {
         for (int xx = 0; xx < glyph.width; xx++) {
             v = bitmap[0];
-            if (v) data.putPixel(xx + x, yy + y, c);
+            if (v) data.putPixelDirect(xx + x, yy + y, c);
             bitmap++;
         }
     }
@@ -125,7 +125,7 @@ static void DrawGlyphMono8_90(Drawable& data, const Font6Glyph& glyph, int x, in
     for (int yy = 0; yy < glyph.height; yy++) {
         for (int xx = 0; xx < glyph.width; xx++) {
             v = bitmap[0];
-            if (v) data.putPixel(x - yy, y + xx, c);
+            if (v) data.putPixelDirect(x - yy, y + xx, c);
             bitmap++;
         }
     }
@@ -138,7 +138,7 @@ static void DrawGlyphMono8_180(Drawable& data, const Font6Glyph& glyph, int x, i
     for (int yy = 0; yy < glyph.height; yy++) {
         for (int xx = 0; xx < glyph.width; xx++) {
             v = bitmap[0];
-            if (v) data.putPixel(x - xx, y - yy, c);
+            if (v) data.putPixelDirect(x - xx, y - yy, c);
             bitmap++;
         }
     }
@@ -151,7 +151,7 @@ static void DrawGlyphMono8_270(Drawable& data, const Font6Glyph& glyph, int x, i
     for (int yy = 0; yy < glyph.height; yy++) {
         for (int xx = 0; xx < glyph.width; xx++) {
             v = bitmap[0];
-            if (v) data.putPixel(x + yy, y - xx, c);
+            if (v) data.putPixelDirect(x + yy, y - xx, c);
             bitmap++;
         }
     }
@@ -170,7 +170,7 @@ static void DrawGlyphMono1_0(Drawable& data, const Font6Glyph& glyph, int x, int
                 bitmap++;
             }
             if (v & 128) {
-                data.putPixel(xx + x, yy + y, c);
+                data.putPixelDirect(xx + x, yy + y, c);
             }
             v = v << 1;
             bitcount--;
@@ -191,7 +191,7 @@ static void DrawGlyphMono1_90(Drawable& data, const Font6Glyph& glyph, int x, in
                 bitmap++;
             }
             if (v & 128) {
-                data.putPixel(x - yy, y + xx, c);
+                data.putPixelDirect(x - yy, y + xx, c);
             }
             v = v << 1;
             bitcount--;
@@ -212,7 +212,7 @@ static void DrawGlyphMono1_180(Drawable& data, const Font6Glyph& glyph, int x, i
                 bitmap++;
             }
             if (v & 128) {
-                data.putPixel(x - xx, y - yy, c);
+                data.putPixelDirect(x - xx, y - yy, c);
             }
             v = v << 1;
             bitcount--;
@@ -233,7 +233,7 @@ static void DrawGlyphMono1_270(Drawable& data, const Font6Glyph& glyph, int x, i
                 bitmap++;
             }
             if (v & 128) {
-                data.putPixel(x + yy, y - xx, c);
+                data.putPixelDirect(x + yy, y - xx, c);
             }
             v = v << 1;
             bitcount--;
@@ -241,13 +241,9 @@ static void DrawGlyphMono1_270(Drawable& data, const Font6Glyph& glyph, int x, i
     }
 }
 
-Font6Renderer::Font6Renderer()
-{
-}
+Font6Renderer::Font6Renderer() {}
 
-Font6Renderer::~Font6Renderer()
-{
-}
+Font6Renderer::~Font6Renderer() {}
 
 size_t Font6Renderer::numFaces() const
 {
@@ -425,8 +421,8 @@ static BltGlyphFunction getBlitter(const Font6Face& face, const Drawable& draw, 
     throw Exception("InvalidFontException");
 }
 
-void Font6Renderer::renderInternal(const Font6Face& face, Drawable& draw, const Font& font, int x, int y,
-                                   const WideStringRepresentation& text, int color)
+void Font6Renderer::renderInternal(
+    const Font6Face& face, Drawable& draw, const Font& font, int x, int y, const WideStringRepresentation& text, int color)
 {
     const Font6Glyph *glyph = NULL, *previous = NULL;
     void (*BltGlyph)(Drawable& draw, const Font6Glyph& glyph, int x, int y, int c) = NULL;
@@ -613,13 +609,9 @@ Rect Font6Renderer::boundary(const Font& font, const String& text, int x, int y)
  * \brief Font-Engine für PFP Version 6 Fonts
  */
 
-FontEngineFont6::FontEngineFont6()
-{
-}
+FontEngineFont6::FontEngineFont6() {}
 
-FontEngineFont6::~FontEngineFont6()
-{
-}
+FontEngineFont6::~FontEngineFont6() {}
 
 String FontEngineFont6::name() const
 {
@@ -680,11 +672,11 @@ void FontEngineFont6::deleteFont(FontFile* file)
     file->engine = NULL;
 }
 
-void FontEngineFont6::render(const FontFile& file, const Font& font, Drawable& draw, int x, int y, const String& text,
-                             int color) const
+void FontEngineFont6::render(
+    const FontFile& file, const Font& font, Drawable& draw, int x, int y, const String& text, int native_color) const
 {
     Font6Renderer* render = static_cast<Font6Renderer*>(file.priv);
-    render->render(draw, font, x, y, text, color);
+    render->render(draw, font, x, y, text, native_color);
 }
 
 Size FontEngineFont6::measure(const FontFile& file, const Font& font, const String& text) const

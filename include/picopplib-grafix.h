@@ -201,35 +201,31 @@ private:
 
 public:
     Color();
-    Color(int red, int green, int blue);
-    Color(uint32_t rgb);
+    Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255);
+    inline uint8_t red() const { return r; }
+    inline uint8_t green() const { return g; }
+    inline uint8_t blue() const { return b; }
+    inline uint8_t alpha() const { return a; }
+    inline void setRed(uint8_t red) { r = red; }
+    inline void setGreen(uint8_t green) { g = green; }
+    inline void setBlue(uint8_t blue) { b = blue; }
+    inline void setAlpha(uint8_t alpha) { a = alpha; }
 
-    uint32_t color() const;
-    uint32_t rgb() const;
-    int red() const;
-    int green() const;
-    int blue() const;
+    inline void setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255)
+    {
+        r = red;
+        g = green;
+        b = blue;
+        a = alpha;
+    }
     int brightness() const;
     Color grey() const;
     Color negativ() const;
     bool match(const Color& other, int tolerance = 0) const;
-
-    void setRed(int red);
-    void setGreen(int green);
-    void setBlue(int blue);
-    void setColor(int red, int green, int blue);
     void setColor(const Color& other);
-    void setColor(uint32_t rgb);
-
-    Color& blend(const Color& background, const Color& foreground, int intensity);
-    Color& blendf(const Color& background, const Color& foreground, float intensity);
 
     Color& operator*=(float factor);
     Color& operator+=(const Color& other);
-    operator uint32_t() const;
-    operator int32_t() const;
-
-    operator uint16_t() const;
 
     bool operator<(const Color& other) const;
     bool operator<=(const Color& other) const;
@@ -237,13 +233,13 @@ public:
     bool operator!=(const Color& other) const;
     bool operator>=(const Color& other) const;
     bool operator>(const Color& other) const;
-
-    static Color getBlended(const Color& background, const Color& foreground, int intensity);
-    static Color getBlendedf(const Color& background, const Color& foreground, float intensity);
 };
 const Color operator*(const Color& color, float factor);
 const Color operator*(float factor, const Color& color);
 const Color operator+(const Color& color1, const Color& color2);
+
+Color blendColor(const Color& background, const Color& foreground, int intensity);
+Color blendColor(const Color& background, const Color& foreground, float intensity);
 
 class Font
 {
@@ -263,9 +259,9 @@ private:
     };
 
     String Name;
-    int cForeground;
-    int cBorder;
-    int cShadow;
+    Color cForeground;
+    Color cBorder;
+    Color cShadow;
     uint16_t fontSize;
     uint8_t flags;
     uint8_t ori;
@@ -286,9 +282,9 @@ public:
     Font(const Font& other);
 
     const String& name() const;
-    int color() const;
-    int borderColor() const;
-    int shadowColor() const;
+    Color color() const;
+    Color borderColor() const;
+    Color shadowColor() const;
     bool bold() const;
     bool italic() const;
     bool antialias() const;
@@ -303,9 +299,9 @@ public:
     double rotation() const;
 
     int setName(const String& name);
-    void setColor(int c);
-    void setBorderColor(int c);
-    void setShadowColor(int c);
+    void setColor(const Color& c);
+    void setBorderColor(const Color& c);
+    void setShadowColor(const Color& c);
     void setBold(bool enable);
     void setItalic(bool enable);
     void setAntialias(bool enable);
@@ -322,41 +318,119 @@ public:
 bool operator!=(const Font& f1, const Font& f2);
 bool operator==(const Font& f1, const Font& f2);
 
+class RGBFormat
+{
+public:
+    enum Identifier
+    {
+        unknown = 0,
+        Monochrome1Bit,
+        R5G6B5,
+        A8R8G8B8,
+        MaxIdentifiers
+    };
+
+private:
+    Identifier format_id;
+
+public:
+    RGBFormat();
+    RGBFormat(Identifier id);
+
+    void setFormat(Identifier id);
+
+    Identifier format() const;
+    int bitdepth() const;
+
+    bool operator==(const RGBFormat& other) const;
+    bool operator==(Identifier id) const;
+};
+inline bool operator==(RGBFormat::Identifier id, const RGBFormat& fmt)
+{
+    return fmt == id;
+}
+
 class Drawable
 {
 private:
     uint8_t* buffer;
-    // uint32_t pitch;
-    size_t buffer_size;
-    unsigned int my_width;
-    unsigned int my_height;
+    uint32_t pitch;
+    uint16_t my_width;
+    uint16_t my_height;
+    RGBFormat rgb_format;
+
+    typedef void (*PutPixelFunc)(Drawable& self, int x, int y, uint32_t c);
+    typedef uint32_t (*GetPixelFunc)(const Drawable& self, int x, int y);
+    PutPixelFunc putPixelImpl;
+    GetPixelFunc getPixelImpl;
+
+    // Static Implementierungen für verschiedene Formate
+    static void putPixel1Bit(Drawable& self, int x, int y, uint32_t c);
+    static uint32_t getPixel1Bit(const Drawable& self, int x, int y);
+
+    static void putPixel16BitR5G6B5(Drawable& self, int x, int y, uint32_t c);
+    static uint32_t getPixel16BitR5G6B5(const Drawable& self, int x, int y);
+    uint32_t toNativeColor(const Color& c) const;
+    Color fromNativeColor(uint32_t c) const;
 
 public:
     Drawable();
-    Drawable(unsigned int width, unsigned int height);
-    ~Drawable();
-    void create(unsigned int width, unsigned int height);
-    void clear(int color);
+    Drawable(const Drawable& other);
+    Drawable(void* buffer, uint32_t pitch, uint16_t width, uint16_t height, const RGBFormat& format);
 
-    unsigned int width() const;
-    unsigned int height() const;
+    void create(void* buffer, uint32_t pitch, uint16_t width, uint16_t height, const RGBFormat& format);
+
+    Drawable getDrawable(const Rect& rect) const;
+    Drawable getDrawable(const Point& p, const Size& s) const;
+    Drawable getDrawable(int x1, int y1, int x2, int y2) const;
+
+    inline uint16_t width() const { return my_width; };
+    inline uint16_t height() const { return my_height; };
+    inline RGBFormat format() const { return rgb_format; };
+
     bool isEmpty() const;
 
     uint8_t* ptr() const;
-    size_t size() const;
+    Size size() const;
 
-    void putPixel(int x, int y, int color);
-    int getPixel(int x, int y) const;
+    inline void putPixel(int x, int y, const Color& color) { putPixelImpl(*this, x, y, toNativeColor(color)); }
+    inline Color getPixel(int x, int y) const { return fromNativeColor(getPixelImpl(*this, x, y)); }
 
-    void blendPixel(int x, int y, int c, int brightness);
+    inline void putPixelDirect(int x, int y, uint32_t native_color) { putPixelImpl(*this, x, y, native_color); }
+    inline uint32_t getPixelDirect(int x, int y) const { return getPixelImpl(*this, x, y); }
 
-    void drawRect(int x1, int y1, int x2, int y2, int color);
-    void fillRect(int x1, int y1, int x2, int y2, int color);
+    void clear(const Color& color);
+
+    // void blendPixel(int x, int y, const Color& c, int brightness);
+
+    void drawRect(int x1, int y1, int x2, int y2, const Color& color);
+    void fillRect(int x1, int y1, int x2, int y2, const Color& color);
     void invertRect(int x1, int y1, int x2, int y2);
-    void line(int x1, int y1, int x2, int y2, int color);
+    void line(int x1, int y1, int x2, int y2, const Color& color);
 
     void print(const Font& font, int x, int y, const String& text);
     void printf(const Font& font, int x, int y, const char* fmt, ...);
+};
+
+class Image : public Drawable
+{
+private:
+    ByteArray myMemory;
+
+public:
+    Image();
+    Image(const Image& other);
+    Image(const Drawable& other);
+    Image(int width, int height, const RGBFormat& format = RGBFormat::A8R8G8B8);
+    ~Image();
+    void clear();
+    void create(int width, int height, const RGBFormat& format = RGBFormat::A8R8G8B8);
+    void copy(const Drawable& other);
+    void copy(const Drawable& other, const Rect& rect);
+    Image& operator=(const Drawable& other);
+    size_t numBytes() const;
+    ByteArrayPtr memory() const;
+    operator ByteArrayPtr() const;
 };
 
 class ImageFilter;
@@ -411,8 +485,7 @@ public:
     virtual bool ident(const ByteArrayPtr& memory) const throw() = 0;
     virtual FontFile* loadFont(const ByteArrayPtr& memory, const String& fontname) = 0;
     virtual void deleteFont(FontFile* file) = 0;
-    virtual void render(const FontFile& file, const Font& font, Drawable& draw, int x, int y, const String& text,
-                        int color) const = 0;
+    virtual void render(const FontFile& file, const Font& font, Drawable& draw, int x, int y, const String& text, int color) const = 0;
     virtual Size measure(const FontFile& file, const Font& font, const String& text) const = 0;
     virtual Rect boundary(const FontFile& file, const Font& font, const String& text, int x, int y) const = 0;
     virtual String name() const = 0;
@@ -429,8 +502,7 @@ public:
     bool ident(const ByteArrayPtr& memory) const throw() override;
     FontFile* loadFont(const ByteArrayPtr& memory, const String& fontname) override;
     void deleteFont(FontFile* file) override;
-    void render(const FontFile& file, const Font& font, Drawable& draw, int x, int y, const String& text,
-                int color) const override;
+    void render(const FontFile& file, const Font& font, Drawable& draw, int x, int y, const String& text, int native_color) const override;
     Size measure(const FontFile& file, const Font& font, const String& text) const override;
     Rect boundary(const FontFile& file, const Font& font, const String& text, int x, int y) const override;
     String name() const override;

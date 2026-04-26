@@ -47,70 +47,20 @@ Color::Color()
     c = 0;
 }
 
-Color::Color(int red, int green, int blue)
+Color::Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
 {
-    r = red & 0xff;
-    g = green & 0xff;
-    b = blue & 0xff;
-    a = 0;
+    r = red;
+    g = green;
+    b = blue;
+    a = alpha;
 }
 
-Color::Color(uint32_t rgb)
+void Color::setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
 {
-    setColor(rgb);
-}
-
-uint32_t Color::color() const
-{
-    return c;
-}
-
-uint32_t Color::rgb() const
-{
-    return c & 0xffffff;
-}
-
-int Color::red() const
-{
-    return r;
-}
-
-int Color::green() const
-{
-    return g;
-}
-
-int Color::blue() const
-{
-    return b;
-}
-
-void Color::setRed(int red)
-{
-    r = clamp(red);
-}
-
-void Color::setGreen(int green)
-{
-    g = clamp(green);
-}
-
-void Color::setBlue(int blue)
-{
-    b = clamp(blue);
-}
-
-void Color::setColor(int red, int green, int blue)
-{
-    r = red & 0xff;
-    g = green & 0xff;
-    b = blue & 0xff;
-    a = 0;
-}
-
-void Color::setColor(uint32_t rgb)
-{
-    c = rgb;
+    r = red;
+    g = green;
+    b = blue;
+    a = alpha;
 }
 
 void Color::setColor(const Color& other)
@@ -143,26 +93,20 @@ bool Color::match(const Color& other, int tolerance) const
     return true;
 }
 
-Color& Color::blend(const Color& background, const Color& foreground, int intensity)
+Color blendColor(const Color& background, const Color& foreground, int intensity)
 {
     int i2 = intensity & 255;
     int i1 = 255 - i2;
-    r = ((background.r * i1) + (foreground.r * i2)) / 255;
-    g = ((background.g * i1) + (foreground.g * i2)) / 255;
-    b = ((background.b * i1) + (foreground.b * i2)) / 255;
-    a = 255;
-    return *this;
+    return Color(clamp(((background.r * i1) + (foreground.r * i2)) / 255), clamp(((background.g * i1) + (foreground.g * i2)) / 255),
+                 clamp(((background.b * i1) + (foreground.b * i2)) / 255), 255);
 }
 
-Color& Color::blendf(const Color& background, const Color& foreground, float intensity)
+Color blendColor(const Color& background, const Color& foreground, float intensity)
 {
     float i2 = intensity;
     float i1 = 1.0f - i2;
-    r = (int)((background.r * i1) + (foreground.r * i2));
-    g = (int)((background.g * i1) + (foreground.g * i2));
-    b = (int)((background.b * i1) + (foreground.b * i2));
-    a = 255;
-    return *this;
+    return Color(clamp((int)((background.r * i1) + (foreground.r * i2))), clamp((int)((background.g * i1) + (foreground.g * i2))),
+                 clamp((int)((background.b * i1) + (foreground.b * i2))), 255);
 }
 
 Color& Color::operator*=(float factor)
@@ -180,16 +124,6 @@ Color& Color::operator+=(const Color& other)
     b = clamp(b + other.b);
     a = clamp(a + other.a);
     return *this;
-}
-
-Color::operator uint32_t() const
-{
-    return c;
-}
-
-Color::operator int32_t() const
-{
-    return c;
 }
 
 bool Color::operator<(const Color& other) const
@@ -231,51 +165,18 @@ bool Color::operator>(const Color& other) const
 const Color operator*(const Color& color, float factor)
 {
     if (factor < 0) factor = 0.0f;
-    return Color(clamp((int)((float)color.r * factor)), clamp((int)((float)color.g * factor)),
-                 clamp((int)((float)color.b * factor)));
+    return Color(clamp((int)((float)color.r * factor)), clamp((int)((float)color.g * factor)), clamp((int)((float)color.b * factor)));
 }
 
 const Color operator*(float factor, const Color& color)
 {
     if (factor < 0) factor = 0.0;
-    return Color(clamp((int)((float)color.r * factor)), clamp((int)((float)color.g * factor)),
-                 clamp((int)((float)color.b * factor)));
-}
-
-Color Color::getBlended(const Color& background, const Color& foreground, int intensity)
-{
-    Color c;
-    int i2 = intensity & 255;
-    int i1 = 255 - i2;
-    c.r = ((background.r * i1) + (foreground.r * i2)) / 255;
-    c.g = ((background.g * i1) + (foreground.g * i2)) / 255;
-    c.b = ((background.b * i1) + (foreground.b * i2)) / 255;
-    return c;
-}
-
-Color Color::getBlendedf(const Color& background, const Color& foreground, float intensity)
-{
-    Color c;
-    float i2 = intensity;
-    float i1 = 1.0f - i2;
-    c.r = (int)((background.r * i1) + (foreground.r * i2));
-    c.g = (int)((background.g * i1) + (foreground.g * i2));
-    c.b = (int)((background.b * i1) + (foreground.b * i2));
-    return c;
+    return Color(clamp((int)((float)color.r * factor)), clamp((int)((float)color.g * factor)), clamp((int)((float)color.b * factor)));
 }
 
 const Color operator+(const Color& color1, const Color& color2)
 {
     return Color(clamp(color1.r + color2.r), clamp(color1.g + color2.g), clamp(color1.b + color2.b));
-}
-
-Color::operator uint16_t() const
-{
-    uint16_t color;
-    color = (r & 0xf8) << 8;
-    color |= (g & 0xfc) << 3;
-    color |= (b & 0xf8) >> 3;
-    return (color >> 8) | (color << 8);
 }
 
 } // namespace picopplib
