@@ -116,9 +116,9 @@ Drawable::Drawable(const Drawable& other)
 
 Drawable::Drawable(void* buffer, uint32_t pitch, uint16_t width, uint16_t height, const RGBFormat& format)
 {
-    buffer = NULL;
+    this->buffer = NULL;
     my_width = my_height = 0;
-    pitch = 0;
+    this->pitch = 0;
     create(buffer, pitch, width, height, format);
 }
 
@@ -183,8 +183,11 @@ uint32_t Drawable::toNativeColor(const Color& c) const
     case RGBFormat::Monochrome1Bit:
         return c.brightness() > 127 ? 1 : 0;
 
-    case RGBFormat::R5G6B5:
-        return ((c.red() >> 3) << 11) | ((c.green() >> 2) << 5) | (c.blue() >> 3);
+    case RGBFormat::R5G6B5: {
+        // SSD1351 needs byte-swapped R5G6B5 (from original Color::operator uint16_t)
+        uint16_t color = ((c.red() & 0xf8) << 8) | ((c.green() & 0xfc) << 3) | ((c.blue() & 0xf8) >> 3);
+        return (color >> 8) | (color << 8);  // Byte swap for SPI transmission
+    }
 
     case RGBFormat::A8R8G8B8:
         return (c.alpha() << 24) | (c.red() << 16) | (c.green() << 8) | c.blue();
@@ -201,9 +204,11 @@ Color Drawable::fromNativeColor(uint32_t native) const
         return Color(native ? 255 : 0, native ? 255 : 0, native ? 255 : 0);
 
     case RGBFormat::R5G6B5: {
-        uint8_t r = ((native >> 11) & 0x1F) << 3; // 5→8 Bit
-        uint8_t g = ((native >> 5) & 0x3F) << 2;  // 6→8 Bit
-        uint8_t b = (native & 0x1F) << 3;         // 5→8 Bit
+        // Un-swap bytes first (reverse of toNativeColor)
+        uint16_t color = ((native >> 8) | (native << 8)) & 0xFFFF;
+        uint8_t r = ((color >> 8) & 0xF8);        // Top 5 bits of high byte
+        uint8_t g = ((color >> 3) & 0xFC);        // 6 bits spanning both bytes
+        uint8_t b = ((color << 3) & 0xF8);        // Bottom 5 bits of low byte
         return Color(r, g, b);
     }
 
