@@ -55,14 +55,6 @@ Color::Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
     a = alpha;
 }
 
-void Color::setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
-{
-    r = red;
-    g = green;
-    b = blue;
-    a = alpha;
-}
-
 void Color::setColor(const Color& other)
 {
     c = other.c;
@@ -97,16 +89,18 @@ Color blendColor(const Color& background, const Color& foreground, int intensity
 {
     int i2 = intensity & 255;
     int i1 = 255 - i2;
-    return Color(clamp(((background.r * i1) + (foreground.r * i2)) / 255), clamp(((background.g * i1) + (foreground.g * i2)) / 255),
-                 clamp(((background.b * i1) + (foreground.b * i2)) / 255), 255);
+    return Color(clamp(((background.red() * i1) + (foreground.red() * i2)) / 255),
+                 clamp(((background.green() * i1) + (foreground.green() * i2)) / 255),
+                 clamp(((background.blue() * i1) + (foreground.blue() * i2)) / 255), 255);
 }
 
 Color blendColor(const Color& background, const Color& foreground, float intensity)
 {
     float i2 = intensity;
     float i1 = 1.0f - i2;
-    return Color(clamp((int)((background.r * i1) + (foreground.r * i2))), clamp((int)((background.g * i1) + (foreground.g * i2))),
-                 clamp((int)((background.b * i1) + (foreground.b * i2))), 255);
+    return Color(clamp((int)((background.red() * i1) + (foreground.red() * i2))),
+                 clamp((int)((background.green() * i1) + (foreground.green() * i2))),
+                 clamp((int)((background.blue() * i1) + (foreground.blue() * i2))), 255);
 }
 
 Color& Color::operator*=(float factor)
