@@ -79,6 +79,23 @@ uint32_t Drawable::getPixel16BitR5G6B5(const Drawable& self, int x, int y)
     return row[x];
 }
 
+// ========== 32-Bit A8R8G8B8 ==========
+void Drawable::putPixel32BitA8R8G8B8(Drawable& self, int x, int y, uint32_t c)
+{
+    if (!self.buffer) return;
+    if (x < 0 || x >= (int)self.my_width || y < 0 || y >= (int)self.my_height) return;
+    uint32_t* row = (uint32_t*)(self.buffer + y * self.pitch);
+    row[x] = c;
+}
+
+uint32_t Drawable::getPixel32BitA8R8G8B8(const Drawable& self, int x, int y)
+{
+    if (!self.buffer) return 0;
+    if (x < 0 || x >= (int)self.my_width || y < 0 || y >= (int)self.my_height) return 0;
+    uint32_t* row = (uint32_t*)(self.buffer + y * self.pitch);
+    return row[x];
+}
+
 Drawable::Drawable()
 {
     buffer = NULL;
@@ -107,11 +124,6 @@ Drawable::Drawable(void* buffer, uint32_t pitch, uint16_t width, uint16_t height
 
 void Drawable::create(void* buffer, uint32_t pitch, uint16_t width, uint16_t height, const RGBFormat& format)
 {
-    this->buffer = (uint8_t*)buffer;
-    this->pitch = pitch;
-    this->my_width = width;
-    this->my_height = height;
-    this->rgb_format = format;
     switch (format.format()) {
     case RGBFormat::Monochrome1Bit:
         putPixelImpl = putPixel1Bit;
@@ -122,9 +134,17 @@ void Drawable::create(void* buffer, uint32_t pitch, uint16_t width, uint16_t hei
         getPixelImpl = getPixel16BitR5G6B5;
         break;
     case RGBFormat::A8R8G8B8:
-        // putPixelImpl = putPixel32BitA8R8G8B8;
-        // getPixelImpl = getPixel32BitA8R8G8B8;
+        putPixelImpl = putPixel32BitA8R8G8B8;
+        getPixelImpl = getPixel32BitA8R8G8B8;
+        break;
+    default:
+        throw Exception("Unsupported RGB format");
     }
+    this->buffer = (uint8_t*)buffer;
+    this->pitch = pitch;
+    this->my_width = width;
+    this->my_height = height;
+    this->rgb_format = format;
 }
 
 Drawable Drawable::getDrawable(const Rect& rect) const

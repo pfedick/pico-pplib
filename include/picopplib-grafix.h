@@ -370,6 +370,10 @@ private:
 
     static void putPixel16BitR5G6B5(Drawable& self, int x, int y, uint32_t c);
     static uint32_t getPixel16BitR5G6B5(const Drawable& self, int x, int y);
+
+    static void putPixel32BitA8R8G8B8(Drawable& self, int x, int y, uint32_t c);
+    static uint32_t getPixel32BitA8R8G8B8(const Drawable& self, int x, int y);
+
     uint32_t toNativeColor(const Color& c) const;
     Color fromNativeColor(uint32_t c) const;
 
