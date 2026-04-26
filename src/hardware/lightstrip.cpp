@@ -19,6 +19,7 @@ LightStrip::LightStrip(int gpio, size_t num_pixel, float frequency, bool is_rgbw
 {
     sm = 0;
     offset = 0;
+    this->is_rgbw = is_rgbw;
     bool success = pio_claim_free_sm_and_add_program_for_gpio_range(&ws2812_program, &pio, &sm, &offset, gpio, 1, true);
     hard_assert(success);
     ws2812_program_init(pio, sm, offset, gpio, frequency, is_rgbw);
@@ -48,31 +49,28 @@ size_t LightStrip::size() const
     return num;
 }
 
-uint32_t LightStrip::getColor(uint8_t red, uint8_t green, uint8_t blue)
+void LightStrip::clear(const picopplib::Color& color)
 {
-    return ((uint32_t)(red) << 8) | ((uint32_t)(green) << 16) | (uint32_t)(blue);
-}
-
-void LightStrip::clear(picopplib::Color color)
-{
+    uint32_t native_color = toWS2812(color);
     for (int i = 0; i < num; i++) {
-        pixel[i] = color.rgb();
+        pixel[i] = native_color;
     }
-}
-
-void LightStrip::putPixel(int p, uint32_t color)
-{
-    if (p < num && p >= 0) pixel[p] = color;
 }
 
 void LightStrip::putPixel(int p, const picopplib::Color& color)
 {
-    if (p < num && p >= 0) pixel[p] = color.rgb();
+    if (p < num && p >= 0) pixel[p] = toWS2812(color);
 }
 
 picopplib::Color LightStrip::getPixel(int p) const
 {
-    if (p < num && p >= 0) return picopplib::Color(pixel[p]);
+    if (p < num && p >= 0) {
+        uint32_t ws = pixel[p];
+        uint8_t g = (ws >> 16) & 0xFF;
+        uint8_t r = (ws >> 8) & 0xFF;
+        uint8_t b = ws & 0xFF;
+        return picopplib::Color(r, g, b);
+    }
     return picopplib::Color(0, 0, 0);
 }
 
@@ -110,7 +108,7 @@ void LightStrip::shift(Direction d, int count, bool rotate)
 
 void LightStrip::playIntro()
 {
-    clear(0);
+    clear(picopplib::Color(0, 0, 0));
     write();
     sleep_ms(10);
     for (int i = 0; i < num + 8; i++) {
@@ -156,22 +154,13 @@ size_t LightStripSection::size() const
     return my_size;
 }
 
-void LightStripSection::clear(uint32_t color)
+void LightStripSection::clear(const picopplib::Color& color)
 {
     for (size_t i = start; i <= end; i++) {
         ls->putPixel(i, color);
     }
 }
 
-void LightStripSection::putPixel(int p, uint32_t color)
-{
-    if (p < my_size && p >= 0) {
-        if (dir == Direction::Forward)
-            ls->putPixel(start + p, color);
-        else
-            ls->putPixel(end - p, color);
-    }
-}
 void LightStripSection::putPixel(int p, const picopplib::Color& color)
 {
     if (p < my_size && p >= 0) {
@@ -182,7 +171,7 @@ void LightStripSection::putPixel(int p, const picopplib::Color& color)
     }
 }
 
-uint32_t LightStripSection::getPixel(int p) const
+picopplib::Color LightStripSection::getPixel(int p) const
 {
     if (p < my_size && p >= 0) {
         if (dir == Direction::Forward)
@@ -190,7 +179,7 @@ uint32_t LightStripSection::getPixel(int p) const
         else
             return ls->getPixel(end - p);
     }
-    return 0;
+    return picopplib::Color();
 }
 
 void LightStripSection::shift(Direction d, int count, bool rotate)
@@ -200,53 +189,53 @@ void LightStripSection::shift(Direction d, int count, bool rotate)
     old.reserve(my_size);
     for (size_t i = 0; i < my_size; i++) {
         if (dir == Direction::Forward)
-            old[i] = ls->getPixel(start + i);
+            old[i] = ls->getPixelDirect(start + i);
         else
-            old[i] = ls->getPixel(end - i);
+            old[i] = ls->getPixelDirect(end - i);
     }
     if (count > my_size || count == 0) return;
     if (d == Direction::Forward) {
         for (int i = (my_size - 1); i >= (count - 1); i--) {
             if (dir == Direction::Forward)
-                ls->putPixel(start + i, old[i - count]);
+                ls->putPixelDirect(start + i, old[i - count]);
             else
-                ls->putPixel(end - i, old[i - count]);
+                ls->putPixelDirect(end - i, old[i - count]);
         }
         if (rotate) {
             for (int i = 0; i < count; i++) {
                 if (dir == Direction::Forward)
-                    ls->putPixel(start + i, old[my_size - count + i]);
+                    ls->putPixelDirect(start + i, old[my_size - count + i]);
                 else
-                    ls->putPixel(end - i, old[my_size - count + i]);
+                    ls->putPixelDirect(end - i, old[my_size - count + i]);
             }
         } else {
             for (int i = 0; i < count; i++) {
                 if (dir == Direction::Forward)
-                    ls->putPixel(start + i, 0);
+                    ls->putPixelDirect(start + i, 0);
                 else
-                    ls->putPixel(end - i, 0);
+                    ls->putPixelDirect(end - i, 0);
             }
         }
     } else {
         for (int i = 0; i < my_size - count; i++) {
             if (dir == Direction::Forward)
-                ls->putPixel(start + i, old[i + count]);
+                ls->putPixelDirect(start + i, old[i + count]);
             else
-                ls->putPixel(end - i, old[i + count]);
+                ls->putPixelDirect(end - i, old[i + count]);
         }
         if (rotate) {
             for (int i = 0; i < count; i++) {
                 if (dir == Direction::Forward)
-                    ls->putPixel(end - i, old[i]);
+                    ls->putPixelDirect(end - i, old[i]);
                 else
-                    ls->putPixel(start + i, old[i]);
+                    ls->putPixelDirect(start + i, old[i]);
             }
         } else {
             for (int i = 0; i < count; i++) {
                 if (dir == Direction::Forward)
-                    ls->putPixel(end - i, 0);
+                    ls->putPixelDirect(end - i, 0);
                 else
-                    ls->putPixel(start + i, 0);
+                    ls->putPixelDirect(start + i, 0);
             }
         }
     }

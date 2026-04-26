@@ -63,12 +63,10 @@ public:
     LightStripSection(LightStrip* ls, size_t start, size_t end, Direction dir = Direction::Forward);
 
     size_t size() const;
-    void clear(uint32_t color = 0);
-    void putPixel(int p, uint32_t color);
+    void clear(const picopplib::Color& color = picopplib::Color(0, 0, 0));
     void putPixel(int p, const picopplib::Color& color);
-    uint32_t getPixel(int p) const;
+    picopplib::Color getPixel(int p) const;
     void shift(Direction d, int count = 1, bool rotate = false);
-    static uint32_t getColor(uint8_t red, uint8_t green, uint8_t blue);
 };
 
 class LightStrip
@@ -79,6 +77,13 @@ private:
     PIO pio;
     uint sm = 0;
     uint offset = 0;
+    bool is_rgbw;
+
+    inline uint32_t toWS2812(const picopplib::Color& c) const { return (c.green() << 16) | (c.red() << 8) | c.blue(); }
+    inline uint32_t toSK6812(const picopplib::Color& c) const
+    {
+        return (c.green() << 24) | (c.red() << 16) | (c.blue() << 8) | 0; // White=0
+    }
 
 public:
     enum class Direction
@@ -91,17 +96,23 @@ public:
     size_t size() const;
     void setSize(int num_pixel);
 
-    void clear(picopplib::Color color = picopplib::Color(0, 0, 0));
+    void clear(const picopplib::Color& color = picopplib::Color(0, 0, 0));
     void write();
-    void putPixel(int p, uint32_t color);
     void putPixel(int p, const picopplib::Color& color);
     picopplib::Color getPixel(int p) const;
+
+    inline void putPixelDirect(int p, uint32_t color)
+    {
+        if (p < num && p >= 0) pixel[p] = color;
+    }
+    inline uint32_t getPixelDirect(int p) const
+    {
+        if (p < num && p >= 0) return pixel[p];
+        return 0;
+    }
     void shift(Direction d, int count = 1, bool rotate = false);
 
-    static uint32_t getColor(uint8_t red, uint8_t green, uint8_t blue);
-
-    LightStripSection getSection(size_t start, size_t end,
-                                 LightStripSection::Direction dir = LightStripSection::Direction::Forward);
+    LightStripSection getSection(size_t start, size_t end, LightStripSection::Direction dir = LightStripSection::Direction::Forward);
 
     void playIntro();
 };
