@@ -57,6 +57,29 @@ WideStringRepresentation::WideStringRepresentation(const String& str) throw()
     }
 }
 
+WideStringRepresentation::WideStringRepresentation(const WideStringRepresentation& other) throw()
+{
+    stringlen = other.stringlen;
+    if (stringlen == 0) {
+        ptr = NULL;
+        return;
+    }
+    ptr = (wchar_t*)malloc((stringlen + 1) * sizeof(wchar_t));
+    if (!ptr) {
+        stringlen = 0;
+        return;
+    }
+    memcpy(ptr, other.ptr, (stringlen + 1) * sizeof(wchar_t));
+}
+
+WideStringRepresentation::WideStringRepresentation(WideStringRepresentation&& other) noexcept
+{
+    ptr = other.ptr;
+    stringlen = other.stringlen;
+    other.ptr = NULL;
+    other.stringlen = 0;
+}
+
 WideStringRepresentation::~WideStringRepresentation() throw()
 {
     if (ptr) free(ptr);
@@ -77,6 +100,35 @@ wchar_t WideStringRepresentation::operator[](ssize_t pos) const
 {
     if (!ptr || pos < 0 || (size_t)pos >= stringlen) return 0;
     return ptr[pos];
+}
+
+WideStringRepresentation& WideStringRepresentation::operator=(const WideStringRepresentation& other) throw()
+{
+    if (this == &other) return *this;
+    if (ptr) free(ptr);
+    stringlen = other.stringlen;
+    if (stringlen == 0) {
+        ptr = NULL;
+        return *this;
+    }
+    ptr = (wchar_t*)malloc((stringlen + 1) * sizeof(wchar_t));
+    if (!ptr) {
+        stringlen = 0;
+        return *this;
+    }
+    memcpy(ptr, other.ptr, (stringlen + 1) * sizeof(wchar_t));
+    return *this;
+}
+
+WideStringRepresentation& WideStringRepresentation::operator=(WideStringRepresentation&& other) noexcept
+{
+    if (this == &other) return *this;
+    if (ptr) free(ptr);
+    ptr = other.ptr;
+    stringlen = other.stringlen;
+    other.ptr = NULL;
+    other.stringlen = 0;
+    return *this;
 }
 
 } // namespace picopplib

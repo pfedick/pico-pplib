@@ -274,10 +274,16 @@ private:
 
 public:
     WideStringRepresentation(const String& str) throw();
+    WideStringRepresentation(const WideStringRepresentation& other) throw();
+    WideStringRepresentation(WideStringRepresentation&& other) noexcept;
+
     ~WideStringRepresentation() throw();
     const wchar_t* c_str() const throw();
     size_t size() const;
     wchar_t operator[](ssize_t pos) const;
+
+    WideStringRepresentation& operator=(const WideStringRepresentation& other) throw();
+    WideStringRepresentation& operator=(WideStringRepresentation&& other) noexcept;
 };
 
 class Array
