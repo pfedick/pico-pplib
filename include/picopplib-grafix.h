@@ -404,7 +404,7 @@ public:
     inline void putPixelDirect(int x, int y, uint32_t native_color) { putPixelImpl(*this, x, y, native_color); }
     inline uint32_t getPixelDirect(int x, int y) const { return getPixelImpl(*this, x, y); }
 
-    void clear(const Color& color);
+    void clear(const Color& color = Color(0, 0, 0, 0));
 
     // void blendPixel(int x, int y, const Color& c, int brightness);
 
