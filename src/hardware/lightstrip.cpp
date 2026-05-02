@@ -24,7 +24,7 @@ LightStrip::LightStrip(int gpio, size_t num_pixel, float frequency, bool is_rgbw
     hard_assert(success);
     ws2812_program_init(pio, sm, offset, gpio, frequency, is_rgbw);
     num = num_pixel;
-    pixel.reserve(num_pixel);
+    pixel.resize(num_pixel);
     for (int i = 0; i < num; i++) {
         pixel[i] = 0;
     }
@@ -38,7 +38,7 @@ LightStrip::~LightStrip()
 void LightStrip::setSize(int num_pixel)
 {
     num = num_pixel;
-    pixel.reserve(num_pixel);
+    pixel.resize(num_pixel);
     for (int i = 0; i < num; i++) {
         pixel[i] = 0;
     }
@@ -85,7 +85,7 @@ void LightStrip::write()
 void LightStrip::shift(Direction d, int count, bool rotate)
 {
     std::vector<uint32_t> old;
-    old.reserve(num);
+    old.resize(num);
     for (int i = 0; i < num; i++)
         old[i] = pixel[i];
     if (count > num || count == 0) return;
@@ -186,7 +186,7 @@ void LightStripSection::shift(Direction d, int count, bool rotate)
 {
     // TODO: check this code
     std::vector<uint32_t> old;
-    old.reserve(my_size);
+    old.resize(my_size);
     for (size_t i = 0; i < my_size; i++) {
         if (dir == Direction::Forward)
             old[i] = ls->getPixelDirect(start + i);
