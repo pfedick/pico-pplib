@@ -23,7 +23,7 @@ RGBFormat::Identifier RGBFormat::format() const
     return format_id;
 }
 
-int RGBFormat::bitdepth() const
+uint8_t RGBFormat::bitdepth() const
 {
     switch (format_id) {
     case Monochrome1Bit:

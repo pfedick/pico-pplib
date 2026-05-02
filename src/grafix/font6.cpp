@@ -261,9 +261,9 @@ void Font6Renderer::loadFont(const ByteArrayPtr& memory)
     // Die Faces laden
     PFPFile::const_iterator it;
     for (it = pfp.begin(); it != pfp.end(); ++it) {
-        const PFPChunk* c = *it;
+        const PFPChunk& c = *it;
         // printf("Loading Chunk: %s, size: %u\n", (const char*)c->name(), c->size());
-        if (c->name() == "FACE") loadFace((const char*)c->data(), c->size());
+        if (c.name() == "FACE") loadFace((const char*)c.data(), c.size());
     }
 }
 
