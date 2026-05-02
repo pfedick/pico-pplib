@@ -83,6 +83,14 @@ ByteArray::ByteArray(const ByteArrayPtr& other)
     }
 }
 
+ByteArray::ByteArray(ByteArray&& other) noexcept
+{
+    ptradr = other.ptradr;
+    ptrsize = other.ptrsize;
+    other.ptradr = nullptr;
+    other.ptrsize = 0;
+}
+
 /*!\brief Konstruktor durch String
  *
  * \desc
@@ -410,6 +418,18 @@ ByteArray& ByteArray::operator=(const ByteArrayPtr& other)
     return *this;
 }
 
+ByteArray& ByteArray::operator=(ByteArray&& other) noexcept
+{
+    if (this != &other) {
+        ::free(ptradr);
+        ptradr = other.ptradr;
+        ptrsize = other.ptrsize;
+        other.ptradr = nullptr;
+        other.ptrsize = 0;
+    }
+    return *this;
+}
+
 /*!\brief Speicherreferenz von anderem ByteArray-Objekt kopieren
  *
  * \desc
@@ -524,6 +544,16 @@ void* ByteArray::malloc(size_t size)
     } else {
         throw Exception("OutOfMemoryException");
     }
+    ((char*)ptradr)[ptrsize] = 0;
+    return ptradr;
+}
+
+void* ByteArray::realloc(size_t newsize)
+{
+    void* p = ::realloc(ptradr, newsize + 1);
+    if (!p) throw Exception("OutOfMemoryException");
+    ptradr = p;
+    ptrsize = newsize;
     ((char*)ptradr)[ptrsize] = 0;
     return ptradr;
 }

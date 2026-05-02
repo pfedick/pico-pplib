@@ -83,6 +83,7 @@ public:
     ByteArray();
     ByteArray(const ByteArrayPtr& other);
     ByteArray(const ByteArray& other);
+    ByteArray(ByteArray&& other) noexcept;
     ByteArray(const String& str);
     ByteArray(const void* adr, size_t size);
     explicit ByteArray(size_t size);
@@ -96,10 +97,12 @@ public:
     void* prepend(const ByteArrayPtr& other);
     void* malloc(size_t size);
     void* calloc(size_t size);
+    void* realloc(size_t newsize);
     void free();
     void clear();
     ByteArray& operator=(const ByteArrayPtr& other);
     ByteArray& operator=(const ByteArray& other);
+    ByteArray& operator=(ByteArray&& other) noexcept;
     ByteArray& operator=(const String& str);
     operator const void*() const;
     operator const unsigned char*() const;
@@ -418,14 +421,8 @@ public:
             ptr = (ROW*)ptr + 1;
             return tmp;
         }
-        bool operator==(const ptr_iterator& other) const
-        {
-            return ptr == other.ptr;
-        }
-        bool operator!=(const ptr_iterator& other) const
-        {
-            return ptr != other.ptr;
-        }
+        bool operator==(const ptr_iterator& other) const { return ptr == other.ptr; }
+        bool operator!=(const ptr_iterator& other) const { return ptr != other.ptr; }
     };
 
     typedef ptr_iterator iterator;
