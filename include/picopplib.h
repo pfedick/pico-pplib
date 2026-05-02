@@ -465,21 +465,16 @@ public:
 class PFPFile
 {
 private:
-    std::list<PFPChunk*> Chunks;
+    std::list<PFPChunk> Chunks;
     String id;
     uint8_t mainversion, subversion;
     uint8_t comp;
 
-    // void setParam(const String& chunkname, const String& data);
-    // void saveChunk(char* buffer, size_t& pp, PFPChunk* chunk);
-    void addChunk(PFPChunk* chunk);
-
 public:
-    typedef std::list<PFPChunk*>::iterator iterator;
-    typedef std::list<PFPChunk*>::const_iterator const_iterator;
+    typedef std::list<PFPChunk>::iterator iterator;
+    typedef std::list<PFPChunk>::const_iterator const_iterator;
 
     PFPFile();
-    virtual ~PFPFile();
     void clear();
 
     iterator begin();
@@ -564,7 +559,9 @@ private:
 public:
     explicit Exception(const char* type) noexcept;
     Exception(const Exception& other) noexcept;
+    Exception(Exception&& other) noexcept;
     Exception& operator=(const Exception& other) noexcept;
+    Exception& operator=(Exception&& other) noexcept;
     Exception(const char* type, const char* msg, ...) noexcept;
     virtual ~Exception() noexcept;
     virtual const char* what() const noexcept;

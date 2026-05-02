@@ -190,18 +190,6 @@ PFPFile::PFPFile()
     mainversion = subversion = comp = 0;
 }
 
-PFPFile::~PFPFile()
-/*!\brief Destruktor der Klasse
- *
- * Der Destruktor sorgt dafür, dass sämtlicher von der Klasse allokierter Speicher einschließlich
- * aller geladener Chunks freigegeben wird.
- *
- * \since Version 6.1.0
- */
-{
-    clear();
-}
-
 void PFPFile::clear()
 /*!\brief Inhalt der Klasse löschen
  *
@@ -211,10 +199,6 @@ void PFPFile::clear()
  *
  */
 {
-    std::list<PFPChunk*>::iterator it;
-    for (it = Chunks.begin(); it != Chunks.end(); ++it) {
-        delete (*it);
-    }
     Chunks.clear();
     id = "UNKN";
     mainversion = subversion = comp = 0;
@@ -281,13 +265,6 @@ PFPFile::iterator PFPFile::end()
 PFPFile::const_iterator PFPFile::end() const
 {
     return Chunks.end();
-}
-
-void PFPFile::addChunk(PFPChunk* chunk)
-{
-    if (!chunk) throw Exception("NullPointerException");
-    if (chunk->chunkname == "UNKN") throw Exception("IllegalArgumentException");
-    Chunks.push_back(chunk);
 }
 
 /*!\brief Prüfen, ob es sich um ein PFP-File handelt
@@ -386,19 +363,17 @@ void PFPFile::load(const ByteArrayPtr& data)
             if (!size) break;
             // Falls z+size über das Ende der Datei geht, stimmt mit diesem Chunk was nicht
             if (z + size > fsize) break;
-            PFPChunk* chunk = new PFPChunk;
-            if (!chunk) throw Exception("OutOfMemoryException");
-            chunk->chunkname.set(p + z, 4);
-            chunk->chunkdata = (p + z + 8);
-            chunk->chunksize = size - 8;
+            PFPChunk chunk;
+            chunk.chunkname.set(p + z, 4);
+            chunk.chunkdata = (p + z + 8);
+            chunk.chunksize = size - 8;
             // printf("add chunk\n");
-            addChunk(chunk);
+            if (chunk.chunkname == "UNKN") throw Exception("IllegalArgumentException");
+            Chunks.push_back(std::move(chunk));
             z += size;
         }
-        printf("Ende\n");
     }
     catch (...) {
-        printf("We have an exception while reading PFPFile!\n");
         clear();
         throw;
     }

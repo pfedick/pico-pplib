@@ -72,6 +72,14 @@ Exception::Exception(const Exception& other) throw()
     }
 }
 
+Exception::Exception(Exception&& other) noexcept
+{
+    ExceptionType = other.ExceptionType;
+    ErrorText = other.ErrorText;
+    other.ExceptionType = NULL;
+    other.ErrorText = NULL;
+}
+
 Exception& Exception::operator=(const Exception& other) throw()
 {
     if (&other == this) return *this;
@@ -87,6 +95,18 @@ Exception& Exception::operator=(const Exception& other) throw()
     } else {
         ErrorText = NULL;
     }
+    return *this;
+}
+
+Exception& Exception::operator=(Exception&& other) noexcept
+{
+    if (&other == this) return *this;
+    if (ErrorText) free(ErrorText);
+    if (ExceptionType) free(ExceptionType);
+    ExceptionType = other.ExceptionType;
+    ErrorText = other.ErrorText;
+    other.ExceptionType = NULL;
+    other.ErrorText = NULL;
     return *this;
 }
 
