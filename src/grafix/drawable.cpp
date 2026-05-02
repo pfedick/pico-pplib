@@ -35,7 +35,7 @@ namespace picopplib
 {
 
 // ========== 1-Bit Monochrome (VERTIKAL) ==========
-void Drawable::putPixel1Bit(Drawable& self, int x, int y, uint32_t c)
+void Drawable::putPixelMonochrome1BitVertical(Drawable& self, int x, int y, uint32_t c)
 {
     if (!self.buffer) return;
     if (x < 0 || x >= (int)self.my_width || y < 0 || y >= (int)self.my_height) return;
@@ -51,7 +51,7 @@ void Drawable::putPixel1Bit(Drawable& self, int x, int y, uint32_t c)
         *ptr &= ~(1 << bit_offset);
 }
 
-uint32_t Drawable::getPixel1Bit(const Drawable& self, int x, int y)
+uint32_t Drawable::getPixelMonochrome1BitVertical(const Drawable& self, int x, int y)
 {
     if (!self.buffer) return 0;
     if (x < 0 || x >= (int)self.my_width || y < 0 || y >= (int)self.my_height) return 0;
@@ -125,9 +125,9 @@ Drawable::Drawable(void* buffer, uint32_t pitch, uint16_t width, uint16_t height
 void Drawable::create(void* buffer, uint32_t pitch, uint16_t width, uint16_t height, const RGBFormat& format)
 {
     switch (format.format()) {
-    case RGBFormat::Monochrome1Bit:
-        putPixelImpl = putPixel1Bit;
-        getPixelImpl = getPixel1Bit;
+    case RGBFormat::Monochrome1BitVertical:
+        putPixelImpl = putPixelMonochrome1BitVertical;
+        getPixelImpl = getPixelMonochrome1BitVertical;
         break;
     case RGBFormat::R5G6B5:
         putPixelImpl = putPixel16BitR5G6B5;
@@ -180,7 +180,7 @@ bool Drawable::isEmpty() const
 uint32_t Drawable::toNativeColor(const Color& c) const
 {
     switch (rgb_format.format()) {
-    case RGBFormat::Monochrome1Bit:
+    case RGBFormat::Monochrome1BitVertical:
         return c.brightness() > 127 ? 1 : 0;
 
     case RGBFormat::R5G6B5: {
@@ -200,7 +200,7 @@ uint32_t Drawable::toNativeColor(const Color& c) const
 Color Drawable::fromNativeColor(uint32_t native) const
 {
     switch (rgb_format.format()) {
-    case RGBFormat::Monochrome1Bit:
+    case RGBFormat::Monochrome1BitVertical:
         return Color(native ? 255 : 0, native ? 255 : 0, native ? 255 : 0);
 
     case RGBFormat::R5G6B5: {

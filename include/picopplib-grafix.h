@@ -324,7 +324,7 @@ public:
     enum Identifier
     {
         unknown = 0,
-        Monochrome1Bit,
+        Monochrome1BitVertical, // 1 Bit pro Pixel, vertikal gepackt (z.B. SSD1322)
         R5G6B5,
         A8R8G8B8,
         MaxIdentifiers
@@ -366,8 +366,8 @@ private:
     GetPixelFunc getPixelImpl;
 
     // Static Implementierungen für verschiedene Formate
-    static void putPixel1Bit(Drawable& self, int x, int y, uint32_t c);
-    static uint32_t getPixel1Bit(const Drawable& self, int x, int y);
+    static void putPixelMonochrome1BitVertical(Drawable& self, int x, int y, uint32_t c);
+    static uint32_t getPixelMonochrome1BitVertical(const Drawable& self, int x, int y);
 
     static void putPixel16BitR5G6B5(Drawable& self, int x, int y, uint32_t c);
     static uint32_t getPixel16BitR5G6B5(const Drawable& self, int x, int y);

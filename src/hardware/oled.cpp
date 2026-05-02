@@ -4,16 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
+#include <sys/types.h>
+
 #include "pico/stdlib.h"
 #include "pico/binary_info.h"
 #include "hardware/i2c.h"
-// #include "raspberry26x32.h"
-// #include "denic.h"
-#include "picopplib-grafix.h"
 
+#include "picopplib-grafix.h"
 #include "oled.h"
 
 /* Example code to talk to an SSD1306-based OLED display
