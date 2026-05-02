@@ -35,6 +35,19 @@ namespace picopplib
 {
 Image::Image() {}
 
+Image::Image(const Image& other)
+{
+    myMemory = other.myMemory;
+    Drawable::create((void*)myMemory.adr(), other.format().bytesForWidth(other.width()), other.width(), other.height(), other.format());
+}
+
+Image::Image(Image&& other) noexcept
+    : Drawable(std::move(other)),
+      myMemory(std::move(other.myMemory))
+{
+    Drawable::create((void*)myMemory.adr(), format().bytesForWidth(width()), width(), height(), format());
+}
+
 Image::Image(const Drawable& other)
 {
     copy(other);
@@ -47,7 +60,7 @@ Image::Image(uint16_t width, uint16_t height, const RGBFormat& format)
 
 void Image::create(uint16_t width, uint16_t height, const RGBFormat& format)
 {
-    size_t bytes = width * height * (format.bitdepth() / 8);
+    size_t bytes = (width * height * format.bitdepth() + 7) / 8;
     void* data = myMemory.malloc(bytes);
     Drawable::create(data, format.bytesForWidth(width), width, height, format);
 }
@@ -81,6 +94,16 @@ void Image::copy(const Drawable& other, const Rect& rect)
 Image& Image::operator=(const Image& other)
 {
     copy(other);
+    return *this;
+}
+
+Image& Image::operator=(Image&& other) noexcept
+{
+    if (this != &other) {
+        Drawable::operator=(std::move(other));
+        myMemory = std::move(other.myMemory);
+        Drawable::create((void*)myMemory.adr(), format().bytesForWidth(width()), width(), height(), format());
+    }
     return *this;
 }
 

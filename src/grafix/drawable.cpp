@@ -114,12 +114,65 @@ Drawable::Drawable(const Drawable& other)
     getPixelImpl = other.getPixelImpl;
 }
 
+Drawable::Drawable(Drawable&& other) noexcept
+{
+    buffer = other.buffer;
+    pitch = other.pitch;
+    my_width = other.my_width;
+    my_height = other.my_height;
+    rgb_format = other.rgb_format;
+    putPixelImpl = other.putPixelImpl;
+    getPixelImpl = other.getPixelImpl;
+
+    other.buffer = NULL;
+    other.pitch = 0;
+    other.my_width = 0;
+    other.my_height = 0;
+    other.putPixelImpl = nullptr;
+    other.getPixelImpl = nullptr;
+}
+
 Drawable::Drawable(void* buffer, uint32_t pitch, uint16_t width, uint16_t height, const RGBFormat& format)
 {
     this->buffer = NULL;
     my_width = my_height = 0;
     this->pitch = 0;
     create(buffer, pitch, width, height, format);
+}
+
+Drawable& Drawable::operator=(const Drawable& other)
+{
+    if (this != &other) {
+        buffer = other.buffer;
+        pitch = other.pitch;
+        my_width = other.my_width;
+        my_height = other.my_height;
+        rgb_format = other.rgb_format;
+        putPixelImpl = other.putPixelImpl;
+        getPixelImpl = other.getPixelImpl;
+    }
+    return *this;
+}
+
+Drawable& Drawable::operator=(Drawable&& other) noexcept
+{
+    if (this != &other) {
+        buffer = other.buffer;
+        pitch = other.pitch;
+        my_width = other.my_width;
+        my_height = other.my_height;
+        rgb_format = other.rgb_format;
+        putPixelImpl = other.putPixelImpl;
+        getPixelImpl = other.getPixelImpl;
+
+        other.buffer = NULL;
+        other.pitch = 0;
+        other.my_width = 0;
+        other.my_height = 0;
+        other.putPixelImpl = nullptr;
+        other.getPixelImpl = nullptr;
+    }
+    return *this;
 }
 
 void Drawable::create(void* buffer, uint32_t pitch, uint16_t width, uint16_t height, const RGBFormat& format)
@@ -159,7 +212,11 @@ Drawable Drawable::getDrawable(const Point& p, const Size& s) const
 
 Drawable Drawable::getDrawable(int x1, int y1, int x2, int y2) const
 {
-    // Schnittmenge mit diesem Drawable berechnen
+    // TODO: Das funktioniert nicht für das Monochrome OLED!
+    if (rgb_format.format() == RGBFormat::Monochrome1BitVertical) {
+        throw Exception("getDrawable for Monochrome1BitVertical format not supported");
+    }
+
     Rect r(x1, y1, x2, y2);
     Rect self_rect(0, 0, my_width - 1, my_height - 1);
     Rect intersect = r.intersected(self_rect);
@@ -167,7 +224,7 @@ Drawable Drawable::getDrawable(int x1, int y1, int x2, int y2) const
         // Leeres Drawable zurückgeben
         return Drawable();
     }
-    return Drawable(buffer + intersect.y1 * pitch + intersect.x1 * (rgb_format.bitdepth() / 8), pitch, intersect.width(),
+    return Drawable(buffer + intersect.y1 * pitch + (intersect.x1 * rgb_format.bitdepth()) / 8, pitch, intersect.width(),
                     intersect.height(), rgb_format);
 }
 

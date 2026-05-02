@@ -381,7 +381,11 @@ private:
 public:
     Drawable();
     Drawable(const Drawable& other);
+    Drawable(Drawable&& other) noexcept;
     Drawable(void* buffer, uint32_t pitch, uint16_t width, uint16_t height, const RGBFormat& format);
+
+    Drawable& operator=(const Drawable& other);
+    Drawable& operator=(Drawable&& other) noexcept;
 
     void create(void* buffer, uint32_t pitch, uint16_t width, uint16_t height, const RGBFormat& format);
 
@@ -424,6 +428,8 @@ private:
 
 public:
     Image();
+    Image(const Image& other);
+    Image(Image&& other) noexcept;
     Image(const Drawable& other);
     Image(uint16_t width, uint16_t height, const RGBFormat& format = RGBFormat::A8R8G8B8);
     void create(uint16_t width, uint16_t height, const RGBFormat& format = RGBFormat::A8R8G8B8);
@@ -431,6 +437,8 @@ public:
     void copy(const Drawable& other);
     void copy(const Drawable& other, const Rect& rect);
     Image& operator=(const Image& other);
+    Image& operator=(Image&& other) noexcept;
+
     Image& operator=(const Drawable& other);
     size_t numBytes() const;
     ByteArrayPtr memory() const;
