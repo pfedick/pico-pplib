@@ -37,6 +37,20 @@ int RGBFormat::bitdepth() const
     }
 }
 
+uint32_t RGBFormat::bytesForWidth(uint16_t width) const
+{
+    switch (format_id) {
+    case Monochrome1Bit:
+        return (width + 7) / 8; // 1 bit pro Pixel, aufgerundet auf volle Bytes
+    case R5G6B5:
+        return width * 2; // 16 Bit pro Pixel = 2 Bytes
+    case A8R8G8B8:
+        return width * 4; // 32 Bit pro Pixel = 4 Bytes
+    default:
+        return 0;
+    }
+}
+
 bool RGBFormat::operator==(const RGBFormat& other) const
 {
     return format_id == other.format_id;

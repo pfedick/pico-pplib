@@ -340,7 +340,8 @@ public:
     void setFormat(Identifier id);
 
     Identifier format() const;
-    int bitdepth() const;
+    uint8_t bitdepth() const;
+    uint32_t bytesForWidth(uint16_t width) const;
 
     bool operator==(const RGBFormat& other) const;
     bool operator==(Identifier id) const;
@@ -423,14 +424,13 @@ private:
 
 public:
     Image();
-    Image(const Image& other);
     Image(const Drawable& other);
-    Image(int width, int height, const RGBFormat& format = RGBFormat::A8R8G8B8);
-    ~Image();
-    void clear();
-    void create(int width, int height, const RGBFormat& format = RGBFormat::A8R8G8B8);
+    Image(uint16_t width, uint16_t height, const RGBFormat& format = RGBFormat::A8R8G8B8);
+    void create(uint16_t width, uint16_t height, const RGBFormat& format = RGBFormat::A8R8G8B8);
+    void copy(const Image& other);
     void copy(const Drawable& other);
     void copy(const Drawable& other, const Rect& rect);
+    Image& operator=(const Image& other);
     Image& operator=(const Drawable& other);
     size_t numBytes() const;
     ByteArrayPtr memory() const;
