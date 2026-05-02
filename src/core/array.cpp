@@ -112,6 +112,24 @@ Array::Array(const Array& other)
     add(other);
 }
 
+/*!\brief Move-Konstruktor
+ *
+ * \desc
+ * Mit dem Move-Konstruktor wird der Inhalt des Arrays \p other auf dieses Array übertragen. Das Array \p other
+ * ist danach leer.
+ *
+ * @param other Anderes Array
+ */
+Array::Array(Array&& other) noexcept
+{
+    numElements = other.numElements;
+    numCapacity = other.numCapacity;
+    rows = other.rows;
+    other.numElements = 0;
+    other.numCapacity = 0;
+    other.rows = NULL;
+}
+
 /*!\brief Konstruktor aus String
  *
  * \desc
@@ -1073,6 +1091,21 @@ const String& Array::operator[](ssize_t index) const
 Array& Array::operator=(const Array& other)
 {
     copy(other);
+    return *this;
+}
+
+Array& Array::operator=(Array&& other) noexcept
+{
+    if (this != &other) {
+        clear();
+        rows = other.rows;
+        numElements = other.numElements;
+        numCapacity = other.numCapacity;
+
+        other.rows = nullptr;
+        other.numElements = 0;
+        other.numCapacity = 0;
+    }
     return *this;
 }
 

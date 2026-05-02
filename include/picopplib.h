@@ -316,6 +316,7 @@ public:
     //@{
     Array();
     Array(const Array& other);
+    Array(Array&& other) noexcept;
     Array(const String& str, const String& delimiter = String("\n"), size_t limit = 0, bool skipemptylines = false);
     ~Array();
     //@}
@@ -383,6 +384,7 @@ public:
     String& operator[](ssize_t index);
     const String& operator[](ssize_t index) const;
     Array& operator=(const Array& other);
+    Array& operator=(Array&& other) noexcept;
     Array& operator+=(const Array& other);
     bool operator==(const Array& other) const;
     bool operator!=(const Array& other) const;
