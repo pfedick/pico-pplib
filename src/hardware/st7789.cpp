@@ -287,7 +287,7 @@ void ST7789::oled_init()
 
     // Memory Data Access Control (Display-Orientierung)
     // MY=0, MX=0, MV=0, ML=0, RGB=1, MH=0
-    param[0] = 0x00; // 0x00 = Standard-Orientierung
+    param[0] = 0x60; // 0x00 = Standard-Orientierung
     // Alternative Werte:
     // 0x00 = 0°   (Portrait)
     // 0x60 = 90°  (Landscape)
