@@ -33,8 +33,8 @@ private:
     uint8_t* oled_dma[2];
     uint8_t current_buffer;
     size_t buffer_size;
-    uint16_t width;
-    uint16_t height;
+    uint16_t my_width;
+    uint16_t my_height;
 
     uint8_t spi_dc;
     uint8_t spi_cs;
@@ -57,17 +57,12 @@ public:
     ~ST7789();
 
     void init(uint16_t width, uint16_t height, const Config& config);
-
-    uint8_t* get_buffer();
+    uint8_t* get_buffer() const;
+    inline uint16_t width() { return my_width; };
+    inline uint16_t height() { return my_height; };
 
     void refresh();
     picopplib::Drawable getDrawable();
-
-    void clear(uint16_t color = 0x0000);
-    void putPixel(int x, int y, uint16_t color);
-    void fillRect(int x1, int y1, int x2, int y2, uint16_t color);
-    void drawRect(int x1, int y1, int x2, int y2, uint16_t color);
-    void line(int x1, int y1, int x2, int y2, uint16_t color);
 };
 
 #endif // ST7789_H

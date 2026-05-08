@@ -127,8 +127,8 @@ typedef enum st7789_commands
 
 ST7789::ST7789()
 {
-    width = 0;
-    height = 0;
+    my_width = 0;
+    my_height = 0;
     buffer_size = 0;
     oled_dma[0] = nullptr;
     oled_dma[1] = nullptr;
@@ -150,11 +150,11 @@ ST7789::~ST7789()
     free(oled_dma[1]);
 }
 
-void ST7789::init(uint16_t width, uint16_t height, const Config& config)
+void ST7789::init(uint16_t my_width, uint16_t height, const Config& config)
 {
-    this->width = width;
-    this->height = height;
-    buffer_size = width * height * 2;
+    this->my_width = my_width;
+    this->my_height = height;
+    buffer_size = my_width * height * 2;
     oled_dma[0] = (uint8_t*)malloc(buffer_size);
     oled_dma[1] = (uint8_t*)malloc(buffer_size);
     current_buffer = 0;
@@ -186,56 +186,6 @@ void ST7789::write(const uint8_t cmd, const uint8_t* data, size_t len)
         spi_write_blocking(spi_num, data, len);
     }
     gpio_put(spi_cs, 1); // CS deaktivieren (HIGH)
-}
-
-void ST7789::flush_dma(uint8_t* ptr, size_t len)
-{
-    dma_channel_wait_for_finish_blocking(dma_tx);
-
-    uint8_t param[4];
-
-    gpio_put(spi_cs, 0); // CS aktivieren für gesamte Sequenz
-
-    // Column Address Set (CASET) - 0 bis 239
-    param[0] = 0x00;               // Start MSB
-    param[1] = 0x00;               // Start LSB (Spalte 0)
-    param[2] = (width - 1) >> 8;   // End MSB
-    param[3] = (width - 1) & 0xFF; // End LSB (Spalte 239)
-    gpio_put(spi_dc, WRITE_COMMAND);
-    spi_write_blocking(spi_num, (const uint8_t[]){CMD_CASET}, 1);
-    gpio_put(spi_dc, WRITE_DATA);
-    spi_write_blocking(spi_num, param, 4);
-
-    // Row Address Set (RASET) - 0 bis 239
-    param[0] = 0x00;                // Start MSB
-    param[1] = 0x00;                // Start LSB (Zeile 0)
-    param[2] = (height - 1) >> 8;   // End MSB
-    param[3] = (height - 1) & 0xFF; // End LSB (Zeile 239)
-    gpio_put(spi_dc, WRITE_COMMAND);
-    spi_write_blocking(spi_num, (const uint8_t[]){CMD_RASET}, 1);
-    gpio_put(spi_dc, WRITE_DATA);
-    spi_write_blocking(spi_num, param, 4);
-
-    // Memory Write
-    gpio_put(spi_dc, WRITE_COMMAND);
-    spi_write_blocking(spi_num, (const uint8_t[]){CMD_RAMWR}, 1);
-    gpio_put(spi_dc, WRITE_DATA);
-
-    // DMA Transfer
-    dma_channel_transfer_from_buffer_now(dma_tx, ptr, len);
-    dma_channel_wait_for_finish_blocking(dma_tx);
-
-    gpio_put(spi_cs, 1); // CS deaktivieren nach Transfer
-}
-
-uint8_t* ST7789::get_buffer()
-{
-    return oled_dma[current_buffer];
-}
-
-picopplib::Drawable ST7789::getDrawable()
-{
-    return picopplib::Drawable(oled_dma[current_buffer], width * 2, width, height, picopplib::RGBFormat::R5G6B5);
 }
 
 void ST7789::oled_init()
@@ -389,14 +339,43 @@ void ST7789::oled_init()
     dma_channel_configure(dma_tx, &config, &spi_get_hw(spi_num)->dr, oled_dma[0], buffer_size, false);
 }
 
-void ST7789::clear(uint16_t color)
+void ST7789::flush_dma(uint8_t* ptr, size_t len)
 {
-    uint16_t* buffer = (uint16_t*)get_buffer();
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            buffer[y * width + x] = color;
-        }
-    }
+    dma_channel_wait_for_finish_blocking(dma_tx);
+    gpio_put(spi_cs, 1); // CS deaktivieren nach Transfer
+    sleep_us(10);        // Kurze Pause, um sicherzustellen, dass CS korrekt erkannt wird
+
+    uint8_t param[4];
+
+    gpio_put(spi_cs, 0); // CS aktivieren für gesamte Sequenz
+
+    // Column Address Set (CASET) - 0 bis 239
+    param[0] = 0x00;                  // Start MSB
+    param[1] = 0x00;                  // Start LSB (Spalte 0)
+    param[2] = (my_width - 1) >> 8;   // End MSB
+    param[3] = (my_width - 1) & 0xFF; // End LSB (Spalte 239)
+    gpio_put(spi_dc, WRITE_COMMAND);
+    spi_write_blocking(spi_num, (const uint8_t[]){CMD_CASET}, 1);
+    gpio_put(spi_dc, WRITE_DATA);
+    spi_write_blocking(spi_num, param, 4);
+
+    // Row Address Set (RASET) - 0 bis 239
+    param[0] = 0x00;                   // Start MSB
+    param[1] = 0x00;                   // Start LSB (Zeile 0)
+    param[2] = (my_height - 1) >> 8;   // End MSB
+    param[3] = (my_height - 1) & 0xFF; // End LSB (Zeile 239)
+    gpio_put(spi_dc, WRITE_COMMAND);
+    spi_write_blocking(spi_num, (const uint8_t[]){CMD_RASET}, 1);
+    gpio_put(spi_dc, WRITE_DATA);
+    spi_write_blocking(spi_num, param, 4);
+
+    // Memory Write
+    gpio_put(spi_dc, WRITE_COMMAND);
+    spi_write_blocking(spi_num, (const uint8_t[]){CMD_RAMWR}, 1);
+    gpio_put(spi_dc, WRITE_DATA);
+
+    // DMA Transfer
+    dma_channel_transfer_from_buffer_now(dma_tx, ptr, len);
 }
 
 void ST7789::refresh()
@@ -412,101 +391,12 @@ void ST7789::refresh()
     }
 }
 
-void ST7789::putPixel(int x, int y, uint16_t color)
+uint8_t* ST7789::get_buffer() const
 {
-    uint16_t* buffer = (uint16_t*)get_buffer();
-    if (x < 0 || x >= width || y < 0 || y >= height) return;
-    buffer[y * width + x] = color;
+    return oled_dma[current_buffer];
 }
 
-void ST7789::fillRect(int x1, int y1, int x2, int y2, uint16_t color)
+picopplib::Drawable ST7789::getDrawable()
 {
-    uint16_t* buffer = (uint16_t*)get_buffer();
-    for (int y = y1; y < y2; y++) {
-        for (int x = x1; x < x2; x++) {
-            putPixel(x, y, color);
-        }
-    }
-}
-
-void ST7789::drawRect(int x1, int y1, int x2, int y2, uint16_t color)
-{
-    uint16_t* buffer = (uint16_t*)get_buffer();
-    for (int y = y1; y < y2; y++) {
-        putPixel(x1, y, color);
-        putPixel(x2, y, color);
-    }
-    for (int x = x1; x < x2; x++) {
-        putPixel(x, y1, color);
-        putPixel(x, y2, color);
-    }
-}
-
-static inline int sgn(int x)
-{
-    return (x > 0) ? 1 : (x < 0) ? -1 : 0;
-}
-
-void ST7789::line(int x1, int y1, int x2, int y2, uint16_t color)
-{
-    // uint16_t *buffer = (uint16_t *) get_buffer();
-
-    /* Bresenham Algorithmus */
-    // static void Line_32 (DRAWABLE_DATA &data, int xstart, int ystart, int xend, int yend, SurfaceColor color)
-
-    int x, y, t, dx, dy, incx, incy, pdx, pdy, ddx, ddy, es, el, err;
-
-    /* Entfernung in beiden Dimensionen berechnen */
-    dx = x2 - x1;
-    dy = y2 - y1;
-
-    /* Vorzeichen des Inkrements bestimmen */
-    incx = sgn(dx);
-    incy = sgn(dy);
-    if (dx < 0) dx = -dx;
-    if (dy < 0) dy = -dy;
-
-    /* feststellen, welche Entfernung größer ist */
-    if (dx > dy) {
-        /* x ist schnelle Richtung */
-        pdx = incx;
-        pdy = 0; /* pd. ist Parallelschritt */
-        ddx = incx;
-        ddy = incy; /* dd. ist Diagonalschritt */
-        es = dy;
-        el = dx; /* Fehlerschritte schnell, langsam */
-    } else {
-        /* y ist schnelle Richtung */
-        pdx = 0;
-        pdy = incy; /* pd. ist Parallelschritt */
-        ddx = incx;
-        ddy = incy; /* dd. ist Diagonalschritt */
-        es = dx;
-        el = dy; /* Fehlerschritte schnell, langsam */
-    }
-
-    /* Initialisierungen vor Schleifenbeginn */
-    x = x1;
-    y = y1;
-    err = el / 2;
-    putPixel(x, y, color);
-
-    /* Pixel berechnen */
-    for (t = 0; t < el; ++t) /* t zaehlt die Pixel, el ist auch Anzahl */
-    {
-        /* Aktualisierung Fehlerterm */
-        err -= es;
-        if (err < 0) {
-            /* Fehlerterm wieder positiv (>=0) machen */
-            err += el;
-            /* Schritt in langsame Richtung, Diagonalschritt */
-            x += ddx;
-            y += ddy;
-        } else {
-            /* Schritt in schnelle Richtung, Parallelschritt */
-            x += pdx;
-            y += pdy;
-        }
-        putPixel(x, y, color);
-    }
+    return picopplib::Drawable(oled_dma[current_buffer], my_width * 2, my_width, my_height, picopplib::RGBFormat::R5G6B5);
 }
