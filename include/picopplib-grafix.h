@@ -361,19 +361,29 @@ private:
     RGBFormat rgb_format;
 
     typedef void (*PutPixelFunc)(Drawable& self, int x, int y, uint32_t c);
+    typedef void (*BlendPixelFunc)(Drawable& self, int x, int y, uint32_t c, uint8_t intensity);
+    typedef void (*FillRectFunc)(Drawable& self, int x1, int y1, int x2, int y2, uint32_t c);
     typedef uint32_t (*GetPixelFunc)(const Drawable& self, int x, int y);
     PutPixelFunc putPixelImpl;
     GetPixelFunc getPixelImpl;
+    BlendPixelFunc blendPixelImpl;
+    FillRectFunc fillRectImpl;
 
     // Static Implementierungen für verschiedene Formate
     static void putPixelMonochrome1BitVertical(Drawable& self, int x, int y, uint32_t c);
+    static void blendPixelMonochrome1BitVertical(Drawable& self, int x, int y, uint32_t c, uint8_t intensity);
     static uint32_t getPixelMonochrome1BitVertical(const Drawable& self, int x, int y);
+    static void fillRectMonochrome1BitVertical(Drawable& self, int x1, int y1, int x2, int y2, uint32_t c);
 
     static void putPixel16BitR5G6B5(Drawable& self, int x, int y, uint32_t c);
+    static void blendPixel16BitR5G6B5(Drawable& self, int x, int y, uint32_t c, uint8_t intensity);
     static uint32_t getPixel16BitR5G6B5(const Drawable& self, int x, int y);
+    static void fillRect16BitR5G6B5(Drawable& self, int x1, int y1, int x2, int y2, uint32_t c);
 
     static void putPixel32BitA8R8G8B8(Drawable& self, int x, int y, uint32_t c);
+    static void blendPixel32BitA8R8G8B8(Drawable& self, int x, int y, uint32_t c, uint8_t intensity);
     static uint32_t getPixel32BitA8R8G8B8(const Drawable& self, int x, int y);
+    static void fillRect32BitA8R8G8B8(Drawable& self, int x1, int y1, int x2, int y2, uint32_t c);
 
     uint32_t toNativeColor(const Color& c) const;
     Color fromNativeColor(uint32_t c) const;
@@ -403,9 +413,17 @@ public:
     Size size() const;
 
     inline void putPixel(int x, int y, const Color& color) { putPixelImpl(*this, x, y, toNativeColor(color)); }
+    inline void blendPixel(int x, int y, const Color& color, uint8_t intensity)
+    {
+        blendPixelImpl(*this, x, y, toNativeColor(color), intensity);
+    }
     inline Color getPixel(int x, int y) const { return fromNativeColor(getPixelImpl(*this, x, y)); }
 
     inline void putPixelDirect(int x, int y, uint32_t native_color) { putPixelImpl(*this, x, y, native_color); }
+    inline void blendPixelDirect(int x, int y, uint32_t native_color, uint8_t intensity)
+    {
+        blendPixelImpl(*this, x, y, native_color, intensity);
+    }
     inline uint32_t getPixelDirect(int x, int y) const { return getPixelImpl(*this, x, y); }
 
     void clear(const Color& color = Color(0, 0, 0, 0));
@@ -413,7 +431,7 @@ public:
     // void blendPixel(int x, int y, const Color& c, int brightness);
 
     void drawRect(int x1, int y1, int x2, int y2, const Color& color);
-    void fillRect(int x1, int y1, int x2, int y2, const Color& color);
+    inline void fillRect(int x1, int y1, int x2, int y2, const Color& color) { fillRectImpl(*this, x1, y1, x2, y2, toNativeColor(color)); }
     void invertRect(int x1, int y1, int x2, int y2);
     void line(int x1, int y1, int x2, int y2, const Color& color);
 

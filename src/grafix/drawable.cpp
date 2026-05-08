@@ -62,6 +62,32 @@ uint32_t Drawable::getPixelMonochrome1BitVertical(const Drawable& self, int x, i
     return (*ptr & (1 << bit_offset)) ? 1 : 0;
 }
 
+void Drawable::blendPixelMonochrome1BitVertical(Drawable& self, int x, int y, uint32_t c, uint8_t intensity)
+{
+    if (intensity > 128) {
+        putPixelMonochrome1BitVertical(self, x, y, c);
+    }
+}
+
+void Drawable::fillRectMonochrome1BitVertical(Drawable& self, int x1, int y1, int x2, int y2, uint32_t c)
+{
+    if (x2 < x1 || y2 < y1 || !self.buffer) return;
+    Rect s(0, 0, self.my_width, self.my_height);
+    Rect r(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+    Rect clipped = s.intersected(r);
+    if (clipped.isNull()) return;
+    for (int y = clipped.top(); y <= clipped.bottom(); y++) {
+        for (int x = clipped.left(); x <= clipped.right(); x++) {
+            uint8_t* ptr = self.buffer + x + (y >> 3) * self.pitch;
+            int bit_offset = y & 7; // Bit innerhalb des Bytes (vertikal!)
+            if (c)
+                *ptr |= (1 << bit_offset);
+            else
+                *ptr &= ~(1 << bit_offset);
+        }
+    }
+}
+
 // ========== 16-Bit R5G6B5 ==========
 void Drawable::putPixel16BitR5G6B5(Drawable& self, int x, int y, uint32_t c)
 {
@@ -77,6 +103,47 @@ uint32_t Drawable::getPixel16BitR5G6B5(const Drawable& self, int x, int y)
     if (x < 0 || x >= (int)self.my_width || y < 0 || y >= (int)self.my_height) return 0;
     uint16_t* row = (uint16_t*)(self.buffer + y * self.pitch);
     return row[x];
+}
+
+void Drawable::blendPixel16BitR5G6B5(Drawable& self, int x, int y, uint32_t c, uint8_t intensity)
+{
+    if (!self.buffer) return;
+    if (x < 0 || x >= (int)self.my_width || y < 0 || y >= (int)self.my_height) return;
+
+    uint16_t* row = (uint16_t*)(self.buffer + y * self.pitch);
+    uint16_t dst = row[x];
+    uint16_t src = c & 0xFFFF;
+
+    // Einfache Alpha-Blending-Formel: result = (src * intensity + dst * (255 - intensity)) / 255
+    uint8_t src_r = (src >> 11) & 0x1F;
+    uint8_t src_g = (src >> 5) & 0x3F;
+    uint8_t src_b = src & 0x1F;
+
+    uint8_t dst_r = (dst >> 11) & 0x1F;
+    uint8_t dst_g = (dst >> 5) & 0x3F;
+    uint8_t dst_b = dst & 0x1F;
+
+    uint8_t out_r = (src_r * intensity + dst_r * (255 - intensity)) / 255;
+    uint8_t out_g = (src_g * intensity + dst_g * (255 - intensity)) / 255;
+    uint8_t out_b = (src_b * intensity + dst_b * (255 - intensity)) / 255;
+
+    row[x] = ((out_r & 0x1F) << 11) | ((out_g & 0x3F) << 5) | (out_b & 0x1F);
+}
+
+void Drawable::fillRect16BitR5G6B5(Drawable& self, int x1, int y1, int x2, int y2, uint32_t c)
+{
+    if (x2 < x1 || y2 < y1 || !self.buffer) return;
+    Rect s(0, 0, self.my_width, self.my_height);
+    Rect r(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+    Rect clipped = s.intersected(r);
+    if (clipped.isNull()) return;
+    uint16_t* row = (uint16_t*)(self.buffer + clipped.top() * self.pitch);
+    for (int y = clipped.top(); y <= clipped.bottom(); y++) {
+        for (int x = clipped.left(); x <= clipped.right(); x++) {
+            row[x] = c & 0xFFFF;
+        }
+        row = (uint16_t*)((uint8_t*)row + self.pitch);
+    }
 }
 
 // ========== 32-Bit A8R8G8B8 ==========
@@ -96,11 +163,61 @@ uint32_t Drawable::getPixel32BitA8R8G8B8(const Drawable& self, int x, int y)
     return row[x];
 }
 
+void Drawable::blendPixel32BitA8R8G8B8(Drawable& self, int x, int y, uint32_t c, uint8_t intensity)
+{
+    if (!self.buffer) return;
+    if (x < 0 || x >= (int)self.my_width || y < 0 || y >= (int)self.my_height) return;
+
+    uint32_t* row = (uint32_t*)(self.buffer + y * self.pitch);
+    uint32_t dst = row[x];
+    uint32_t src = c;
+
+    uint8_t src_a = (src >> 24) & 0xFF;
+    uint8_t src_r = (src >> 16) & 0xFF;
+    uint8_t src_g = (src >> 8) & 0xFF;
+    uint8_t src_b = src & 0xFF;
+
+    uint8_t dst_a = (dst >> 24) & 0xFF;
+    uint8_t dst_r = (dst >> 16) & 0xFF;
+    uint8_t dst_g = (dst >> 8) & 0xFF;
+    uint8_t dst_b = dst & 0xFF;
+
+    // Einfache Alpha-Blending-Formel: result = (src * intensity + dst * (255 - intensity)) / 255
+    uint8_t out_a = (src_a * intensity + dst_a * (255 - intensity)) / 255;
+    uint8_t out_r = (src_r * intensity + dst_r * (255 - intensity)) / 255;
+    uint8_t out_g = (src_g * intensity + dst_g * (255 - intensity)) / 255;
+    uint8_t out_b = (src_b * intensity + dst_b * (255 - intensity)) / 255;
+
+    row[x] = ((out_a & 0xFF) << 24) | ((out_r & 0xFF) << 16) | ((out_g & 0xFF) << 8) | (out_b & 0xFF);
+}
+
+void Drawable::fillRect32BitA8R8G8B8(Drawable& self, int x1, int y1, int x2, int y2, uint32_t c)
+{
+    if (x2 < x1 || y2 < y1 || !self.buffer) return;
+    Rect s(0, 0, self.my_width, self.my_height);
+    Rect r(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+    Rect clipped = s.intersected(r);
+    if (clipped.isNull()) return;
+    uint32_t* row = (uint32_t*)(self.buffer + clipped.top() * self.pitch);
+    for (int y = clipped.top(); y <= clipped.bottom(); y++) {
+        for (int x = clipped.left(); x <= clipped.right(); x++) {
+            row[x] = c;
+        }
+        row = (uint32_t*)((uint8_t*)row + self.pitch);
+    }
+}
+
+// Class
+
 Drawable::Drawable()
 {
     buffer = NULL;
     my_width = my_height = 0;
     pitch = 0;
+    putPixelImpl = nullptr;
+    getPixelImpl = nullptr;
+    blendPixelImpl = nullptr;
+    fillRectImpl = nullptr;
 }
 
 Drawable::Drawable(const Drawable& other)
@@ -112,6 +229,8 @@ Drawable::Drawable(const Drawable& other)
     rgb_format = other.rgb_format;
     putPixelImpl = other.putPixelImpl;
     getPixelImpl = other.getPixelImpl;
+    blendPixelImpl = other.blendPixelImpl;
+    fillRectImpl = other.fillRectImpl;
 }
 
 Drawable::Drawable(Drawable&& other) noexcept
@@ -123,6 +242,8 @@ Drawable::Drawable(Drawable&& other) noexcept
     rgb_format = other.rgb_format;
     putPixelImpl = other.putPixelImpl;
     getPixelImpl = other.getPixelImpl;
+    blendPixelImpl = other.blendPixelImpl;
+    fillRectImpl = other.fillRectImpl;
 
     other.buffer = NULL;
     other.pitch = 0;
@@ -130,6 +251,8 @@ Drawable::Drawable(Drawable&& other) noexcept
     other.my_height = 0;
     other.putPixelImpl = nullptr;
     other.getPixelImpl = nullptr;
+    other.blendPixelImpl = nullptr;
+    other.fillRectImpl = nullptr;
 }
 
 Drawable::Drawable(void* buffer, uint32_t pitch, uint16_t width, uint16_t height, const RGBFormat& format)
@@ -181,14 +304,20 @@ void Drawable::create(void* buffer, uint32_t pitch, uint16_t width, uint16_t hei
     case RGBFormat::Monochrome1BitVertical:
         putPixelImpl = putPixelMonochrome1BitVertical;
         getPixelImpl = getPixelMonochrome1BitVertical;
+        blendPixelImpl = blendPixelMonochrome1BitVertical;
+        fillRectImpl = fillRectMonochrome1BitVertical;
         break;
     case RGBFormat::R5G6B5:
         putPixelImpl = putPixel16BitR5G6B5;
         getPixelImpl = getPixel16BitR5G6B5;
+        blendPixelImpl = blendPixel16BitR5G6B5;
+        fillRectImpl = fillRect16BitR5G6B5;
         break;
     case RGBFormat::A8R8G8B8:
         putPixelImpl = putPixel32BitA8R8G8B8;
         getPixelImpl = getPixel32BitA8R8G8B8;
+        blendPixelImpl = blendPixel32BitA8R8G8B8;
+        fillRectImpl = fillRect32BitA8R8G8B8;
         break;
     default:
         throw Exception("Unsupported RGB format");
@@ -307,16 +436,6 @@ void Drawable::drawRect(int x1, int y1, int x2, int y2, const Color& color)
     for (int y = y1 + 1; y <= y2; y++) {
         putPixelImpl(*this, x1, y, native_color);
         putPixelImpl(*this, x2, y, native_color);
-    }
-}
-
-void Drawable::fillRect(int x1, int y1, int x2, int y2, const Color& color)
-{
-    uint32_t native_color = toNativeColor(color);
-    for (int y = y1; y <= y2; y++) {
-        for (int x = x1; x <= x2; x++) {
-            putPixelImpl(*this, x, y, native_color);
-        }
     }
 }
 
