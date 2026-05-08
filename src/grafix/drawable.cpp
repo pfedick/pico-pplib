@@ -64,7 +64,7 @@ uint32_t Drawable::getPixelMonochrome1BitVertical(const Drawable& self, int x, i
 
 void Drawable::blendPixelMonochrome1BitVertical(Drawable& self, int x, int y, uint32_t c, uint8_t intensity)
 {
-    if (intensity > 128) {
+    if (intensity >= 100) {
         putPixelMonochrome1BitVertical(self, x, y, c);
     }
 }

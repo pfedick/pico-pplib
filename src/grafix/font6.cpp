@@ -73,6 +73,8 @@ private:
     void loadFace(const char* data, size_t size);
     void loadGlyph(Font6Face& Face, const char* data, size_t size);
 
+    const Font6Face* getFaceInternal(int size, int flags);
+
     const Font6Face* getFace(int size, int flags);
 
     void renderInternal(
@@ -433,9 +435,10 @@ void Font6Renderer::loadGlyph(Font6Face& Face, const char* data, size_t size)
      */
 }
 
-const Font6Face* Font6Renderer::getFace(int size, int flags)
+const Font6Face* Font6Renderer::getFaceInternal(int size, int flags)
 {
     uint32_t id;
+
     id = (flags & 7) << 16;
     id |= (size & 0xffff);
     // printf("Suche id %i aus %zi Faces\n",id,Faces.size());
@@ -443,6 +446,21 @@ const Font6Face* Font6Renderer::getFace(int size, int flags)
     it = Faces.find(id);
     if (it == Faces.end()) return NULL;
     return &it->second;
+}
+
+const Font6Face* Font6Renderer::getFace(int size, int flags)
+{
+    const Font6Face* face = getFaceInternal(size, flags);
+    if (!face && (flags & 1)) {
+        // Fallback für nicht-antialiaste Schrift, wenn kein Face für Antialias enthalten ist
+        flags -= 1;
+        face = getFaceInternal(size, flags);
+    } else if (!face && !(flags & 1)) {
+        // Fallback für antialiaste Schrift, wenn kein Face für Nicht-Antialias enthalten ist
+        flags += 1;
+        face = getFaceInternal(size, flags);
+    }
+    return face;
 }
 
 const Font6Glyph* Font6Face::getGlyph(wchar_t code) const
