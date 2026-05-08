@@ -51,12 +51,14 @@ private:
     void write(const uint8_t cmd, const uint8_t* data, size_t len);
     void flush_dma(uint8_t* ptr, size_t len);
     void oled_init();
+    void init_pwm();
 
 public:
     ST7789();
     ~ST7789();
 
     void init(uint16_t width, uint16_t height, const Config& config);
+    void setBrightness(uint8_t brightness);
     uint8_t* get_buffer() const;
     inline uint16_t width() { return my_width; };
     inline uint16_t height() { return my_height; };

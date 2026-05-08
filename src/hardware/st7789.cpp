@@ -1,6 +1,8 @@
 #include "st7789.h"
 #include <malloc.h>
 #include <string.h>
+#include "pico/stdlib.h"
+#include "hardware/pwm.h"
 
 typedef enum write_type
 {
@@ -174,6 +176,17 @@ void ST7789::init(uint16_t my_width, uint16_t height, const Config& config)
     spi_blk = config.pin_spi_blk;
     spi_num = config.spi_num;
     oled_init();
+    init_pwm();
+}
+
+void ST7789::init_pwm()
+{
+    gpio_set_function(spi_blk, GPIO_FUNC_PWM);
+    uint slice_num = pwm_gpio_to_slice_num(spi_blk);
+    pwm_config cfg = pwm_get_default_config();
+    pwm_config_set_clkdiv(&cfg, 4.0f); // Teiler für weichere PWM
+    pwm_init(slice_num, &cfg, true);
+    pwm_set_wrap(slice_num, 255); // 0-255 Range
 }
 
 void ST7789::write(const uint8_t cmd, const uint8_t* data, size_t len)
@@ -209,11 +222,6 @@ void ST7789::oled_init()
 
     gpio_init(spi_rst);
     gpio_set_dir(spi_rst, GPIO_OUT);
-
-    // Backlight Pin initialisieren und einschalten
-    gpio_init(spi_blk);
-    gpio_set_dir(spi_blk, GPIO_OUT);
-    gpio_put(spi_blk, 1); // Backlight an
 
     // Hardware Reset
     gpio_put(spi_rst, 1);
@@ -417,4 +425,11 @@ void ST7789::clear(picopplib::Color color)
             buffer[y * my_width + x] = nativeColor;
         }
     }
+}
+
+void ST7789::setBrightness(uint8_t brightness)
+{
+    uint slice_num = pwm_gpio_to_slice_num(spi_blk);
+    uint channel = pwm_gpio_to_channel(spi_blk);
+    pwm_set_chan_level(slice_num, channel, brightness);
 }
