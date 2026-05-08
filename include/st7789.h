@@ -63,6 +63,7 @@ public:
 
     void refresh();
     picopplib::Drawable getDrawable();
+    void clear(picopplib::Color color = picopplib::Color(0, 0, 0));
 };
 
 #endif // ST7789_H

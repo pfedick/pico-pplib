@@ -53,11 +53,12 @@ public:
     class Config
     {
     public:
-        int pin_spi_dc;
-        int pin_spi_rst;
-        int pin_spi_sck;
-        int pin_spi_data;
-        int pin_spi_speed;
+        uint8_t pin_spi_dc;
+        uint8_t pin_spi_cs;
+        uint8_t pin_spi_rst;
+        uint8_t pin_spi_sck;
+        uint8_t pin_spi_data;
+        uint32_t pin_spi_speed;
         spi_inst_t* spi_num;
     };
 
@@ -93,12 +94,7 @@ public:
 
     void refresh();
     picopplib::Drawable getDrawable();
-
     void clear(uint16_t color = 0x0000);
-    void putPixel(int x, int y, uint16_t color);
-    void fillRect(int x1, int y1, int x2, int y2, uint16_t color);
-    void drawRect(int x1, int y1, int x2, int y2, uint16_t color);
-    void line(int x1, int y1, int x2, int y2, uint16_t color);
 };
 
 #endif

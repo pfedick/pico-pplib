@@ -400,3 +400,16 @@ picopplib::Drawable ST7789::getDrawable()
 {
     return picopplib::Drawable(oled_dma[current_buffer], my_width * 2, my_width, my_height, picopplib::RGBFormat::R5G6B5);
 }
+
+void ST7789::clear(picopplib::Color color)
+{
+    uint16_t color565 = ((color.red() & 0xf8) << 8) | ((color.green() & 0xfc) << 3) | ((color.blue() & 0xf8) >> 3);
+    uint16_t nativeColor = (color565 >> 8) | (color565 << 8); // Byte swap for SPI transmission
+
+    uint16_t* buffer = (uint16_t*)get_buffer();
+    for (int y = 0; y < my_height; y++) {
+        for (int x = 0; x < my_width; x++) {
+            buffer[y * my_width + x] = nativeColor;
+        }
+    }
+}
