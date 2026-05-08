@@ -241,6 +241,110 @@ static void DrawGlyphMono1_270(Drawable& data, const Font6Glyph& glyph, int x, i
     }
 }
 
+static void DrawGlyphAA2_0(Drawable& data, const Font6Glyph& glyph, int x, int y, int c)
+{
+    const char* bitmap = glyph.bitmap;
+    int v = 0, v2 = 0;
+    uint8_t bitcount = 0;
+    for (int yy = 0; yy < glyph.height; yy++) {
+        for (int xx = 0; xx < glyph.width; xx++) {
+            if (!bitcount) {
+                v = bitmap[0];
+                bitcount = 8;
+                bitmap++;
+            }
+            if ((v2 = v & 192)) {
+                if (v2 == 192)
+                    data.blendPixelDirect(x + xx, y + yy, c, 255);
+                else if (v2 == 128)
+                    data.blendPixelDirect(x + xx, y + yy, c, 192); // 200
+                else
+                    data.blendPixelDirect(x + xx, y + yy, c, 100); // 100
+            }
+            v = v << 2;
+            bitcount -= 2;
+        }
+    }
+}
+
+static void DrawGlyphAA2_90(Drawable& data, const Font6Glyph& glyph, int x, int y, int c)
+{
+    const char* bitmap = glyph.bitmap;
+    int v = 0, v2 = 0;
+    uint8_t bitcount = 0;
+    for (int yy = 0; yy < glyph.height; yy++) {
+        for (int xx = 0; xx < glyph.width; xx++) {
+            if (!bitcount) {
+                v = bitmap[0];
+                bitcount = 8;
+                bitmap++;
+            }
+            if ((v2 = v & 192)) {
+                if (v2 == 192)
+                    data.blendPixelDirect(x - yy, y + xx, c, 255);
+                else if (v2 == 128)
+                    data.blendPixelDirect(x - yy, y + xx, c, 200); // 200
+                else
+                    data.blendPixelDirect(x - yy, y + xx, c, 100); // 100
+            }
+            v = v << 2;
+            bitcount -= 2;
+        }
+    }
+}
+
+static void DrawGlyphAA2_180(Drawable& data, const Font6Glyph& glyph, int x, int y, int c)
+{
+    const char* bitmap = glyph.bitmap;
+    int v = 0, v2 = 0;
+    uint8_t bitcount = 0;
+    for (int yy = 0; yy < glyph.height; yy++) {
+        for (int xx = 0; xx < glyph.width; xx++) {
+            if (!bitcount) {
+                v = bitmap[0];
+                bitcount = 8;
+                bitmap++;
+            }
+            if ((v2 = v & 192)) {
+                if (v2 == 192)
+                    data.blendPixelDirect(x - xx, y - yy, c, 255);
+                else if (v2 == 128)
+                    data.blendPixelDirect(x - xx, y - yy, c, 200); // 200
+                else
+                    data.blendPixelDirect(x - xx, y - yy, c, 100); // 100
+            }
+            v = v << 2;
+            bitcount -= 2;
+        }
+    }
+}
+
+static void DrawGlyphAA2_270(Drawable& data, const Font6Glyph& glyph, int x, int y, int c)
+{
+    const char* bitmap = glyph.bitmap;
+    int v = 0, v2 = 0;
+    uint8_t bitcount = 0;
+    for (int yy = 0; yy < glyph.height; yy++) {
+        for (int xx = 0; xx < glyph.width; xx++) {
+            if (!bitcount) {
+                v = bitmap[0];
+                bitcount = 8;
+                bitmap++;
+            }
+            if ((v2 = v & 192)) {
+                if (v2 == 192)
+                    data.blendPixelDirect(x + yy, y - xx, c, 255);
+                else if (v2 == 128)
+                    data.blendPixelDirect(x + yy, y - xx, c, 200); // 200
+                else
+                    data.blendPixelDirect(x + yy, y - xx, c, 100); // 100
+            }
+            v = v << 2;
+            bitcount -= 2;
+        }
+    }
+}
+
 Font6Renderer::Font6Renderer() {}
 
 Font6Renderer::~Font6Renderer() {}
@@ -383,7 +487,7 @@ void Font6Renderer::render(Drawable& draw, const Font& font, int x, int y, const
             return;
         }
     }
-    throw Exception("UnknownFontFaceException");
+    // throw Exception("UnknownFontFaceException");
 }
 
 typedef void (*BltGlyphFunction)(Drawable& data, const Font6Glyph& glyph, int x, int y, int c);
@@ -415,10 +519,24 @@ static BltGlyphFunction getBlitter(const Font6Face& face, const Drawable& draw, 
             return &DrawGlyphMono1_270;
         }
         break;
+    case 4: // Antialiased, 2 Bit pro Pixel
+        switch (rotate) {
+        case 0:
+            return &DrawGlyphAA2_0;
+        case 90:
+            return &DrawGlyphAA2_90;
+        case 180:
+            return &DrawGlyphAA2_180;
+        case 270:
+            return &DrawGlyphAA2_270;
+        }
+        break;
     default:
-        throw Exception("InvalidFontException");
+        return NULL;
+        // throw Exception("InvalidFontException");
     };
-    throw Exception("InvalidFontException");
+    return NULL;
+    // throw Exception("InvalidFontException");
 }
 
 void Font6Renderer::renderInternal(
@@ -436,6 +554,7 @@ void Font6Renderer::renderInternal(
     size_t textlen = text.size();
     size_t p = 0;
     BltGlyph = getBlitter(face, draw, rotate);
+    if (!BltGlyph) return;
     if (font.orientation() == Font::TOP) {
         lasty += face.MaxBearingY;
     }
