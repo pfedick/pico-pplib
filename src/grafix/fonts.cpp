@@ -38,7 +38,7 @@ Font::Font()
     Name = "Default";
     fontSize = 12;
     flags = 0;
-    ori = 0;
+    ori = Orientation::TOP;
     rotationDegrees = 0.0;
     cForeground.setColor(255, 255, 255, 255);
 }
