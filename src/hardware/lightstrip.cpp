@@ -140,6 +140,60 @@ LightStripSection::LightStripSection()
     ls = nullptr;
 }
 
+LightStripSection::LightStripSection(const LightStripSection& other)
+{
+    start = other.start;
+    end = other.end;
+    my_size = other.my_size;
+    dir = other.dir;
+    ls = other.ls;
+}
+
+LightStripSection::LightStripSection(LightStripSection&& other)
+{
+    start = other.start;
+    end = other.end;
+    my_size = other.my_size;
+    dir = other.dir;
+    ls = other.ls;
+
+    other.start = 0;
+    other.end = 0;
+    other.my_size = 0;
+    other.dir = Direction::Forward;
+    other.ls = nullptr;
+}
+
+LightStripSection& LightStripSection::operator=(const LightStripSection& other)
+{
+    if (this != &other) {
+        start = other.start;
+        end = other.end;
+        my_size = other.my_size;
+        dir = other.dir;
+        ls = other.ls;
+    }
+    return *this;
+}
+
+LightStripSection& LightStripSection::operator=(LightStripSection&& other)
+{
+    if (this != &other) {
+        start = other.start;
+        end = other.end;
+        my_size = other.my_size;
+        dir = other.dir;
+        ls = other.ls;
+
+        other.start = 0;
+        other.end = 0;
+        other.my_size = 0;
+        other.dir = Direction::Forward;
+        other.ls = nullptr;
+    }
+    return *this;
+}
+
 LightStripSection::LightStripSection(LightStrip* ls, size_t start, size_t end, Direction dir)
 {
     this->start = start;
@@ -180,6 +234,11 @@ picopplib::Color LightStripSection::getPixel(int p) const
             return ls->getPixel(end - p);
     }
     return picopplib::Color();
+}
+
+void LightStripSection::write()
+{
+    ls->write();
 }
 
 void LightStripSection::shift(Direction d, int count, bool rotate)

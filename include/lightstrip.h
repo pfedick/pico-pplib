@@ -60,6 +60,8 @@ private:
 
 public:
     LightStripSection();
+    LightStripSection(const LightStripSection& other);
+    LightStripSection(LightStripSection&& other);
     LightStripSection(LightStrip* ls, size_t start, size_t end, Direction dir = Direction::Forward);
 
     size_t size() const;
@@ -67,6 +69,9 @@ public:
     void putPixel(int p, const picopplib::Color& color);
     picopplib::Color getPixel(int p) const;
     void shift(Direction d, int count = 1, bool rotate = false);
+    void write();
+    LightStripSection& operator=(const LightStripSection& other);
+    LightStripSection& operator=(LightStripSection&& other);
 };
 
 class LightStrip
