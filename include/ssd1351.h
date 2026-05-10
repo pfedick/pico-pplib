@@ -54,7 +54,6 @@ public:
     {
     public:
         uint8_t pin_spi_dc;
-        uint8_t pin_spi_cs;
         uint8_t pin_spi_rst;
         uint8_t pin_spi_sck;
         uint8_t pin_spi_data;
@@ -66,13 +65,13 @@ private:
     uint8_t* oled_dma[2];
     uint8_t current_buffer;
     size_t buffer_size;
-    int width;
-    int height;
-    int spi_dc;
-    int spi_rst;
-    int spi_sck;
-    int spi_data;
-    int spi_speed;
+    uint16_t width;
+    uint16_t height;
+    uint8_t spi_dc;
+    uint8_t spi_rst;
+    uint8_t spi_sck;
+    uint8_t spi_data;
+    uint32_t spi_speed;
     spi_inst_t* spi_num;
     uint8_t pos_x = 0;
     uint8_t pos_y = 0;
