@@ -29,6 +29,14 @@ public:
         spi_inst_t* spi_num;
     };
 
+    enum class Orientation
+    {
+        Portrait,         // 0°
+        Landscape,        // 90° im Uhrzeigersinn, Default
+        InvertedPortrait, // 180°
+        InvertedLandscape // 270° im Uhrzeigersinn
+    };
+
 private:
     uint8_t* oled_dma[2];
     uint8_t current_buffer;
@@ -47,6 +55,7 @@ private:
 
     volatile unsigned int dma_tx;
     dma_channel_config config;
+    Orientation orientation;
 
     void write(const uint8_t cmd, const uint8_t* data, size_t len);
     void flush_dma(uint8_t* ptr, size_t len);
@@ -59,6 +68,7 @@ public:
 
     void init(uint16_t width, uint16_t height, const Config& config);
     void setBrightness(uint8_t brightness);
+    void setOrientation(Orientation o);
     uint8_t* get_buffer() const;
     inline uint16_t width() { return my_width; };
     inline uint16_t height() { return my_height; };
