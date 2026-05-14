@@ -144,6 +144,7 @@ ST7789::ST7789()
     spi_speed = 20000000;
     spi_num = nullptr;
     dma_tx = 0;
+    orientation = Orientation::Landscape;
 }
 
 ST7789::~ST7789()
@@ -357,21 +358,30 @@ void ST7789::flush_dma(uint8_t* ptr, size_t len)
 
     gpio_put(spi_cs, 0); // CS aktivieren für gesamte Sequenz
 
+    uint16_t caset_max, raset_max;
+    if (orientation == Orientation::Portrait || orientation == Orientation::InvertedPortrait) {
+        caset_max = my_height - 1;
+        raset_max = my_width - 1;
+    } else {
+        caset_max = my_width - 1;
+        raset_max = my_height - 1;
+    }
+
     // Column Address Set (CASET) - 0 bis 239
-    param[0] = 0x00;                  // Start MSB
-    param[1] = 0x00;                  // Start LSB (Spalte 0)
-    param[2] = (my_width - 1) >> 8;   // End MSB
-    param[3] = (my_width - 1) & 0xFF; // End LSB (Spalte 239)
+    param[0] = 0x00;             // Start MSB
+    param[1] = 0x00;             // Start LSB (Spalte 0)
+    param[2] = caset_max >> 8;   // End MSB
+    param[3] = caset_max & 0xFF; // End LSB
     gpio_put(spi_dc, WRITE_COMMAND);
     spi_write_blocking(spi_num, (const uint8_t[]){CMD_CASET}, 1);
     gpio_put(spi_dc, WRITE_DATA);
     spi_write_blocking(spi_num, param, 4);
 
     // Row Address Set (RASET) - 0 bis 239
-    param[0] = 0x00;                   // Start MSB
-    param[1] = 0x00;                   // Start LSB (Zeile 0)
-    param[2] = (my_height - 1) >> 8;   // End MSB
-    param[3] = (my_height - 1) & 0xFF; // End LSB (Zeile 239)
+    param[0] = 0x00;             // Start MSB
+    param[1] = 0x00;             // Start LSB (Zeile 0)
+    param[2] = raset_max >> 8;   // End MSB
+    param[3] = raset_max & 0xFF; // End LSB
     gpio_put(spi_dc, WRITE_COMMAND);
     spi_write_blocking(spi_num, (const uint8_t[]){CMD_RASET}, 1);
     gpio_put(spi_dc, WRITE_DATA);
@@ -406,7 +416,31 @@ uint8_t* ST7789::get_buffer() const
 
 picopplib::Drawable ST7789::getDrawable()
 {
+    if (orientation == Orientation::Portrait || orientation == Orientation::InvertedPortrait) {
+        return picopplib::Drawable(oled_dma[current_buffer], my_height * 2, my_height, my_width, picopplib::RGBFormat::R5G6B5);
+    }
     return picopplib::Drawable(oled_dma[current_buffer], my_width * 2, my_width, my_height, picopplib::RGBFormat::R5G6B5);
+}
+
+void ST7789::setOrientation(Orientation o)
+{
+    uint8_t param = 0x00;
+    switch (o) {
+    case Orientation::Portrait:
+        param = 0x00; // MY=0, MX=0, MV=0
+        break;
+    case Orientation::Landscape:
+        param = 0x60; // MY=0, MX=0, MV=1
+        break;
+    case Orientation::InvertedPortrait:
+        param = 0xC0; // MY=1, MX=1, MV=0
+        break;
+    case Orientation::InvertedLandscape:
+        param = 0xA0; // MY=1, MX=1, MV=1
+        break;
+    }
+    write(CMD_MADCTL, &param, 1);
+    orientation = o;
 }
 
 void ST7789::clear(picopplib::Color color)
