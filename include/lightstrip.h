@@ -99,6 +99,9 @@ public:
     LightStrip(int gpio, size_t num_pixel, float frequency = 800000.0f, bool is_rgbw = false);
     ~LightStrip();
     size_t size() const;
+    PIO getPIO() const { return pio; }
+    uint getSM() const { return sm; }
+    uint getOffset() const { return offset; }
     void setSize(int num_pixel);
 
     void clear(const picopplib::Color& color = picopplib::Color(0, 0, 0));

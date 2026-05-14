@@ -15,13 +15,26 @@
 #include <math.h>
 #include <stdlib.h>
 
+static PIO ls_pio = nullptr;
+uint ls_offset = 0;
+
 LightStrip::LightStrip(int gpio, size_t num_pixel, float frequency, bool is_rgbw)
 {
     sm = 0;
     offset = 0;
     this->is_rgbw = is_rgbw;
-    bool success = pio_claim_free_sm_and_add_program_for_gpio_range(&ws2812_program, &pio, &sm, &offset, gpio, 1, true);
-    hard_assert(success);
+    if (ls_pio == nullptr) {
+        bool success = pio_claim_free_sm_and_add_program_for_gpio_range(&ws2812_program, &pio, &sm, &offset, gpio, 1, true);
+        hard_assert(success);
+        ls_pio = pio;
+        ls_offset = offset;
+    } else {
+        pio = ls_pio;
+        sm = 0;
+        offset = ls_offset;
+        sm = pio_claim_unused_sm(pio, true);
+    }
+
     ws2812_program_init(pio, sm, offset, gpio, frequency, is_rgbw);
     num = num_pixel;
     pixel.resize(num_pixel);
