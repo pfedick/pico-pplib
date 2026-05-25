@@ -526,6 +526,8 @@ uint64_t PeekN64(const void* Adresse);
 
 size_t rand(size_t min, size_t max);
 double randf(double min, double max);
+uint32_t crc32(const void* buffer, size_t size, uint32_t initial_crc = 0xFFFFFFFF);
+uint16_t crc16(const void* buffer, size_t size, uint16_t initial_crc = 0xFFFF);
 
 String ToBase64(const ByteArrayPtr& bin);
 ByteArray FromBase64(const String& str);
