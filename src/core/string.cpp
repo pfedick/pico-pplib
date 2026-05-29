@@ -39,7 +39,7 @@
 
 namespace picopplib
 {
-static size_t InitialBuffersize = 128;
+static size_t InitialBuffersize = 64;
 static char* empty_string = (char*)"";
 
 /*!\class String
@@ -1472,8 +1472,7 @@ ssize_t String::find(const String& needle, ssize_t start) const
         /* Beginning at the start of the contained string, start searching for
                every occurence of the str and make it the position last found as long
                as the found string doesn't exceed the defined end of the search */
-        while ((found = ::strstr((tmp == NULL ? ptr : tmp + 1), needle.ptr)) != NULL &&
-               found - ptr + lstr <= stringlen + start)
+        while ((found = ::strstr((tmp == NULL ? ptr : tmp + 1), needle.ptr)) != NULL && found - ptr + lstr <= stringlen + start)
             tmp = found;
 
         // Calculate the position to return if str was found
