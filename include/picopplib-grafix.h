@@ -351,6 +351,9 @@ inline bool operator==(RGBFormat::Identifier id, const RGBFormat& fmt)
     return fmt == id;
 }
 
+class Image;
+class ImageList;
+
 class Drawable
 {
 private:
@@ -437,6 +440,9 @@ public:
 
     void print(const Font& font, int x, int y, const String& text);
     void printf(const Font& font, int x, int y, const char* fmt, ...);
+
+    void draw(const ImageList& iml, int nr, int x, int y);
+    void draw(const ImageList& iml, int nr, int x, int y, const Color& diffuse);
 };
 
 class Image : public Drawable
@@ -461,6 +467,49 @@ public:
     size_t numBytes() const;
     ByteArrayPtr memory() const;
     operator ByteArrayPtr() const;
+};
+
+class ImageList
+{
+    friend class Drawable;
+
+public:
+    enum class DrawMethod : uint8_t
+    {
+        BLT = 1,
+        COLORKEY,
+        ALPHABLT,
+        DIFFUSE
+    };
+
+private:
+    uint16_t numIcons;
+    uint16_t width, height;
+    uint16_t numX, numY;
+    Color colorkey;
+    Color diffuse;
+    DrawMethod method;
+    Drawable pixel;
+
+public:
+    ImageList();
+    ImageList(const Drawable& draw, int icon_width, int icon_height, DrawMethod method);
+    ~ImageList();
+
+    void clear();
+    void setDrawMethod(DrawMethod method);
+    void setColorKey(const Color& key);
+    void setDiffuseColor(const Color& c);
+    void setIconSize(int width, int height);
+    void useDrawable(const Drawable& draw, int icon_width, int icon_height, DrawMethod method);
+
+    size_t num() const;
+    Size iconSize() const;
+    Rect getRect(size_t nr) const;
+    DrawMethod drawMethod() const;
+    Drawable getDrawable(size_t nr) const;
+    Color colorKey() const;
+    Color diffuseColor() const;
 };
 
 class ImageFilter;
