@@ -265,7 +265,7 @@ private:
     uint16_t fontSize;
     uint8_t flags;
     uint8_t ori;
-    double rotationDegrees;
+    float rotationDegrees;
 
 public:
     enum Orientation
@@ -296,7 +296,7 @@ public:
     Orientation orientation() const;
     Size measure(const String& text) const;
     Rect boundary(const String& text, int x = 0, int y = 0) const;
-    double rotation() const;
+    float rotation() const;
 
     int setName(const String& name);
     void setColor(const Color& c);
@@ -311,7 +311,7 @@ public:
     void setMonospace(bool enable);
     void setSize(int size);
     void setOrientation(Orientation o);
-    void setRotation(double degrees);
+    void setRotation(float degrees);
 
     Font& operator=(const Font& other);
 };

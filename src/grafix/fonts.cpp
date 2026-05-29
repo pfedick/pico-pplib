@@ -134,7 +134,7 @@ Font::Orientation Font::orientation() const
     return (Orientation)ori;
 }
 
-double Font::rotation() const
+float Font::rotation() const
 {
     return rotationDegrees;
 }
@@ -227,7 +227,7 @@ void Font::setOrientation(Orientation o)
     ori = o;
 }
 
-void Font::setRotation(double degrees)
+void Font::setRotation(float degrees)
 {
     rotationDegrees = degrees;
 }
