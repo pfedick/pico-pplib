@@ -145,6 +145,7 @@ ST7789::ST7789()
     spi_num = nullptr;
     dma_tx = 0;
     orientation = Orientation::Landscape;
+    useDoubleBuffer = false;
 }
 
 ST7789::~ST7789()
@@ -153,20 +154,24 @@ ST7789::~ST7789()
     free(oled_dma[1]);
 }
 
-void ST7789::init(uint16_t my_width, uint16_t height, const Config& config)
+void ST7789::init(uint16_t my_width, uint16_t height, const Config& config, bool useDoubleBuffer)
 {
+    free(oled_dma[0]);
+    free(oled_dma[1]);
+
     this->my_width = my_width;
     this->my_height = height;
     buffer_size = my_width * height * 2;
     oled_dma[0] = (uint8_t*)malloc(buffer_size);
-    oled_dma[1] = (uint8_t*)malloc(buffer_size);
-    current_buffer = 0;
-    if (!oled_dma[0] || !oled_dma[1]) {
-        return;
-    }
+    if (!oled_dma[0]) return;
     memset(oled_dma[0], 0, buffer_size);
-    memset(oled_dma[1], 0, buffer_size);
-
+    if (useDoubleBuffer) {
+        oled_dma[1] = (uint8_t*)malloc(buffer_size);
+        if (!oled_dma[1]) return;
+        memset(oled_dma[1], 0, buffer_size);
+    }
+    current_buffer = 0;
+    this->useDoubleBuffer = useDoubleBuffer;
     spi_dc = config.pin_spi_dc;
     spi_cs = config.pin_spi_cs;
     spi_rst = config.pin_spi_rst;
@@ -398,13 +403,18 @@ void ST7789::flush_dma(uint8_t* ptr, size_t len)
 
 void ST7789::refresh()
 {
-    if (current_buffer == 0) {
-        flush_dma(oled_dma[0], buffer_size);
-        // memcpy(oled_dma[1], oled_dma[0], buffer_size);
-        current_buffer = 1;
+    if (useDoubleBuffer) {
+        if (current_buffer == 0) {
+            flush_dma(oled_dma[0], buffer_size);
+            // memcpy(oled_dma[1], oled_dma[0], buffer_size);
+            current_buffer = 1;
+        } else {
+            flush_dma(oled_dma[1], buffer_size);
+            // memcpy(oled_dma[0], oled_dma[1], buffer_size);
+            current_buffer = 0;
+        }
     } else {
-        flush_dma(oled_dma[1], buffer_size);
-        // memcpy(oled_dma[0], oled_dma[1], buffer_size);
+        flush_dma(oled_dma[0], buffer_size);
         current_buffer = 0;
     }
 }

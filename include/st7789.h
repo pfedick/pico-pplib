@@ -43,6 +43,7 @@ private:
     size_t buffer_size;
     uint16_t my_width;
     uint16_t my_height;
+    bool useDoubleBuffer;
 
     uint8_t spi_dc;
     uint8_t spi_cs;
@@ -66,7 +67,7 @@ public:
     ST7789();
     ~ST7789();
 
-    void init(uint16_t width, uint16_t height, const Config& config);
+    void init(uint16_t width, uint16_t height, const Config& config, bool useDoubleBuffer);
     void setBrightness(uint8_t brightness);
     void setOrientation(Orientation o);
     uint8_t* get_buffer() const;
