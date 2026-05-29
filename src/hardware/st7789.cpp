@@ -145,7 +145,6 @@ ST7789::ST7789()
     spi_num = nullptr;
     dma_tx = 0;
     orientation = Orientation::Landscape;
-    useDoubleBuffer = false;
 }
 
 ST7789::~ST7789()
@@ -171,7 +170,6 @@ void ST7789::init(uint16_t my_width, uint16_t height, const Config& config, bool
         memset(oled_dma[1], 0, buffer_size);
     }
     current_buffer = 0;
-    this->useDoubleBuffer = useDoubleBuffer;
     spi_dc = config.pin_spi_dc;
     spi_cs = config.pin_spi_cs;
     spi_rst = config.pin_spi_rst;
@@ -403,7 +401,7 @@ void ST7789::flush_dma(uint8_t* ptr, size_t len)
 
 void ST7789::refresh()
 {
-    if (useDoubleBuffer) {
+    if (oled_dma[0] != nullptr && oled_dma[1] != nullptr) {
         if (current_buffer == 0) {
             flush_dma(oled_dma[0], buffer_size);
             // memcpy(oled_dma[1], oled_dma[0], buffer_size);

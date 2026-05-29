@@ -73,8 +73,6 @@ private:
     uint8_t spi_data;
     uint32_t spi_speed;
     spi_inst_t* spi_num;
-    uint8_t pos_x = 0;
-    uint8_t pos_y = 0;
 
     volatile unsigned int dma_tx;
     dma_channel_config config;
@@ -87,7 +85,7 @@ public:
     SSD1351();
     ~SSD1351();
 
-    void init(int width, int height, const Config& config);
+    void init(int width, int height, const Config& config, bool useDoubleBuffer = false);
 
     uint8_t* get_buffer();
 
