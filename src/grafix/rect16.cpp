@@ -32,7 +32,14 @@
 namespace picopplib
 {
 
-Rect::Rect()
+static inline int16_t clamp16(int value)
+{
+    if (value < -32768) return -32768;
+    if (value > 32767) return 32767;
+    return value;
+}
+
+Rect16::Rect16()
 {
     x1 = 0;
     y1 = 0;
@@ -40,7 +47,7 @@ Rect::Rect()
     y2 = 0;
 }
 
-Rect::Rect(const Point& p1, const Point& p2)
+Rect16::Rect16(const Point16& p1, const Point16& p2)
 {
     x1 = p1.x;
     y1 = p1.y;
@@ -48,7 +55,7 @@ Rect::Rect(const Point& p1, const Point& p2)
     y2 = p2.y;
 }
 
-Rect::Rect(const Point& p, const Size& s)
+Rect16::Rect16(const Point16& p, const Size16& s)
 {
     x1 = p.x;
     y1 = p.y;
@@ -56,7 +63,7 @@ Rect::Rect(const Point& p, const Size& s)
     y2 = y1 + s.height;
 }
 
-Rect::Rect(const Rect& other)
+Rect16::Rect16(const Rect16& other)
 {
     x1 = other.x1;
     y1 = other.y1;
@@ -64,7 +71,15 @@ Rect::Rect(const Rect& other)
     y2 = other.y2;
 }
 
-Rect::Rect(int x, int y, int width, int height)
+Rect16::Rect16(const Rect& other)
+{
+    x1 = clamp16(other.x1);
+    y1 = clamp16(other.y1);
+    x2 = clamp16(other.x2);
+    y2 = clamp16(other.y2);
+}
+
+Rect16::Rect16(int16_t x, int16_t y, int16_t width, int16_t height)
 {
     x1 = x;
     y1 = y;
@@ -72,89 +87,89 @@ Rect::Rect(int x, int y, int width, int height)
     y2 = y + height;
 }
 
-bool Rect::isNull() const
+bool Rect16::isNull() const
 {
     if (x1 == x2 && y1 == y2) return true;
     return false;
 }
 
-int Rect::left() const
+int16_t Rect16::left() const
 {
     return x1;
 }
 
-int Rect::right() const
+int16_t Rect16::right() const
 {
     return x2 - 1;
 }
 
-int Rect::top() const
+int16_t Rect16::top() const
 {
     return y1;
 }
 
-int Rect::bottom() const
+int16_t Rect16::bottom() const
 {
     return y2 - 1;
 }
 
-int Rect::width() const
+int16_t Rect16::width() const
 {
     return x2 - x1;
 }
 
-int Rect::height() const
+int16_t Rect16::height() const
 {
     return y2 - y1;
 }
 
-Size Rect::size() const
+Size16 Rect16::size() const
 {
-    return Size(x2 - x1, y2 - y1);
+    return Size16(x2 - x1, y2 - y1);
 }
 
-Point Rect::topLeft() const
+Point16 Rect16::topLeft() const
 {
-    return Point(x1, y1);
+    return Point16(x1, y1);
 }
 
-Point Rect::topRight() const
+Point16 Rect16::topRight() const
 {
-    return Point(x2, y1);
+    return Point16(x2, y1);
 }
 
-Point Rect::bottomLeft() const
+Point16 Rect16::bottomLeft() const
 {
-    return Point(x1, y2);
+    return Point16(x1, y2);
 }
 
-Point Rect::bottomRight() const
+Point16 Rect16::bottomRight() const
 {
-    return Point(x2, y2);
+    return Point16(x2, y2);
 }
 
-inline static void swap_int(int& i1, int& i2)
+inline static void swap_int(int16_t& i1, int16_t& i2)
 {
-    int t = i1;
+    int16_t t = i1;
     i1 = i2;
     i2 = t;
 }
 
-Rect Rect::normalized() const
+Rect16 Rect16::normalized() const
 {
-    Rect r(*this);
+    Rect16 r(*this);
     if (x2 < x1) swap_int(r.x1, r.x2);
     if (y2 < y1) swap_int(r.y1, r.y2);
     return r;
 }
 
-bool Rect::intersects(const Rect& other)
+bool Rect16::intersects(const Rect16& other)
 {
     return (other.x1 < x2 && other.x2 > x1 && other.y1 < y2 && other.y2 > y1);
 }
 
 #ifndef max
-inline static int max(int v1, int v2)
+inline static int16_t max(int16_t v1, int16_t v2)
 {
     if (v1 > v2) return v1;
     return v2;
@@ -162,16 +177,16 @@ inline static int max(int v1, int v2)
 #endif
 
 #ifndef min
-inline static int min(int v1, int v2)
+inline static int16_t min(int16_t v1, int16_t v2)
 {
     if (v1 < v2) return v1;
     return v2;
 }
 #endif
 
-Rect Rect::intersected(const Rect& other)
+Rect16 Rect16::intersected(const Rect16& other)
 {
-    Rect r;
+    Rect16 r;
     if (isNull() == true || other.isNull() == true) return r;
     if (!intersects(other)) return r;
     r.x1 = max(x1, other.x1);
@@ -181,19 +196,19 @@ Rect Rect::intersected(const Rect& other)
     return r;
 }
 
-void Rect::setTopLeft(const Point& topLeft)
+void Rect16::setTopLeft(const Point16& topLeft)
 {
     x1 = topLeft.x;
     y1 = topLeft.y;
 }
 
-void Rect::setBottomRight(const Point& bottomRight)
+void Rect16::setBottomRight(const Point16& bottomRight)
 {
     x2 = bottomRight.x;
     y2 = bottomRight.y;
 }
 
-void Rect::setRect(int x, int y, int width, int height)
+void Rect16::setRect(int16_t x, int16_t y, int16_t width, int16_t height)
 {
     x1 = x;
     y1 = y;
@@ -201,7 +216,7 @@ void Rect::setRect(int x, int y, int width, int height)
     y2 = y + height;
 }
 
-void Rect::setRect(const Rect& other)
+void Rect16::setRect(const Rect16& other)
 {
     x1 = other.x1;
     y1 = other.y1;
@@ -209,7 +224,7 @@ void Rect::setRect(const Rect& other)
     y2 = other.y2;
 }
 
-void Rect::setCoords(int x1, int y1, int x2, int y2)
+void Rect16::setCoords(int16_t x1, int16_t y1, int16_t x2, int16_t y2)
 {
     this->x1 = x1;
     this->y1 = y1;
@@ -217,7 +232,7 @@ void Rect::setCoords(int x1, int y1, int x2, int y2)
     this->y2 = y2;
 }
 
-void Rect::setCoords(const Point& p1, const Point& p2)
+void Rect16::setCoords(const Point16& p1, const Point16& p2)
 {
     x1 = p1.x;
     y1 = p1.y;
@@ -225,53 +240,53 @@ void Rect::setCoords(const Point& p1, const Point& p2)
     y2 = p2.y;
 }
 
-void Rect::setLeft(int left)
+void Rect16::setLeft(int16_t left)
 {
     x1 = left;
 }
 
-void Rect::setRight(int right)
+void Rect16::setRight(int16_t right)
 {
     x2 = right;
 }
 
-void Rect::setTop(int top)
+void Rect16::setTop(int16_t top)
 {
     y1 = top;
 }
 
-void Rect::setBottom(int bottom)
+void Rect16::setBottom(int16_t bottom)
 {
     y2 = bottom;
 }
 
-void Rect::setX(int x)
+void Rect16::setX(int16_t x)
 {
     x1 = x;
 }
 
-void Rect::setY(int y)
+void Rect16::setY(int16_t y)
 {
     y1 = y;
 }
 
-void Rect::setSize(const Size& size)
+void Rect16::setSize(const Size16& size)
 {
     x2 = x1 + size.width;
     y2 = y1 + size.height;
 }
 
-void Rect::setWidth(int width)
+void Rect16::setWidth(int16_t width)
 {
     x2 = x1 + width;
 }
 
-void Rect::setHeight(int height)
+void Rect16::setHeight(int16_t height)
 {
     y2 = y1 + height;
 }
 
-bool operator!=(const Rect& r1, const Rect& r2)
+bool operator!=(const Rect16& r1, const Rect16& r2)
 {
     if (r1.x1 != r2.x1) return true;
     if (r1.y1 != r2.y1) return true;
@@ -280,7 +295,7 @@ bool operator!=(const Rect& r1, const Rect& r2)
     return false;
 }
 
-bool operator==(const Rect& r1, const Rect& r2)
+bool operator==(const Rect16& r1, const Rect16& r2)
 {
     if (r1.x1 != r2.x1) return false;
     if (r1.y1 != r2.y1) return false;

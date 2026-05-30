@@ -39,28 +39,8 @@
 namespace picopplib
 {
 
-// Microsoft kompatible Strukturen
-typedef struct _RECT
-{
-    long left;
-    long top;
-    long right;
-    long bottom;
-} RECT, *PRECT;
-
-typedef struct tagPOINT
-{
-    long x;
-    long y;
-} POINT, *PPOINT;
-
-typedef struct tagSIZE
-{
-    long cx;
-    long cy;
-} SIZE, *PSIZE;
-
 class Rect;
+class Rect16;
 
 class Point
 {
@@ -99,6 +79,45 @@ const Point operator-(const Point& point);
 const Point operator/(const Point& point, double divisor);
 double Distance(const Point& p1, const Point& p2);
 
+class Point16
+{
+public:
+    int16_t x, y;
+
+    Point16();
+    Point16(int16_t x, int16_t y);
+    Point16(const Point16& other);
+    Point16(const Point& other);
+    bool isNull() const;
+    bool inside(const Rect16& r) const;
+    double vectorLength() const;
+    int manhattanLength() const;
+    void setX(int16_t x);
+    void setY(int16_t y);
+    void setPoint(int16_t x, int16_t y);
+    void setPoint(const Point16& other);
+    void setPoint(const Point& other);
+    Point16& operator*=(double factor);
+    Point16& operator+=(const Point16& point);
+    Point16& operator-=(const Point16& point);
+    Point16& operator/=(double divisor);
+
+    bool operator<(const Point16& other) const;
+    bool operator<=(const Point16& other) const;
+    bool operator==(const Point16& other) const;
+    bool operator!=(const Point16& other) const;
+    bool operator>=(const Point16& other) const;
+    bool operator>(const Point16& other) const;
+};
+
+const Point16 operator*(const Point16& point, double factor);
+const Point16 operator*(double factor, const Point16& point);
+const Point16 operator+(const Point16& p1, const Point16& p2);
+const Point16 operator-(const Point16& p1, const Point16& p2);
+const Point16 operator-(const Point16& point);
+const Point16 operator/(const Point16& point, double divisor);
+double Distance(const Point16& p1, const Point16& p2);
+
 class Size
 {
 public:
@@ -129,6 +148,37 @@ const Size operator-(const Size& s1, const Size& s2);
 const Size operator-(const Size& size);
 const Size operator/(const Size& size, double divisor);
 
+class Size16
+{
+public:
+    int16_t width, height;
+
+    Size16();
+    Size16(int16_t width, int16_t height);
+    Size16(const Size16& other);
+    Size16(const Size& other);
+    bool isNull() const;
+    bool isEmpty() const;
+    bool isValid() const;
+    void setHeight(int16_t height);
+    void setWidth(int16_t width);
+    void setSize(int16_t width, int16_t height);
+    void setSize(const Size16& s);
+    Size16& operator*=(double factor);
+    Size16& operator+=(const Size16& size);
+    Size16& operator-=(const Size16& size);
+    Size16& operator/=(double divisor);
+};
+
+bool operator!=(const Size16& s1, const Size16& s2);
+bool operator==(const Size16& s1, const Size16& s2);
+const Size16 operator*(const Size16& size, double factor);
+const Size16 operator*(double factor, const Size16& size);
+const Size16 operator+(const Size16& s1, const Size16& s2);
+const Size16 operator-(const Size16& s1, const Size16& s2);
+const Size16 operator-(const Size16& size);
+const Size16 operator/(const Size16& size, double divisor);
+
 class Rect
 {
     friend bool operator!=(const Rect& r1, const Rect& r2);
@@ -143,7 +193,6 @@ public:
     Rect(const Point& p, const Size& s);
     Rect(int x, int y, int width, int height);
     Rect(const Rect& r);
-    Rect(const RECT& r);
 
     bool isNull() const;
     int left() const;
@@ -165,7 +214,6 @@ public:
 
     void setTopLeft(const Point& topLeft);
     void setBottomRight(const Point& bottomRight);
-    void setRect(const RECT& r);
     void setRect(const Rect& r);
     void setRect(int x, int y, int width, int height);
     void setCoords(int x1, int y1, int x2, int y2);
@@ -183,6 +231,60 @@ public:
 
 bool operator!=(const Rect& r1, const Rect& r2);
 bool operator==(const Rect& r1, const Rect& r2);
+
+class Rect16
+{
+    friend bool operator!=(const Rect16& r1, const Rect16& r2);
+    friend bool operator==(const Rect16& r1, const Rect16& r2);
+
+private:
+public:
+    int16_t x1, y1;
+    int16_t x2, y2;
+    Rect16();
+    Rect16(const Point16& p1, const Point16& p2);
+    Rect16(const Point16& p, const Size16& s);
+    Rect16(int16_t x, int16_t y, int16_t width, int16_t height);
+    Rect16(const Rect16& r);
+    Rect16(const Rect& r);
+
+    bool isNull() const;
+    int16_t left() const;
+    int16_t right() const;
+    int16_t top() const;
+    int16_t bottom() const;
+    int16_t width() const;
+    int16_t height() const;
+    Size16 size() const;
+
+    Point16 topLeft() const;
+    Point16 topRight() const;
+    Point16 bottomLeft() const;
+    Point16 bottomRight() const;
+
+    Rect16 normalized() const;
+    Rect16 intersected(const Rect16& other);
+    bool intersects(const Rect16& other);
+
+    void setTopLeft(const Point16& topLeft);
+    void setBottomRight(const Point16& bottomRight);
+    void setRect(const Rect16& r);
+    void setRect(int16_t x, int16_t y, int16_t width, int16_t height);
+    void setCoords(int16_t x1, int16_t y1, int16_t x2, int16_t y2);
+    void setCoords(const Point16& p1, const Point16& p2);
+    void setLeft(int16_t left);
+    void setRight(int16_t right);
+    void setTop(int16_t top);
+    void setBottom(int16_t bottom);
+    void setX(int16_t x);
+    void setY(int16_t y);
+    void setSize(const Size16& size);
+    void setWidth(int16_t width);
+    void setHeight(int16_t height);
+};
+
+bool operator!=(const Rect16& r1, const Rect16& r2);
+bool operator==(const Rect16& r1, const Rect16& r2);
 
 class Color
 {
