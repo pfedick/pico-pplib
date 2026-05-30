@@ -207,6 +207,42 @@ void Drawable::fillRect32BitA8R8G8B8(Drawable& self, int x1, int y1, int x2, int
     }
 }
 
+// ========== 8-Bit GREYSCALE ==========
+void Drawable::putPixel8BitGREY(Drawable& self, int x, int y, uint32_t c)
+{
+    if (!self.buffer) return;
+    if (x < 0 || x >= (int)self.my_width || y < 0 || y >= (int)self.my_height) return;
+    uint8_t* row = (uint8_t*)(self.buffer + y * self.pitch);
+    row[x] = (c & 0xff);
+}
+uint32_t Drawable::getPixel8BitGREY(const Drawable& self, int x, int y)
+{
+    if (!self.buffer) return 0;
+    if (x < 0 || x >= (int)self.my_width || y < 0 || y >= (int)self.my_height) return 0;
+    uint8_t* row = (uint8_t*)(self.buffer + y * self.pitch);
+    return row[x];
+}
+
+void Drawable::blendPixel8BitGREY(Drawable& self, int x, int y, uint32_t c, uint8_t intensity)
+{
+    // Not implemented
+}
+
+void Drawable::fillRect8BitGREY(Drawable& self, int x1, int y1, int x2, int y2, uint32_t c)
+{
+    if (x2 < x1 || y2 < y1 || !self.buffer) return;
+    Rect s(0, 0, self.my_width, self.my_height);
+    Rect r(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+    Rect clipped = s.intersected(r);
+    if (clipped.isNull()) return;
+    uint8_t* row = (uint8_t*)(self.buffer + clipped.top() * self.pitch);
+    for (int y = clipped.top(); y <= clipped.bottom(); y++) {
+        for (int x = clipped.left(); x <= clipped.right(); x++) {
+            row[x] = c;
+        }
+        row = (uint8_t*)((uint8_t*)row + self.pitch);
+    }
+}
 // Class
 
 Drawable::Drawable()
@@ -273,6 +309,8 @@ Drawable& Drawable::operator=(const Drawable& other)
         rgb_format = other.rgb_format;
         putPixelImpl = other.putPixelImpl;
         getPixelImpl = other.getPixelImpl;
+        blendPixelImpl = other.blendPixelImpl;
+        fillRectImpl = other.fillRectImpl;
     }
     return *this;
 }
@@ -287,6 +325,8 @@ Drawable& Drawable::operator=(Drawable&& other) noexcept
         rgb_format = other.rgb_format;
         putPixelImpl = other.putPixelImpl;
         getPixelImpl = other.getPixelImpl;
+        blendPixelImpl = other.blendPixelImpl;
+        fillRectImpl = other.fillRectImpl;
 
         other.buffer = NULL;
         other.pitch = 0;
@@ -294,6 +334,8 @@ Drawable& Drawable::operator=(Drawable&& other) noexcept
         other.my_height = 0;
         other.putPixelImpl = nullptr;
         other.getPixelImpl = nullptr;
+        other.blendPixelImpl = nullptr;
+        other.fillRectImpl = nullptr;
     }
     return *this;
 }
@@ -319,6 +361,12 @@ void Drawable::create(void* buffer, uint32_t pitch, uint16_t width, uint16_t hei
         blendPixelImpl = blendPixel32BitA8R8G8B8;
         fillRectImpl = fillRect32BitA8R8G8B8;
         break;
+    case RGBFormat::GREY8:
+        putPixelImpl = putPixel8BitGREY;
+        getPixelImpl = getPixel8BitGREY;
+        blendPixelImpl = blendPixel8BitGREY;
+        fillRectImpl = fillRect8BitGREY;
+        break;
     default:
         throw Exception("Unsupported RGB format");
     }
@@ -329,12 +377,35 @@ void Drawable::create(void* buffer, uint32_t pitch, uint16_t width, uint16_t hei
     this->rgb_format = format;
 }
 
+void Drawable::use(const Drawable& other)
+{
+    buffer = other.buffer;
+    pitch = other.pitch;
+    my_width = other.my_width;
+    my_height = other.my_height;
+    rgb_format = other.rgb_format;
+    putPixelImpl = other.putPixelImpl;
+    getPixelImpl = other.getPixelImpl;
+    blendPixelImpl = other.blendPixelImpl;
+    fillRectImpl = other.fillRectImpl;
+}
+
 Drawable Drawable::getDrawable(const Rect& rect) const
 {
     return getDrawable(rect.x1, rect.y1, rect.x2, rect.y2);
 }
 
+Drawable Drawable::getDrawable(const Rect16& rect) const
+{
+    return getDrawable(rect.x1, rect.y1, rect.x2, rect.y2);
+}
+
 Drawable Drawable::getDrawable(const Point& p, const Size& s) const
+{
+    return getDrawable(p.x, p.y, p.x + s.width - 1, p.y + s.height - 1);
+}
+
+Drawable Drawable::getDrawable(const Point16& p, const Size16& s) const
 {
     return getDrawable(p.x, p.y, p.x + s.width - 1, p.y + s.height - 1);
 }
@@ -424,6 +495,21 @@ uint8_t* Drawable::ptr() const
 Size Drawable::size() const
 {
     return Size(my_width, my_height);
+}
+
+Size16 Drawable::size16() const
+{
+    return Size16(my_width, my_height);
+}
+
+Rect Drawable::rect() const
+{
+    return Rect(0, 0, my_width, my_height);
+}
+
+Rect16 Drawable::rect16() const
+{
+    return Rect(0, 0, my_width, my_height);
 }
 
 void Drawable::drawRect(int x1, int y1, int x2, int y2, const Color& color)
@@ -519,6 +605,512 @@ void Drawable::line(int x1, int y1, int x2, int y2, const Color& color)
     }
 }
 
-// void Drawable::blendPixel(int x, int y, int c, int brightness) {}
+void Drawable::line(const Point& p1, const Point& p2, const Color& color)
+{
+    line(p1.x, p1.y, p2.x, p2.y, color);
+}
+
+static inline void SwapFloat(float* w1, float* w2)
+{
+    float t = *w1;
+    *w1 = *w2;
+    *w2 = t;
+}
+
+static inline float WuTrunc(float value) // Ganzzahligen Wert von Value zur�ckgeben
+{
+    return (float)((int32_t)value);
+}
+
+static inline float WuFrac(float value) // Kommastellen zurueckgeben
+{
+    return value - WuTrunc(value);
+}
+
+static inline float WuInvFrac(float value)
+{
+    return 1 - WuFrac(value);
+}
+
+static void WuLine(Drawable& draw, float x1, float y1, float x2, float y2, const Color& color)
+{
+    float grad, xd, yd; //,length,xm,ym;
+    float brightness1, brightness2;
+
+    xd = (x2 - x1); // Breite und Hoehe der Linie
+    yd = (y2 - y1);
+
+    if (abs((int32_t)xd) > abs((int32_t)yd)) { // check line gradient							==> Horizontale Linie
+        if (x1 > x2) {                         // Wenn Linie von rechts nach links gezeichnet wird, tauschen
+            SwapFloat(&x1, &x2);               // wir einfach die Koordinaten
+            SwapFloat(&y1, &y2);
+            xd = (x2 - x1); // Breite und Hoehe der Linie neu berechnen
+            yd = (y2 - y1);
+        }
+        grad = yd / xd; // Gradient der Linie
+        float xgap, xend, yend, yf;
+
+        // End Point 1
+        xend = WuTrunc(x1 + 0.5f);
+        yend = y1 + grad * (xend - x1);
+
+        xgap = WuInvFrac(x1 + 0.5f);
+
+        int32_t ix1 = (int32_t)xend;
+        int32_t iy1 = (int32_t)yend;
+
+        brightness1 = WuInvFrac(yend) * xgap;
+        brightness2 = WuFrac(yend) * xgap;
+        draw.blendPixel(ix1, iy1, color, (int)(brightness1 * 255));
+        draw.blendPixel(ix1, iy1 + 1, color, (int)(brightness2 * 255));
+
+        yf = yend + grad;
+
+        // End Point 2
+        xend = WuTrunc(x2 + 0.5f);
+        yend = y2 + grad * (xend - x2);
+
+        xgap = WuInvFrac(x2 - 0.5f);
+
+        int32_t ix2 = (int32_t)xend;
+        int32_t iy2 = (int32_t)yend;
+
+        brightness1 = WuInvFrac(yend) * xgap;
+        brightness2 = WuFrac(yend) * xgap;
+        draw.blendPixel(ix2, iy2, color, (int)(brightness1 * 255));
+        draw.blendPixel(ix2, iy2 + 1, color, (int)(brightness2 * 255));
+
+        // Main Loop
+        for (int32_t x = ix1 + 1; x < ix2; x++) {
+            brightness1 = WuInvFrac(yf);
+            brightness2 = WuFrac(yf);
+            draw.blendPixel(x, (int)yf, color, (int)(brightness1 * 255));
+            draw.blendPixel(x, (int)yf + 1, color, (int)(brightness2 * 255));
+            yf = yf + grad;
+        }
+
+    } else {                     // check line gradient							==> Vertikale Linie
+        if (y1 > y2) {           // Wenn Linie von rechts nach links gezeichnet wird, tauschen
+            SwapFloat(&x1, &x2); // wir einfach die Koordinaten
+            SwapFloat(&y1, &y2);
+            xd = (x2 - x1); // Breite und Hoehe der Linie neu berechnen
+            yd = (y2 - y1);
+        }
+        grad = xd / yd; // Gradient der Linie
+
+        float xend, yend, xf, ygap;
+        // End Point 1
+        yend = WuTrunc(y1 + 0.5f);
+        xend = x1 + grad * (yend - y1);
+
+        ygap = WuInvFrac(y1 + 0.5f);
+
+        int32_t ix1 = (int32_t)xend;
+        int32_t iy1 = (int32_t)yend;
+
+        brightness1 = WuInvFrac(xend) * ygap;
+        brightness2 = WuFrac(xend) * ygap;
+        draw.blendPixel(ix1, iy1, color, (int)(brightness1 * 255));
+        draw.blendPixel(ix1 + 1, iy1, color, (int)(brightness2 * 255));
+
+        xf = xend + grad;
+
+        // End Point 2
+        yend = WuTrunc(y2 + 0.5f);
+        xend = x2 + grad * (yend - y2);
+
+        ygap = WuInvFrac(y2 - 0.5f);
+
+        int32_t ix2 = (int32_t)xend;
+        int32_t iy2 = (int32_t)yend;
+
+        brightness1 = WuInvFrac(xend) * ygap;
+        brightness2 = WuFrac(xend) * ygap;
+        draw.blendPixel(ix2, iy2, color, (int)(brightness1 * 255));
+        draw.blendPixel(ix2 + 1, iy2, color, (int)(brightness2 * 255));
+
+        // Main Loop
+        for (int32_t y = iy1 + 1; y < iy2; y++) {
+            brightness1 = WuInvFrac(xf);
+            brightness2 = WuFrac(xf);
+            draw.blendPixel((int)xf, y, color, (int)(brightness1 * 255));
+            draw.blendPixel((int)xf + 1, y, color, (int)(brightness2 * 255));
+            xf = xf + grad;
+        }
+    }
+}
+
+static void WuLineThick(Drawable& draw, float x1, float y1, float x2, float y2, Color color, int strength)
+{
+    float grad, xd, yd; //,length,xm,ym;
+    float brightness1, brightness2;
+
+    xd = (x2 - x1); // Breite und Hoehe der Linie
+    yd = (y2 - y1);
+
+    if (abs((int32_t)xd) > abs((int32_t)yd)) { // check line gradient							==> Horizontale Linie
+        // Zuerst korrigieren wir die Start- und Zielkoordinaten, damit die Linie mittig ist
+        y1 -= strength / 2;
+        y2 -= strength / 2;
+
+        if (x1 > x2) {           // Wenn Linie von rechts nach links gezeichnet wird, tauschen
+            SwapFloat(&x1, &x2); // wir einfach die Koordinaten
+            SwapFloat(&y1, &y2);
+            xd = (x2 - x1); // Breite und Hoehe der Linie neu berechnen
+            yd = (y2 - y1);
+        }
+        grad = yd / xd; // Gradient der Linie
+        float xgap, xend, yend, yf;
+        // End Point 1
+        xend = WuTrunc(x1 + 0.5f);
+        yend = y1 + grad * (xend - x1);
+
+        xgap = WuInvFrac(x1 + 0.5f);
+
+        int32_t ix1 = (int32_t)xend;
+        int32_t iy1 = (int32_t)yend;
+
+        brightness1 = WuInvFrac(yend) * xgap;
+        brightness2 = WuFrac(yend) * xgap;
+        draw.blendPixel(ix1, iy1, color, (int)(brightness1 * 255));
+        for (int i = 1; i < strength; i++)
+            draw.blendPixel(ix1, iy1 + i, color, 255);
+        draw.blendPixel(ix1, iy1 + strength, color, (int)(brightness2 * 255));
+
+        yf = yend + grad;
+
+        // End Point 2
+        xend = WuTrunc(x2 + 0.5f);
+        yend = y2 + grad * (xend - x2);
+
+        xgap = WuInvFrac(x2 - 0.5f);
+
+        int32_t ix2 = (int32_t)xend;
+        int32_t iy2 = (int32_t)yend;
+
+        brightness1 = WuInvFrac(yend) * xgap;
+        brightness2 = WuFrac(yend) * xgap;
+        draw.blendPixel(ix2, iy2, color, (int)(brightness1 * 255));
+        for (int i = 1; i < strength; i++)
+            draw.blendPixel(ix2, iy2 + i, color, 255);
+        draw.blendPixel(ix2, iy2 + strength, color, (int)(brightness2 * 255));
+
+        // Main Loop
+        for (int32_t x = ix1 + 1; x < ix2; x++) {
+            brightness1 = WuInvFrac(yf);
+            brightness2 = WuFrac(yf);
+            draw.blendPixel(x, (int32_t)yf, color, (int)(brightness1 * 255));
+            for (int i = 1; i < strength; i++)
+                draw.blendPixel(x, (int32_t)yf + i, color, 255);
+            draw.blendPixel(x, (int32_t)yf + strength, color, (int)(brightness2 * 255));
+            yf = yf + grad;
+        }
+
+    } else { // check line gradient							==> Vertikale Linie
+        // Zuerst korrigieren wir die Start- und Zielkoordinaten, damit die Linie mittig ist
+        x1 -= strength / 2;
+        x2 -= strength / 2;
+
+        if (y1 > y2) {           // Wenn Linie von rechts nach links gezeichnet wird, tauschen
+            SwapFloat(&x1, &x2); // wir einfach die Koordinaten
+            SwapFloat(&y1, &y2);
+            xd = (x2 - x1); // Breite und Hoehe der Linie neu berechnen
+            yd = (y2 - y1);
+        }
+        grad = xd / yd; // Gradient der Linie
+        float xend, yend, xf, ygap;
+        // End Point 1
+        yend = WuTrunc(y1 + 0.5f);
+        xend = x1 + grad * (yend - y1);
+
+        ygap = WuInvFrac(y1 + 0.5f);
+
+        int32_t ix1 = (int32_t)xend;
+        int32_t iy1 = (int32_t)yend;
+
+        brightness1 = WuInvFrac(xend) * ygap;
+        brightness2 = WuFrac(xend) * ygap;
+        draw.blendPixel(ix1, iy1, color, (int)(brightness1 * 255));
+        for (int i = 1; i < strength; i++)
+            draw.blendPixel(ix1 + i, iy1, color, 255);
+        draw.blendPixel(ix1 + strength, iy1, color, (int)(brightness2 * 255));
+
+        xf = xend + grad;
+
+        // End Point 2
+        yend = WuTrunc(y2 + 0.5f);
+        xend = x2 + grad * (yend - y2);
+
+        ygap = WuInvFrac(y2 - 0.5f);
+
+        int32_t ix2 = (int32_t)xend;
+        int32_t iy2 = (int32_t)yend;
+
+        brightness1 = WuInvFrac(xend) * ygap;
+        brightness2 = WuFrac(xend) * ygap;
+        draw.blendPixel(ix2, iy2, color, (int)(brightness1 * 255));
+        for (int i = 1; i < strength; i++)
+            draw.blendPixel(ix2 + i, iy2, color, 255);
+        draw.blendPixel(ix2 + strength, iy2, color, (int)(brightness2 * 255));
+
+        // Main Loop
+        for (int32_t y = iy1 + 1; y < iy2; y++) {
+            brightness1 = WuInvFrac(xf);
+            brightness2 = WuFrac(xf);
+            draw.blendPixel((int32_t)xf, y, color, (int)(brightness1 * 255));
+            for (int i = 1; i < strength; i++)
+                draw.blendPixel((int32_t)xf + i, y, color, 255);
+            draw.blendPixel((int32_t)xf + strength, y, color, (int)(brightness2 * 255));
+            xf = xf + grad;
+        }
+    }
+}
+
+void Drawable::lineAA(int x1, int y1, int x2, int y2, const Color& c, int strength)
+{
+    if (strength == 1) {
+        WuLine(*this, (float)x1, (float)y1, (float)x2, (float)y2, c);
+    } else {
+        WuLineThick(*this, (float)x1, (float)y1, (float)x2, (float)y2, c, strength);
+    }
+}
+
+void Drawable::lineAA(const Point& start, const Point& end, const Color& c, int strength)
+{
+    lineAA(start.x, start.y, end.x, end.y, c, strength);
+}
+
+void Drawable::colorGradient(const Rect& rect, const Color& c1, const Color& c2, int direction)
+{
+    colorGradient(rect.x1, rect.y1, rect.x2 - 1, rect.y2 - 1, c1, c2, direction);
+}
+
+void Drawable::colorGradient(int x1, int y1, int x2, int y2, const Color& c1, const Color& c2, int direction)
+{
+    Color c;
+    uint32_t w1, w2;
+    int range;
+    c.setAlpha(255);
+    if (direction == 0) {
+        range = x2 - x1 + 1;
+        for (int32_t x = 0; x < range; x++) {
+            w1 = range - x;
+            w2 = x;
+            c.setRed((c1.red() * w1 / range) + (c2.red() * w2 / range));
+            c.setGreen((c1.green() * w1 / range) + (c2.green() * w2 / range));
+            c.setBlue((c1.blue() * w1 / range) + (c2.blue() * w2 / range));
+            line(x1 + x, y1, x1 + x, y2, c);
+        }
+    } else {
+        range = y2 - y1 + 1;
+        for (int32_t y = 0; y < range; y++) {
+            w1 = range - y;
+            w2 = y;
+            c.setRed((c1.red() * w1 / range) + (c2.red() * w2 / range));
+            c.setGreen((c1.green() * w1 / range) + (c2.green() * w2 / range));
+            c.setBlue((c1.blue() * w1 / range) + (c2.blue() * w2 / range));
+            line(x1, y1 + y, x2, y1 + y, c);
+        }
+    }
+}
+
+/*!\brief Überprüft, ob eine Blit-Aktion in den Zeichenbereich passt.
+ *
+ * \desc
+ * Diese Funktion prüft, ob das zu zeichnende Rechteck überhaupt in die aktuelle
+ * Zeichenfläche. Dabei wird das Quellrechteck bei Bedarf angepasst.
+ *
+ * \param[in,out] x X-Koordinate der Zielposition
+ * \param[in,out] y Y-Koordinate der Zielposition
+ * \param[in,out] r Quell-Rechteck
+ *
+ * \return
+ * Die Funktion liefert 0 zurück, wenn das Rechteck komplett ausserhalb der
+ * Zeichenfläche liegt, oder 1, wenn es ganz oder zumindest teilweise innerhalb der
+ * Zeichenfläche liegt. In letzterem Fall werden die Koordinaten \p x, \p y und die
+ * Dimensionen des Rechtecks \p r so angepasst, dass durch die nachfolgende Blt-Funktion
+ * nur der sichtbare Bereich an die korrekte Position gezeichnet wird.
+ */
+int Drawable::fitRect(int& x, int& y, Rect16& r)
+{
+    Rect16 screen(0, 0, my_width, my_height);
+    Rect16 object(x, y, r.width(), r.height());
+    Rect16 i = screen.intersected(object);
+
+    if (i.isNull()) return 0;
+    int16_t shiftx = i.x1 - object.x1;
+    int16_t shifty = i.y1 - object.y1;
+    x += shiftx;
+    y += shifty;
+
+    r.x1 += shiftx;
+    r.y1 += shifty;
+    r.x2 = r.x1 + i.width();
+    r.y2 = r.y1 + i.height();
+    return 1;
+}
+
+void Drawable::blt(const Drawable& source, int x, int y)
+{
+    blt(source, source.rect(), x, y);
+}
+
+void Drawable::blt(const Drawable& source, const Rect16& srect, int x, int y)
+{
+    if (source.isEmpty()) return;
+    // Quellrechteck
+    Rect16 q;
+    if (srect.isNull()) {
+        q = source.rect();
+    } else {
+        q = srect;
+        if (q.left() < 0) q.setLeft(0);
+        if (q.width() > source.width()) q.setWidth(source.width());
+        if (q.top() < 0) q.setTop(0);
+        if (q.height() > source.height()) q.setHeight(source.height());
+    }
+    if (!fitRect(x, y, q)) return;
+    for (int16_t yy = 0; yy <= q.height(); yy++) {
+        for (int16_t xx = 0; xx <= q.width(); xx++) {
+            putPixel(x + xx, y + yy, source.getPixel(q.x1 + xx, q.y1 + yy));
+        }
+    }
+}
+
+void Drawable::bltDiffuse(const Drawable& source, int x, int y, const Color& c)
+{
+    bltDiffuse(source, source.rect(), x, y, c);
+}
+
+void Drawable::bltDiffuse(const Drawable& source, const Rect16& srect, int x, int y, const Color& c)
+{
+    if (source.isEmpty()) return;
+    if (source.rgb_format.format() != RGBFormat::GREY8) return;
+    // Quellrechteck
+    Rect16 q;
+    if (srect.isNull()) {
+        q = source.rect();
+    } else {
+        q = srect;
+        if (q.left() < 0) q.setLeft(0);
+        if (q.width() > source.width()) q.setWidth(source.width());
+        if (q.top() < 0) q.setTop(0);
+        if (q.height() > source.height()) q.setHeight(source.height());
+    }
+    if (!fitRect(x, y, q)) return;
+    uint32_t native_color = toNativeColor(c);
+
+    for (int16_t yy = 0; yy <= q.height(); yy++) {
+        for (int16_t xx = 0; xx <= q.width(); xx++) {
+            uint8_t intensity = source.getPixelDirect(q.x1 + xx, q.y1 + yy);
+            if (intensity > 0) {
+                blendPixelDirect(x + xx, y + yy, native_color, intensity);
+            }
+        }
+    }
+}
+
+void Drawable::bltAlpha(const Drawable& source, int x, int y)
+{
+    bltAlpha(source, source.rect(), x, y);
+}
+
+void Drawable::bltAlpha(const Drawable& source, const Rect16& srect, int x, int y)
+{
+    if (source.isEmpty()) return;
+    if (source.rgb_format.format() != RGBFormat::GREY8) return;
+    // Quellrechteck
+    Rect16 q;
+    if (srect.isNull()) {
+        q = source.rect();
+    } else {
+        q = srect;
+        if (q.left() < 0) q.setLeft(0);
+        if (q.width() > source.width()) q.setWidth(source.width());
+        if (q.top() < 0) q.setTop(0);
+        if (q.height() > source.height()) q.setHeight(source.height());
+    }
+    if (!fitRect(x, y, q)) return;
+    for (int16_t yy = 0; yy <= q.height(); yy++) {
+        for (int16_t xx = 0; xx <= q.width(); xx++) {
+            Color pixel = source.getPixel(q.x1 + xx, q.y1 + yy);
+            if (pixel.alpha() > 0) {
+                blendPixel(x + xx, y + yy, pixel, pixel.alpha());
+            }
+        }
+    }
+}
+
+void Drawable::bltBlend(const Drawable& source, float factor, int x, int y)
+{
+    bltBlend(source, factor, source.rect(), x, y);
+}
+
+static inline uint8_t clamp_uint8_t(float value)
+{
+    if (value < 0) return 0;
+    if (value > 255) return 255;
+    return (uint8_t)value;
+}
+
+void Drawable::bltBlend(const Drawable& source, float factor, const Rect16& srect, int x, int y)
+{
+    if (source.isEmpty()) return;
+    if (source.rgb_format.format() != RGBFormat::GREY8) return;
+    // Quellrechteck
+    Rect16 q;
+    if (srect.isNull()) {
+        q = source.rect();
+    } else {
+        q = srect;
+        if (q.left() < 0) q.setLeft(0);
+        if (q.width() > source.width()) q.setWidth(source.width());
+        if (q.top() < 0) q.setTop(0);
+        if (q.height() > source.height()) q.setHeight(source.height());
+    }
+    if (!fitRect(x, y, q)) return;
+
+    for (int16_t yy = 0; yy <= q.height(); yy++) {
+        for (int16_t xx = 0; xx <= q.width(); xx++) {
+            Color pixel = source.getPixel(q.x1 + xx, q.y1 + yy);
+            pixel.setAlpha(clamp_uint8_t((float)pixel.alpha() * factor));
+            if (pixel.alpha() > 0) {
+                blendPixel(x + xx, y + yy, pixel, pixel.alpha());
+            }
+        }
+    }
+}
+
+void Drawable::draw(const ImageList& iml, int nr, int x, int y)
+{
+    Rect r = iml.getRect(nr);
+    switch (iml.method) {
+    case ImageList::DrawMethod::BLT:
+        blt(iml.pixel, r, x, y);
+        return;
+    case ImageList::DrawMethod::ALPHABLT:
+        bltAlpha(iml.pixel, r, x, y);
+        return;
+    case ImageList::DrawMethod::DIFFUSE:
+        bltDiffuse(iml.pixel, r, x, y, iml.diffuse);
+        return;
+    }
+}
+
+void Drawable::draw(const ImageList& iml, int nr, int x, int y, const Color& diffuse)
+{
+    Rect r = iml.getRect(nr);
+    switch (iml.method) {
+    case ImageList::DrawMethod::BLT:
+        blt(iml.pixel, r, x, y);
+        return;
+    case ImageList::DrawMethod::ALPHABLT:
+        bltAlpha(iml.pixel, r, x, y);
+        return;
+    case ImageList::DrawMethod::DIFFUSE:
+        bltDiffuse(iml.pixel, r, x, y, diffuse);
+        return;
+    }
+}
 
 } // namespace picopplib

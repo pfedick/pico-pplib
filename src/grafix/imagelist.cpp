@@ -64,22 +64,15 @@ void ImageList::clear()
 void ImageList::useDrawable(const Drawable& draw, int icon_width, int icon_height, DrawMethod method)
 {
     pixel = draw;
-    width = icon_width;
-    height = icon_height;
     this->method = method;
-    numX = pixel.width() / width;
-    numY = pixel.height() / height;
+    numX = draw.width() / icon_width;
+    numY = draw.height() / icon_height;
     numIcons = numX * numY;
 }
 
 void ImageList::setDrawMethod(DrawMethod method)
 {
     this->method = method;
-}
-
-void ImageList::setColorKey(const Color& key)
-{
-    colorkey = key;
 }
 
 void ImageList::setDiffuseColor(const Color& c)
@@ -126,11 +119,6 @@ Drawable ImageList::getDrawable(size_t nr) const
 {
     Rect r = getRect(nr);
     return pixel.getDrawable(r);
-}
-
-Color ImageList::colorKey() const
-{
-    return colorkey;
 }
 
 Color ImageList::diffuseColor() const

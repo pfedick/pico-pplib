@@ -429,6 +429,7 @@ public:
         Monochrome1BitVertical, // 1 Bit pro Pixel, vertikal gepackt (z.B. SSD1322)
         R5G6B5,
         A8R8G8B8,
+        GREY8,
         MaxIdentifiers
     };
 
@@ -490,6 +491,11 @@ private:
     static uint32_t getPixel32BitA8R8G8B8(const Drawable& self, int x, int y);
     static void fillRect32BitA8R8G8B8(Drawable& self, int x1, int y1, int x2, int y2, uint32_t c);
 
+    static void putPixel8BitGREY(Drawable& self, int x, int y, uint32_t c);
+    static void blendPixel8BitGREY(Drawable& self, int x, int y, uint32_t c, uint8_t intensity);
+    static uint32_t getPixel8BitGREY(const Drawable& self, int x, int y);
+    static void fillRect8BitGREY(Drawable& self, int x1, int y1, int x2, int y2, uint32_t c);
+
     uint32_t toNativeColor(const Color& c) const;
     Color fromNativeColor(uint32_t c) const;
 
@@ -503,9 +509,12 @@ public:
     Drawable& operator=(Drawable&& other) noexcept;
 
     void create(void* buffer, uint32_t pitch, uint16_t width, uint16_t height, const RGBFormat& format);
+    void use(const Drawable& other);
 
     Drawable getDrawable(const Rect& rect) const;
+    Drawable getDrawable(const Rect16& rect) const;
     Drawable getDrawable(const Point& p, const Size& s) const;
+    Drawable getDrawable(const Point16& p, const Size16& s) const;
     Drawable getDrawable(int x1, int y1, int x2, int y2) const;
 
     inline uint16_t width() const { return my_width; };
@@ -516,6 +525,9 @@ public:
 
     uint8_t* ptr() const;
     Size size() const;
+    Size16 size16() const;
+    Rect rect() const;
+    Rect16 rect16() const;
 
     inline void putPixel(int x, int y, const Color& color) { putPixelImpl(*this, x, y, toNativeColor(color)); }
     inline void blendPixel(int x, int y, const Color& color, uint8_t intensity)
@@ -538,13 +550,31 @@ public:
     void drawRect(int x1, int y1, int x2, int y2, const Color& color);
     inline void fillRect(int x1, int y1, int x2, int y2, const Color& color) { fillRectImpl(*this, x1, y1, x2, y2, toNativeColor(color)); }
     void invertRect(int x1, int y1, int x2, int y2);
+
     void line(int x1, int y1, int x2, int y2, const Color& color);
+    void line(const Point& start, const Point& end, const Color& c);
+    void lineAA(int x1, int y1, int x2, int y2, const Color& c, int strength = 1);
+    void lineAA(const Point& start, const Point& end, const Color& c, int strength = 1);
 
     void print(const Font& font, int x, int y, const String& text);
     void printf(const Font& font, int x, int y, const char* fmt, ...);
 
     void draw(const ImageList& iml, int nr, int x, int y);
     void draw(const ImageList& iml, int nr, int x, int y, const Color& diffuse);
+
+    void colorGradient(const Rect& rect, const Color& c1, const Color& c2, int direction);
+    void colorGradient(int x1, int y1, int x2, int y2, const Color& c1, const Color& c2, int direction);
+
+    // Blit-Funktionen
+    int fitRect(int& x, int& y, Rect16& r);
+    void blt(const Drawable& source, int x = 0, int y = 0);
+    void blt(const Drawable& source, const Rect16& srect, int x = 0, int y = 0);
+    void bltDiffuse(const Drawable& source, int x = 0, int y = 0, const Color& c = Color());
+    void bltDiffuse(const Drawable& source, const Rect16& srect, int x = 0, int y = 0, const Color& c = Color());
+    void bltAlpha(const Drawable& source, int x = 0, int y = 0);
+    void bltAlpha(const Drawable& source, const Rect16& srect, int x = 0, int y = 0);
+    void bltBlend(const Drawable& source, float factor, int x = 0, int y = 0);
+    void bltBlend(const Drawable& source, float factor, const Rect16& srect, int x = 0, int y = 0);
 };
 
 class Image : public Drawable
@@ -579,7 +609,6 @@ public:
     enum class DrawMethod : uint8_t
     {
         BLT = 1,
-        COLORKEY,
         ALPHABLT,
         DIFFUSE
     };
@@ -588,7 +617,6 @@ private:
     uint16_t numIcons;
     uint16_t width, height;
     uint16_t numX, numY;
-    Color colorkey;
     Color diffuse;
     DrawMethod method;
     Drawable pixel;
@@ -600,7 +628,6 @@ public:
 
     void clear();
     void setDrawMethod(DrawMethod method);
-    void setColorKey(const Color& key);
     void setDiffuseColor(const Color& c);
     void setIconSize(int width, int height);
     void useDrawable(const Drawable& draw, int icon_width, int icon_height, DrawMethod method);
@@ -610,7 +637,6 @@ public:
     Rect getRect(size_t nr) const;
     DrawMethod drawMethod() const;
     Drawable getDrawable(size_t nr) const;
-    Color colorKey() const;
     Color diffuseColor() const;
 };
 
