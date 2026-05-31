@@ -407,7 +407,7 @@ Drawable Drawable::getDrawable(const Point& p, const Size& s) const
 
 Drawable Drawable::getDrawable(const Point16& p, const Size16& s) const
 {
-    return getDrawable(p.x, p.y, p.x + s.width - 1, p.y + s.height - 1);
+    return getDrawable(p.x, p.y, p.x + s.width, p.y + s.height);
 }
 
 Drawable Drawable::getDrawable(int x1, int y1, int x2, int y2) const
@@ -417,8 +417,8 @@ Drawable Drawable::getDrawable(int x1, int y1, int x2, int y2) const
         throw Exception("getDrawable for Monochrome1BitVertical format not supported");
     }
 
-    Rect r(x1, y1, x2, y2);
-    Rect self_rect(0, 0, my_width - 1, my_height - 1);
+    Rect r(x1, y1, x2 - x1, y2 - y1);
+    Rect self_rect(0, 0, my_width, my_height);
     Rect intersect = r.intersected(self_rect);
     if (intersect.isNull()) {
         // Leeres Drawable zurückgeben
@@ -880,7 +880,7 @@ void Drawable::lineAA(const Point& start, const Point& end, const Color& c, int 
     lineAA(start.x, start.y, end.x, end.y, c, strength);
 }
 
-void Drawable::colorGradient(const Rect& rect, const Color& c1, const Color& c2, int direction)
+void Drawable::colorGradient(const Rect16& rect, const Color& c1, const Color& c2, int direction)
 {
     colorGradient(rect.x1, rect.y1, rect.x2 - 1, rect.y2 - 1, c1, c2, direction);
 }

@@ -562,7 +562,7 @@ public:
     void draw(const ImageList& iml, int nr, int x, int y);
     void draw(const ImageList& iml, int nr, int x, int y, const Color& diffuse);
 
-    void colorGradient(const Rect& rect, const Color& c1, const Color& c2, int direction);
+    void colorGradient(const Rect16& rect, const Color& c1, const Color& c2, int direction);
     void colorGradient(int x1, int y1, int x2, int y2, const Color& c1, const Color& c2, int direction);
 
     // Blit-Funktionen
