@@ -335,6 +335,8 @@ public:
     bool operator!=(const Color& other) const;
     bool operator>=(const Color& other) const;
     bool operator>(const Color& other) const;
+
+    static Color lerp(const Color& c1, const Color& c2, float t);
 };
 const Color operator*(const Color& color, float factor);
 const Color operator*(float factor, const Color& color);

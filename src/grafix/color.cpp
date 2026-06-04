@@ -85,6 +85,14 @@ bool Color::match(const Color& other, int tolerance) const
     return true;
 }
 
+Color Color::lerp(const Color& c1, const Color& c2, float factor)
+{
+    float i2 = factor;
+    float i1 = 1.0f - i2;
+    return Color(clamp((int)((c1.red() * i1) + (c2.red() * i2))), clamp((int)((c1.green() * i1) + (c2.green() * i2))),
+                 clamp((int)((c1.blue() * i1) + (c2.blue() * i2))), clamp((int)((c1.alpha() * i1) + (c2.alpha() * i2))));
+}
+
 Color blendColor(const Color& background, const Color& foreground, int intensity)
 {
     int i2 = intensity & 255;
