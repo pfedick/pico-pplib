@@ -78,6 +78,11 @@ void SSD1351::flush_dma(uint8_t* ptr, size_t len)
     dma_channel_transfer_from_buffer_now(dma_tx, ptr, len);
 }
 
+void SSD1351::sync()
+{
+    dma_channel_wait_for_finish_blocking(dma_tx);
+}
+
 uint8_t* SSD1351::get_buffer()
 {
     return oled_dma[current_buffer];

@@ -417,6 +417,11 @@ void ST7789::refresh()
     }
 }
 
+void ST7789::sync()
+{
+    dma_channel_wait_for_finish_blocking(dma_tx);
+}
+
 uint8_t* ST7789::get_buffer() const
 {
     return oled_dma[current_buffer];

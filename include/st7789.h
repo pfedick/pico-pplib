@@ -74,6 +74,7 @@ public:
     inline uint16_t height() { return my_height; };
 
     void refresh();
+    void sync();
     picopplib::Drawable getDrawable();
     void clear(picopplib::Color color = picopplib::Color(0, 0, 0));
 };

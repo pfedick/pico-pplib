@@ -90,6 +90,7 @@ public:
     uint8_t* get_buffer();
 
     void refresh();
+    void sync();
     picopplib::Drawable getDrawable();
     void clear(uint16_t color = 0x0000);
 };
