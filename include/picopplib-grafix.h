@@ -304,15 +304,17 @@ private:
 public:
     Color();
     Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255);
+    Color(uint32_t rgba);
     inline uint8_t red() const { return r; }
     inline uint8_t green() const { return g; }
     inline uint8_t blue() const { return b; }
     inline uint8_t alpha() const { return a; }
+    inline uint32_t rgba() const { return c; }
     inline void setRed(uint8_t red) { r = red; }
     inline void setGreen(uint8_t green) { g = green; }
     inline void setBlue(uint8_t blue) { b = blue; }
     inline void setAlpha(uint8_t alpha) { a = alpha; }
-
+    inline void setColor(uint32_t rgba) { c = rgba; }
     inline void setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255)
     {
         r = red;

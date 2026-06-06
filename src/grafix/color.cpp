@@ -55,6 +55,11 @@ Color::Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
     a = alpha;
 }
 
+Color::Color(uint32_t rgba)
+{
+    c = rgba;
+}
+
 void Color::setColor(const Color& other)
 {
     c = other.c;
