@@ -153,14 +153,14 @@ ST7789::~ST7789()
     free(oled_dma[1]);
 }
 
-void ST7789::init(uint16_t my_width, uint16_t height, const Config& config, bool useDoubleBuffer)
+void ST7789::init(uint16_t width, uint16_t height, const Config& config, bool useDoubleBuffer)
 {
     free(oled_dma[0]);
     free(oled_dma[1]);
 
-    this->my_width = my_width;
+    this->my_width = width;
     this->my_height = height;
-    buffer_size = my_width * height * 2;
+    buffer_size = width * height * 2;
     oled_dma[0] = (uint8_t*)malloc(buffer_size);
     if (!oled_dma[0]) return;
     memset(oled_dma[0], 0, buffer_size);
@@ -362,29 +362,52 @@ void ST7789::flush_dma(uint8_t* ptr, size_t len)
     gpio_put(spi_cs, 0); // CS aktivieren für gesamte Sequenz
 
     uint16_t caset_max, raset_max;
+    uint16_t x_offset = 0, y_offset = 0;
+
+    // ST7789 interner Framebuffer: 240 (Spalten) × 320 (Zeilen)
+    const uint16_t ST7789_COLS = 240;
+    const uint16_t ST7789_ROWS = 320;
+
     if (orientation == Orientation::Portrait || orientation == Orientation::InvertedPortrait) {
         caset_max = my_height - 1;
         raset_max = my_width - 1;
+        // Portrait: CASET nutzt ST7789_COLS (240), RASET nutzt ST7789_ROWS (320)
+        // Y-Offset = (320 - display_höhe) für zentriert oder am Ende
+        if (orientation == Orientation::Portrait) {
+            x_offset = 0;
+            y_offset = 0;
+        } else { // InvertedPortrait
+            x_offset = 0;
+            y_offset = (my_height < ST7789_ROWS) ? (ST7789_ROWS - my_height) : 0;
+        }
     } else {
         caset_max = my_width - 1;
         raset_max = my_height - 1;
+        // Landscape: Display nutzt Spalten 0-239, Zeilen 0-239
+        if (orientation == Orientation::Landscape) {
+            x_offset = 0;
+            y_offset = 0;
+        } else { // InvertedLandscape
+            x_offset = (my_width < ST7789_ROWS) ? (ST7789_ROWS - my_width) : 0;
+            y_offset = 0;
+        }
     }
 
     // Column Address Set (CASET) - 0 bis 239
-    param[0] = 0x00;             // Start MSB
-    param[1] = 0x00;             // Start LSB (Spalte 0)
-    param[2] = caset_max >> 8;   // End MSB
-    param[3] = caset_max & 0xFF; // End LSB
+    param[0] = x_offset >> 8;
+    param[1] = x_offset & 0xFF;
+    param[2] = (x_offset + caset_max) >> 8;
+    param[3] = (x_offset + caset_max) & 0xFF;
     gpio_put(spi_dc, WRITE_COMMAND);
     spi_write_blocking(spi_num, (const uint8_t[]){CMD_CASET}, 1);
     gpio_put(spi_dc, WRITE_DATA);
     spi_write_blocking(spi_num, param, 4);
 
     // Row Address Set (RASET) - 0 bis 239
-    param[0] = 0x00;             // Start MSB
-    param[1] = 0x00;             // Start LSB (Zeile 0)
-    param[2] = raset_max >> 8;   // End MSB
-    param[3] = raset_max & 0xFF; // End LSB
+    param[0] = y_offset >> 8;
+    param[1] = y_offset & 0xFF;
+    param[2] = (y_offset + raset_max) >> 8;
+    param[3] = (y_offset + raset_max) & 0xFF;
     gpio_put(spi_dc, WRITE_COMMAND);
     spi_write_blocking(spi_num, (const uint8_t[]){CMD_RASET}, 1);
     gpio_put(spi_dc, WRITE_DATA);
