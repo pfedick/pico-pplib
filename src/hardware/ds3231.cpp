@@ -8,6 +8,10 @@
 #include "hardware/i2c.h"
 #include "pico/util/datetime.h"
 #include "picopplib/hardware/ds3231.h"
+#include "pico/aon_timer.h"
+
+namespace picopplib
+{
 
 // convert BCD to number
 static inline uint8_t bcd2num(uint8_t bcd)
@@ -133,3 +137,12 @@ float DS3231::getTemperature() const
 
     return (float)v2 * 0.25f;
 }
+
+void DS3231::syncTimeToSystem()
+{
+    struct tm time;
+    getTime(time);
+    aon_timer_start_calendar(&time);
+}
+
+} // namespace picopplib
