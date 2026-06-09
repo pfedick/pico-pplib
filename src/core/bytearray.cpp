@@ -39,7 +39,6 @@ namespace picopplib
 
 /*!\brief Konstruktor ohne Argumente
  *
- * \desc
  * Dieser Konstruktor erstellt eine Inszanz der Klasse ohne einen zugeweisenen Speicherbereich
  *
  */
@@ -51,7 +50,6 @@ ByteArray::ByteArray()
 
 /*!\brief Destruktor der Klasse
  *
- * \desc
  * Der Destruktor sort dafür, dass der allokierte Speicher mittes "free" wieder freigegeben wird.
  *
  */
@@ -63,7 +61,6 @@ ByteArray::~ByteArray()
 
 /*!\brief Copy-Konstruktor
  *
- * \desc
  * Mit diesem Konstruktor wird der Speicherbereich eines anderen ByteArray- oder ByteArrayPtr-
  * Objekts kopiert.
  *
@@ -93,7 +90,6 @@ ByteArray::ByteArray(ByteArray&& other) noexcept
 
 /*!\brief Konstruktor durch String
  *
- * \desc
  * Mit diesem Konstruktor wird der Speicherbereich eines Strings in das Objekt kopiert.
  *
  * @param[in] other Referenz auf eine String-Klasse
@@ -114,7 +110,6 @@ ByteArray::ByteArray(const String& str)
 
 /*!\brief Copy-Konstruktor
  *
- * \desc
  * Mit diesem Konstruktor wird der Speicherbereich eines anderen ByteArray- oder ByteArrayPtr-
  * Objekts kopiert.
  *
@@ -136,7 +131,6 @@ ByteArray::ByteArray(const ByteArray& other)
 
 /*!\brief Konstruktor mit Angabe einer Speicheradresse und Größe
  *
- * \desc
  * Mit diesem Konstruktor wird eine neue Instanz der Klasse erzeugt, und der
  * mit \p adr und \p size angegebenen Speicherbereich kopiert.
  *
@@ -152,7 +146,6 @@ ByteArray::ByteArray(const void* adr, size_t size)
 
 /*!\brief Konstruktor mit Speicher-Allokierung
  *
- * \desc
  * Mit diesem Konstruktor wird eine Instanz der Klasse erzeugt, die einen Speicherblock mit
  * der Größe \p size allokiert und diesen selbst verwaltet.
  *
@@ -170,7 +163,6 @@ ByteArray::ByteArray(size_t size)
 
 /*!\brief Speicherverwaltung übernehmen
  *
- * \desc
  * Mit dieser Funktion wird der Klasse die Verwaltung des Speicherbereich mit der Adresse \p adr und der
  * Größe \p size übergeben. Der Speicher muss zuvor mit "malloc" bzw. "calloc" allokiert worden sein
  * und darf von der Anwendung selbst nicht mehr freigegeben werden.
@@ -195,7 +187,6 @@ void ByteArray::useadr(void* adr, size_t size)
 
 /*!\brief Speicherbereich kopieren
  *
- * \desc
  * Mit dieser Funktion wird der durch \p adr und \p size angegebene Speicherbereich in
  * die ByteArray-Klasse kopiert. Die Klasse allokiert dafür zunächst den erforderlichen
  * Speicher und übernimmt dessen Verwaltung.
@@ -236,7 +227,6 @@ void* ByteArray::copy(const void* adr, size_t size)
 
 /*!\brief Speicherbereich aus einem anderen ByteArray-Objekt kopieren
  *
- * \desc
  * Mit dieser Funktion wird der durch \p other referenzierte Speicherbereich
  * in diese Instanz der ByteArray-Klasse kopiert. Die Klasse allokiert dafür zunächst
  * den dafür erforderlichen Speicher und übernimmt dessen Verwaltung.
@@ -259,7 +249,6 @@ void* ByteArray::copy(const ByteArrayPtr& other)
 
 /*!\brief Speicherbereich anhängen
  *
- * \desc
  * Mit dieser Funktion wird der durch \p adr und \p size angegebene Speicherbereich an die
  * bereits in der Klasse vorhandenen Daten angehangen. Die Klasse allokiert dafür zunächst
  * den erforderlichen Speicher und kopiert dann die Daten.
@@ -302,7 +291,6 @@ void* ByteArray::append(void* adr, size_t size)
 
 /*!\brief Speicherbereich aus einem ByteArray-Objekt anhängen
  *
- * \desc
  * Mit dieser Funktion wird der durch \p other referenzierte Speicherbereich
  * an die Daten dieser Instanz der ByteArray-Klasse angehangen. Dazu wird
  * Speicher reallokiert und kopiert.
@@ -325,7 +313,6 @@ void* ByteArray::append(const ByteArrayPtr& other)
 
 /*!\brief Speicherbereich davor hängen
  *
- * \desc
  * Mit dieser Funktion wird der durch \p adr und \p size angegebene Speicherbereich vor die
  * bereits in der Klasse vorhandenen Daten gehangen. Die Klasse allokiert dafür zunächst
  * den erforderlichen Speicher und kopiert dann die Daten.
@@ -378,7 +365,6 @@ void* ByteArray::prepend(void* adr, size_t size)
 
 /*!\brief Speicherbereich aus einem ByteArray-Objekt davorhängen
  *
- * \desc
  * Mit dieser Funktion wird der durch \p other referenzierte Speicherbereich
  * vor die Daten dieser Instanz der ByteArray-Klasse gehangen. Dazu wird
  * Speicher reallokiert und kopiert.
@@ -401,7 +387,6 @@ void* ByteArray::prepend(const ByteArrayPtr& other)
 
 /*!\brief Speicherreferenz von anderem ByteArray-Objekt kopieren
  *
- * \desc
  * Mit diesem Operator wird der Speicherbereich eines anderen ByteArray- oder ByteArrayPtr-Objekts
  * kopiert. Er ist identisch zur Funktion ByteArray::copy.
  *
@@ -432,7 +417,6 @@ ByteArray& ByteArray::operator=(ByteArray&& other) noexcept
 
 /*!\brief Speicherreferenz von anderem ByteArray-Objekt kopieren
  *
- * \desc
  * Mit diesem Operator wird der Speicherbereich eines anderen ByteArray- oder ByteArrayPtr-Objekts
  * kopiert. Er ist identisch zur Funktion ByteArray::copy.
  *
@@ -464,7 +448,6 @@ ByteArray& ByteArray::operator=(const String& str)
 
 /*!\brief Adresse des Speicherblocks auslesen
  *
- * \desc
  * Mit diesem Operator wird die Adresse des Speicherblocks ausgelesen.
  *
  * @return Adresse des Speicherblocks
@@ -478,7 +461,6 @@ ByteArray::operator const void*() const
 
 /*!\brief Adresse des Speicherblocks auslesen
  *
- * \desc
  * Mit diesem Operator wird die Adresse des Speicherblocks ausgelesen.
  *
  * @return Adresse des Speicherblocks
@@ -492,7 +474,6 @@ ByteArray::operator const unsigned char*() const
 
 /*!\brief Adresse des Speicherblocks auslesen
  *
- * \desc
  * Mit diesem Operator wird die Adresse des Speicherblocks ausgelesen.
  *
  * @return Adresse des Speicherblocks
@@ -506,7 +487,6 @@ ByteArray::operator const char*() const
 
 /*!\brief Einzelnes Byte aus dem Speicherbereich kopieren
  *
- * \desc
  * Mit dem Operator [] kann ein bestimmtes Byte \p pos aus dem Speicherbereich
  * ausgelesen werden. Ist kein Speicher referenziert oder ist \p pos größer als
  * der Speicherblock, wird eine Exception ausgelöst.
@@ -525,7 +505,6 @@ unsigned char ByteArray::operator[](size_t pos) const
 
 /*!\brief Speicher allokieren
  *
- * \desc
  * Mit dieser Funktion wird ein neuer Speicherblock mit der Größe von \p size Bytes allokiert
  * und dessen Adresse als Ergebnis zurückgeliefert. Das ByteArray-Objekt übernimmt die Verwaltung
  * des Speicherblocks.
@@ -560,7 +539,6 @@ void* ByteArray::realloc(size_t newsize)
 
 /*!\brief Speicher allokieren und mit 0 initialisieren
  *
- * \desc
  * Mit dieser Funktion wird ein neuer Speicherblock mit der Größe von \p size Bytes allokiert,
  * der Inhalt mit 0 initialisiert
  * und dessen Adresse als Ergebnis zurückgeliefert. Das ByteArray-Objekt übernimmt die Verwaltung
@@ -585,7 +563,6 @@ void* ByteArray::calloc(size_t size)
 
 /*!\brief Speicher freigeben
  *
- * \desc
  * Wird der Speicher vom ByteArray-Objekt verwaltet, wird dieser durch Aufruf dieser Funktion
  * wieder freigegeben. Bei nichtverwaltetem Speicher wird lediglich die interne Referenz auf
  * NULL gesetzt, aber der Speicher nicht freigegeben.
@@ -599,7 +576,6 @@ void ByteArray::free()
 
 /*!\brief Speicher freigeben
  *
- * \desc
  * Wird der Speicher vom ByteArray-Objekt verwaltet, wird dieser durch Aufruf dieser Funktion
  * wieder freigegeben. Bei nichtverwaltetem Speicher wird lediglich die interne Referenz auf
  * NULL gesetzt, aber der Speicher nicht freigegeben.

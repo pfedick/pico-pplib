@@ -48,7 +48,6 @@ static wchar_t empty_string[] = {0};
  * \ingroup PPLGroupStrings
  * \brief WideString-Klasse
  *
- * \desc
  * Diese Klasse kann verwendet werden, um beliebige Strings zu speichern und zu verarbeiten. Dabei
  * braucht sich der Anwender keine Gedanken um den verwendeten Speicher zu machen.
  * Die einzelnen Zeichen des Strings werden intern im Unicode-Format gespeichert. Bei Übernahme eines
@@ -59,7 +58,6 @@ static wchar_t empty_string[] = {0};
 
 /*!\brief Konstruktor für leeren String
  *
- * \desc
  * Es wird ein leerer String erstellt.
  */
 WideString::WideString() noexcept
@@ -71,7 +69,6 @@ WideString::WideString() noexcept
 
 /*!\brief Konstruktor aus Wide-Character-String
  *
- * \desc
  * Ein String wird aus einem Wide-Character-String erstellt.
  *
  * @param str Wide-Character-String, der mit einem 0-Wert Endet
@@ -87,7 +84,6 @@ WideString::WideString(const wchar_t* str)
 
 /*!\brief Konstruktor aus Wide-Character-String mit bestimmer Länge
  *
- * \desc
  * Ein String wird aus dem Wide-Character-String \p str erstellt, von dem maximal
  * \p size Zeichen übernommen werden.
  *
@@ -105,7 +101,6 @@ WideString::WideString(const wchar_t* str, size_t size)
 
 /*!\brief Konstruktor aus anderem String (Copy-Konstruktor)
  *
- * \desc
  * Ein String wird aus einem anderen String erstellt.
  *
  * @param str Referenz auf einen anderen String
@@ -131,7 +126,6 @@ WideString::WideString(WideString&& str) noexcept
 
 /*!\brief Konstruktor aus anderem String (Copy-Konstruktor)
  *
- * \desc
  * Ein String wird aus einem anderen String erstellt.
  *
  * @param str Referenz auf einen anderen String
@@ -147,7 +141,6 @@ WideString::WideString(const String& str)
 
 /*!\brief Destruktor
  *
- * \desc
  * Der Destructor gibt den durch den String belegten Speicher wieder frei.
  *
  */
@@ -158,7 +151,6 @@ WideString::~WideString() noexcept
 
 /*!\brief String leeren
  *
- * \desc
  * Mit dieser Funktion wird der String geleert und der bisher allokierte Speicher wieder
  * freigegeben.
  */
@@ -172,7 +164,6 @@ void WideString::clear() noexcept
 
 /*!\brief Anzahl Zeichen, die in den bereits allokierten Speicher passen
  *
- * \desc
  * Diese Funktion liefert die Anzahl Zeichen zurück, die in den derzeitig allokierten
  * Puffer passen, ohne dass neuer Speicher allokiert werden muss.
  *
@@ -186,7 +177,6 @@ size_t WideString::capacity() const
 
 /*!\brief Reserviert Speicher für den String
  *
- * \desc
  * Mit dieser Funktion kann vor Verwendung des Strings vorgegeben werden, wieviel
  * Speicher initial reserviert werden soll. Dies ist insbesondere dann sinnvoll,
  * wenn der String während seiner Lebenszeit häufig verlängert wird.
@@ -217,7 +207,6 @@ void WideString::reserve(size_t size)
 
 /*!\brief Länge des Strings
  *
- * \desc
  * Diese Funktion gibt die Anzahl Zeichen zurück, aus denen der String besteht.
  *
  * \note
@@ -234,7 +223,6 @@ size_t WideString::size() const
 
 /*!\brief Länge des Strings in Byte
  *
- * \desc
  * Diese Funktion gibt die Anzahl Byte zurück, die durch den String belegt werden.
  *
  * @return Anzahl Bytes
@@ -246,7 +234,6 @@ size_t WideString::byteLength() const
 
 /*! \brief Prüft, ob der String leer ist.
  *
- * \desc
  * Diese Funktion prüft, ob der String leer ist.
  *
  * \returns Ist der String leer, liefert die Funktion \c true zurück, sonst \c false.
@@ -260,7 +247,6 @@ bool WideString::isEmpty() const
 
 /*! \brief Prüft, ob der String Zeichen enthält
  *
- * \desc
  * Diese Funktion prüft, ob der String Zeichen enthält.
  *
  * \returns Enthält der String Zeichen, liefert die Funktion \c true zurück, sonst \c false.
@@ -274,7 +260,6 @@ bool WideString::notEmpty() const
 
 /*!\brief Prüft, ob der String nummerisch ist
  *
- * \desc
  * Diese Funktion prüft, ob im String nur nummerische Zeichen vorhanden sind, also die Ziffern
  * 0-9, Punkt, Komma und Minus.
  *
@@ -302,7 +287,6 @@ bool WideString::isNumeric() const
 
 /*!\brief Prüft, ob der String einen Integer Wert enthält
  *
- * \desc
  * Diese Funktion prüft, ob im String einen integer Wert enthält, also nur die Ziffern
  * 0-9 und optional ein Minus am Anfang enthalten sind
  *
@@ -367,7 +351,6 @@ bool WideString::isFalse() const
 
 /*!\brief String anhand eines C-Strings setzen
  *
- * \desc
  * Mit dieser Funktion wird der String anhand eines char * gesetzt. Dabei wird er
  * intern in einen wchar_t* (Unicode) konvertiert.
  *
@@ -463,7 +446,6 @@ WideString& WideString::set(const char* str, size_t size)
 
 /*!\brief String anhand eines wchar_t* setzen
  *
- * \desc
  * Mit dieser Funktion wird der String anhand eines wchar_t * gesetzt.
  *
  * \param str Pointer auf einen String
@@ -504,7 +486,6 @@ WideString& WideString::set(const wchar_t* str, size_t size)
 
 /*!\brief Wert eines anderen Strings übernehmen
  *
- * \desc
  * Mit dieser Funktion wird der Inhalt des Strings \p str übernommen.
  *
  * \param str Referenz auf einen anderen String
@@ -538,7 +519,6 @@ WideString& WideString::set(const String& str, size_t size)
 
 /*! \brief Erzeugt einen formatierten String
  *
- * \desc
  * Erzeugt einen String anhand des übergebenen Formatstrings \p fmt
  * und den optionalen Parametern \p ...
  *
@@ -584,7 +564,6 @@ WideString& WideString::setf(const char* fmt, ...)
 
 /*!\brief String-Speicher übernehmen
  *
- * \desc
  * Mit dieser Funktion wird der Klasse die Verwaltung des Speicherbereich mit der Adresse \p adr und der
  * Größe \p size übergeben. Der Speicher muss zuvor mit "malloc" bzw. "calloc" allokiert worden sein
  * und darf von der Anwendung selbst nicht mehr freigegeben werden.
@@ -616,7 +595,6 @@ WideString& WideString::useadr(void* adr, size_t size, size_t stringlen)
 
 /*!\brief Einzelnes Unicode-Zeichen übernehmen
  *
- * \desc
  * Ein einzelnes Unicode-Zeichen \p c wird in den String übernommen.
  *
  * @param c Unicode-Wert des gewünschten Zeichens
@@ -633,7 +611,6 @@ WideString& WideString::set(wchar_t c)
 
 /*!\brief Einzelnes Zeichen ersetzen
  *
- * \desc
  * Mit dieser Funktion wird ein einzelnes Zeichen eines Strings an der Position
  * \p position durch das Zeichen \p c ersetzt.
  *
@@ -694,7 +671,6 @@ WideString& WideString::vasprintf(const char* fmt, va_list args)
 
 /*!\brief Fügt einen Wide-Character String an das Ende des bestehenden an
  *
- * \desc
  * Fügt einen Wide-Character String an das Ende des bestehenden an
  *
  * \param[in] str Pointer auf einen Wide-Character String
@@ -733,7 +709,6 @@ WideString& WideString::append(const wchar_t* str, size_t size)
 
 /*!\brief Fügt einen String an das Ende des bestehenden an
  *
- * \desc
  * Fügt einen String an das Ende des bestehenden an.
  *
  * \param[in] str Referenz auf ein String-Objekt
@@ -811,7 +786,6 @@ WideString& WideString::appendf(const char* fmt, ...)
 
 /*!\brief Einzelnes Unicode-Zeichen anhängen
  *
- * \desc
  * Ein einzelnes Unicode-Zeichen \p c wird in an den String angehangen.
  *
  * @param c Unicode-Wert des gewünschten Zeichens
@@ -828,7 +802,6 @@ WideString& WideString::append(wchar_t c)
 
 /*!\brief Fügt einen Wide-Character String am Anfang des bestehenden Strings ein
  *
- * \desc
  * Fügt einen Wide-Character String am Anfang des bestehenden Strings ein
  *
  * \param[in] str Pointer auf einen Wide-Character String
@@ -869,7 +842,6 @@ WideString& WideString::prepend(const wchar_t* str, size_t size)
 
 /*!\brief Fügt einen String am Anfang des bestehenden Strings ein
  *
- * \desc
  * Fügt einen String am Anfang des bestehenden Strings ein
  *
  * \param[in] str Referenz auf einen String
@@ -948,7 +920,6 @@ WideString& WideString::prependf(const char* fmt, ...)
 
 /*!\brief Einzelnes Unicode-Zeichen am Anfang einfügen
  *
- * \desc
  * Ein einzelnes Unicode-Zeichen \p c wird in am Anfang des Strings eingefügt.
  * Die nachfolgenden Zeichen des Strings verschieben sich nach rechts.
  *
@@ -966,7 +937,6 @@ WideString& WideString::prepend(wchar_t c)
 
 /*!\brief Einzelnes Zeichen auslesen
  *
- * \desc
  * Mit dieser Funktion kann der Unicode-Wert eines einzelnen Zeichens an der Position
  * \p pos ausgelesen werden. Enthält \p pos einen positiven Wert, wird die Position des
  * Zeichens vom Anfang des Strings ermittelt, wobei 0 dem ersten Zeichen entspricht.
@@ -987,7 +957,6 @@ wchar_t WideString::get(ssize_t pos) const
 
 /*!\brief Einzelnes Zeichen auslesen
  *
- * \desc
  * Mit diesem Operator kann der Unicode-Wert eines einzelnen Zeichens an der Position
  * \p pos ausgelesen werden. Enthält \p pos einen positiven Wert, wird die Position des
  * Zeichens vom Anfang des Strings ermittelt, wobei 0 dem ersten Zeichen entspricht.
@@ -1050,7 +1019,6 @@ void WideString::printnl() const throw()
 
 /*!\brief String übernehmen
  *
- * \desc
  * Mit diesem Operator wird der Angegebene String \p str kopiert. Der Operator
  * ist identisch mit der Funktion WideString::set
  *
@@ -1064,7 +1032,6 @@ WideString& WideString::operator=(const char* str)
 
 /*!\brief String übernehmen
  *
- * \desc
  * Mit diesem Operator wird der Angegebene String \p str kopiert. Der Operator
  * ist identisch mit der Funktion WideString::set
  *
@@ -1078,7 +1045,6 @@ WideString& WideString::operator=(const wchar_t* str)
 
 /*!\brief String übernehmen
  *
- * \desc
  * Mit diesem Operator wird der Angegebene String \p str kopiert. Der Operator
  * ist identisch mit der Funktion WideString::set
  *
@@ -1103,7 +1069,6 @@ WideString& WideString::operator=(WideString&& other) noexcept
 }
 /*!\brief String übernehmen
  *
- * \desc
  * Mit diesem Operator wird der Angegebene String \p str kopiert. Der Operator
  * ist identisch mit der Funktion WideString::set
  *
@@ -1117,7 +1082,6 @@ WideString& WideString::operator=(const String& str)
 
 /*!\brief Zeichen übernehmen
  *
- * \desc
  * Mit diesem Operator wird ein einzelnes Zeichen in den String kopiert.
  *
  * @param[in] c Unicode Wert des zu übernehmenden Zeichens
@@ -1130,7 +1094,6 @@ WideString& WideString::operator=(wchar_t c)
 
 /*!\brief String addieren
  *
- * \desc
  * Mit diesem Operator wird der Angegebene String \p str an den bisher vorhandenen
  * String angehangen. Der Operator ist identisch mit der Funktion WideString::append.
  *
@@ -1144,7 +1107,6 @@ WideString& WideString::operator+=(const char* str)
 
 /*!\brief String addieren
  *
- * \desc
  * Mit diesem Operator wird der Angegebene String \p str an den bisher vorhandenen
  * String angehangen. Der Operator ist identisch mit der Funktion WideString::append.
  *
@@ -1163,7 +1125,6 @@ WideString& WideString::operator+=(const String& str)
 
 /*!\brief String addieren
  *
- * \desc
  * Mit diesem Operator wird der Angegebene String \p str an den bisher vorhandenen
  * String angehangen. Der Operator ist identisch mit der Funktion WideString::append.
  *
@@ -1177,7 +1138,6 @@ WideString& WideString::operator+=(const WideString& str)
 
 /*!\brief Zeichen anhängen
  *
- * \desc
  * Mit diesem Operator wird das angegebene Zeichen \p c an den bisher vorhandenen
  * String angehangen. Der Operator ist identisch mit der Funktion WideString::append.
  *
@@ -1191,7 +1151,6 @@ WideString& WideString::operator+=(wchar_t c)
 
 /*!\brief Führt einen Vergleich mit einem anderen String durch
  *
- * \desc
  * Führt einen Vergleich mit einem anderen String durch.
  *
  * \param str String, mit dem verglichen werden soll
@@ -1221,7 +1180,6 @@ int WideString::strcmp(const wchar_t* str, size_t size) const
 
 /*!\brief Stringvergleich mit Ignorierung von Gross-/Kleinschreibung
  *
- * \desc
  * Führt einen Vergleich mit einem anderen String durch, unter Ignorierung der
  * Gross-/Kleinschreibung.
  *
@@ -1255,7 +1213,6 @@ int WideString::strCaseCmp(const wchar_t* str, size_t size) const
 
 /*!\brief Linken Teilstring zurückgeben
  *
- * \desc
  * Gibt die ersten \p len Zeichen des Strings als neuen zurück.
  *
  * @param len Länge des Teilstrings
@@ -1272,7 +1229,6 @@ WideString WideString::left(size_t len) const
 
 /*!\brief Rechten Teilstring zurückgeben
  *
- * \desc
  * Gibt die letzten \p len Zeichen des Strings als neuen zurück.
  *
  * @param len Länge des Teilstrings
@@ -1289,7 +1245,6 @@ WideString WideString::right(size_t len) const
 
 /*!\brief Teilstring zurückgeben
  *
- * \desc
  * Gibt \p len Zeichen des Strings, beginnend ab Position \p start als
  * neuen String zurück.
  *
@@ -1310,7 +1265,6 @@ WideString WideString::mid(size_t start, size_t len) const
 
 /*!\brief Teilstring zurückgeben
  *
- * \desc
  * Gibt \p len Zeichen des Strings, beginnend ab Position \p start als
  * neuen String zurück.
  *
@@ -1331,7 +1285,6 @@ WideString WideString::substr(size_t start, size_t len) const
 
 /*! \brief Wandelt alle Zeichen des Strings in Kleinbuchstaben um
  *
- * \desc
  * Diese Funktion wandelt alle Zeichen des Strings in Kleinbuchstaben um. Die genaue Funktionsweise hängt davon ab,
  * welche Spracheinstellungen aktiv sind, genauer vom Wert "LC_CTYPE".
  *
@@ -1363,7 +1316,6 @@ void WideString::lowerCase()
 
 /*! \brief Wandelt alle Zeichen des Strings in Grossbuchstaben um
  *
- * \desc
  * Diese Funktion wandelt alle Zeichen des Strings in Großbuchstaben um. Die genaue Funktionsweise hängt davon ab,
  * welche Spracheinstellungen aktiv sind, genauer vom Wert "LC_CTYPE".
  *
@@ -1394,7 +1346,6 @@ void WideString::upperCase()
 
 /*!\brief Anfangsbuchstaben der Wörter groß
  *
- * \desc
  * Diese Funktion wandelt die Anfangsbuchstaben aller im String enthaltenen Wörter in
  * Großbuchstaben um.
  */
@@ -1572,7 +1523,6 @@ void WideString::trim(const WideString& chars)
 
 /*!\brief Schneidet Zeichen am Ende des Strings ab
  *
- * \desc
  * Diese Funktion schneidet \p num Zeichen vom Ende des Strings ab. Falls \p num
  * größer als der String ist, bleibt ein leerer String zurück.
  *
@@ -1589,7 +1539,6 @@ void WideString::chopRight(size_t num)
 
 /*!\brief Schneidet Zeichen am Ende des Strings ab
  *
- * \desc
  * Diese Funktion schneidet \p num Zeichen vom Ende des Strings ab. Falls \p num
  * größer als der String ist, bleibt ein leerer String zurück.
  *
@@ -1609,7 +1558,6 @@ void WideString::chop(size_t num)
 
 /*!\brief Schneidet Zeichen am Anfang des Strings ab
  *
- * \desc
  * Diese Funktion schneidet \p num Zeichen vom Anfang des Strings ab. Falls \p num
  * größer als der String ist, bleibt ein leerer String zurück.
  *
@@ -1627,7 +1575,6 @@ void WideString::chopLeft(size_t num)
 
 /*!\brief Schneidet Returns und Linefeeds am Anfanng und Ende des Strings ab
  *
- * \desc
  * Schneidet Returns und Linefeeds am Anfanng und Ende des Strings ab
  */
 void WideString::chomp()
@@ -1637,7 +1584,6 @@ void WideString::chomp()
 
 /*!\brief Schneidet den String an einer bestimmten Stelle ab
  *
- * \desc
  * Der String wird an einer bestimmten Stelle einfach abgeschnitten
  * \param pos Die Position, an der der String abgeschnitten wird. Bei Angabe von 0 ist der String anschließend
  * komplett leer. Ist \c pos größer als die Länge des Strings, passiert nichts.
@@ -1716,7 +1662,6 @@ WideString WideString::strrchr(wchar_t c) const
 
 /*!\brief Teilstring finden
  *
- * \desc
  * Diese Funktion findet die erste Position der Zeichenfolge \p needle
  * innerhalb des Strings. Abschließende `\0'-Zeichen werden nicht
  * miteinander verglichen.
@@ -1798,7 +1743,6 @@ ssize_t WideString::find(const WideString& needle, ssize_t start) const
 
 /*! \brief Sucht nach einem String, Gross-/Kleinschreibung wird ignoriert
  *
- * \desc
  * Diese Funktion sucht innerhalb des aktuellen String nach \p needle ab der
  * gewünschten Position \a start. Gross-/Kleinschreibung wird dabei ignoriert.
  *
@@ -1822,7 +1766,6 @@ ssize_t WideString::findCase(const WideString& needle, ssize_t start) const
 
 /*! \brief Sucht nach einem String
  *
- * \desc
  * Diese Funktion sucht nach dem Suchstring \a needle ab der gewünschten Position \a start.
  *
  * \param[in] needle Gesuchter Teilstring
@@ -1853,7 +1796,6 @@ bool WideString::has(const WideString& needle) const
 
 /*! \brief Sucht nach einem String, Gross-/Kleinschreibung wird ignoriert
  *
- * \desc
  * Diese Funktion sucht nach dem Suchstring \a needle ab der gewünschten Position \a start.
  * Gross-/Kleinschreibung wird dabei ignoriert.
  *
@@ -1876,7 +1818,6 @@ ssize_t WideString::instrCase(const WideString& needle, size_t start) const
 
 /*!\brief String wiederholen
  *
- * \desc
  * Mit dieser Funktion wird der Inhalt des Strings mehrfach wiederholt.
  *
  * @param num Anzahl Wiederholungen. Falls \p num 0 ist, ist der String anschließend leer.
@@ -1937,7 +1878,6 @@ WideString& WideString::repeat(wchar_t unicode, size_t num)
 
 /*!\brief String wiederholen
  *
- * \desc
  * Mit dieser Funktion wird der übergebene String \p str \p num mal wiederholt und
  * das Ergebnis in diesem String gespeichert.
  *
@@ -1969,7 +1909,6 @@ WideString& WideString::repeat(const WideString& str, size_t num)
 
 /*!\brief String multiplizieren
  *
- * \desc
  * Der aktuelle String wird \p count mal hintereinander wiederholt und
  * als neuer String zurückgegeben.
  *
@@ -2009,7 +1948,6 @@ WideString& WideString::replace(const WideString& search, const WideString& repl
 
 /*!\brief Kleiner als
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters kleiner dem des
  * rechten ist.
  *
@@ -2024,7 +1962,6 @@ bool WideString::operator<(const WideString& str) const
 
 /*!\brief Kleiner oder gleich
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters kleiner oder gleich
  * dem des rechten ist.
  *
@@ -2039,7 +1976,6 @@ bool WideString::operator<=(const WideString& str) const
 
 /*!\brief Gleich
  *
- * \desc
  * Dieser Operator liefert \c true zurück, wenn der Wert des linken Parameters mit dem des
  * rechten identisch ist.
  *
@@ -2054,7 +1990,6 @@ bool WideString::operator==(const WideString& str) const
 
 /*!\brief Ungleich
  *
- * \desc
  * Dieser Operator liefert \c true zurück, wenn der Wert des linken Parameters nicht dem des
  * rechten entspricht.
  *
@@ -2069,7 +2004,6 @@ bool WideString::operator!=(const WideString& str) const
 
 /*!\brief Größer oder gleich
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters größer oder
  * gleich dem des rechten ist.
  *
@@ -2084,7 +2018,6 @@ bool WideString::operator>=(const WideString& str) const
 
 /*!\brief Größer als
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters größer
  * dem des rechten ist.
  *
@@ -2099,7 +2032,6 @@ bool WideString::operator>(const WideString& str) const
 
 /*!\brief Kleiner als
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters kleiner dem des
  * rechten ist.
  *
@@ -2114,7 +2046,6 @@ bool WideString::operator<(const wchar_t* str) const
 
 /*!\brief Kleiner oder gleich
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters kleiner oder gleich
  * dem des rechten ist.
  *
@@ -2129,7 +2060,6 @@ bool WideString::operator<=(const wchar_t* str) const
 
 /*!\brief Gleich
  *
- * \desc
  * Dieser Operator liefert \c true zurück, wenn der Wert des linken Parameters mit dem des
  * rechten identisch ist.
  *
@@ -2144,7 +2074,6 @@ bool WideString::operator==(const wchar_t* str) const
 
 /*!\brief Ungleich
  *
- * \desc
  * Dieser Operator liefert \c true zurück, wenn der Wert des linken Parameters nicht dem des
  * rechten entspricht.
  *
@@ -2159,7 +2088,6 @@ bool WideString::operator!=(const wchar_t* str) const
 
 /*!\brief Größer oder gleich
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters größer oder
  * gleich dem des rechten ist.
  *
@@ -2174,7 +2102,6 @@ bool WideString::operator>=(const wchar_t* str) const
 
 /*!\brief Größer als
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters größer
  * dem des rechten ist.
  *
@@ -2369,7 +2296,6 @@ WideString WideString::join(const Array& iterable) const
  *
  * \relates ppl7::String
  *
- * \desc
  * Zwei Strings werden zu einem neuen String zusammengefügt.
  *
  * @param[in] str1 Erster String
@@ -2387,7 +2313,6 @@ WideString operator+(const WideString& str1, const WideString& str2)
  *
  * \relates ppl7::String
  *
- * \desc
  * Zwei Strings werden zu einem neuen String zusammengefügt.
  *
  * @param[in] str1 Erster String
@@ -2406,7 +2331,6 @@ WideString operator+(const char* str1, const WideString& str2)
  *
  * \relates ppl7::String
  *
- * \desc
  * Zwei Strings werden zu einem neuen String zusammengefügt.
  *
  * @param[in] str1 Erster String
@@ -2424,7 +2348,6 @@ WideString operator+(const WideString& str1, const char* str2)
  *
  * \relates ppl7::String
  *
- * \desc
  * Zwei Strings werden zu einem neuen String zusammengefügt.
  *
  * @param[in] str1 Erster String
@@ -2442,7 +2365,6 @@ WideString operator+(const wchar_t* str1, const WideString& str2)
  *
  * \relates ppl7::String
  *
- * \desc
  * Zwei Strings werden zu einem neuen String zusammengefügt.
  *
  * @param[in] str1 Erster String

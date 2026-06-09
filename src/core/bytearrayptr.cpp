@@ -45,7 +45,6 @@ ByteArrayPtr::ByteArrayPtr()
 
 /*!\brief Copy-Konstruktor
  *
- * \desc
  * Mit diesem Konstruktor wird eine Referenz auf den Speicherbereich einer anderen
  * ByteArrayPtr- oder ByteArray-Klasse übernommen.
  *
@@ -65,7 +64,6 @@ ByteArrayPtr::ByteArrayPtr(const String& data)
 
 /*!\brief Konstruktor mit Angabe einer Speicheradresse und Größe
  *
- * \desc
  * Mit diesem Konstruktor wird eine neue Instanz der Klasse erzeugt, die eine Referenz auf den mit
  * \p adr und \p size angegebenen Speicherbereich enthält.
  *
@@ -86,7 +84,6 @@ ByteArrayPtr::ByteArrayPtr(const void* adr, size_t size)
 
 /*!\brief Prüfen, ob Speicher referenziert ist
  *
- * \desc
  * Mit dieser Funktion kann geprüft werden, ob die Klasse zur Zeit eine Referenz auf einen
  * Speicherbereich enthält.
  *
@@ -102,7 +99,6 @@ bool ByteArrayPtr::isNull() const
 
 /*!\brief Prüfen, ob der Referenzierte Speicher eine Größe von 0 hat
  *
- * \desc
  * Mit dieser Funktion kann geprüft werden, ob die Klasse zur Zeit eine Referenz auf einen
  * Speicherbereich enthält und dieser größer als 0 Byte ist.
  *
@@ -119,7 +115,6 @@ bool ByteArrayPtr::isEmpty() const
 
 /*!\brief Größe des Speicherblocks auslesen
  *
- * \desc
  * Mit dieser Funktion kann die Größe des Speicherblocks ausgelesen werden.
  *
  * @return Größe des Speicherblocks oder 0, wenn kein Speicher zugeordnet ist.
@@ -131,7 +126,6 @@ size_t ByteArrayPtr::size() const
 
 /*!\brief Adresse des Speicherblocks auslesen
  *
- * \desc
  * Mit dieser Funktion wird die Adresse des Speicherblocks ausgelesen
  *
  * @return Adresse des Speicherblocks
@@ -151,7 +145,6 @@ void ByteArrayPtr::truncate(size_t position)
 
 /*!\brief Adresse des Speicherblocks auslesen
  *
- * \desc
  * Mit dieser Funktion wird die Adresse des Speicherblocks ausgelesen
  *
  * @return Adresse des Speicherblocks
@@ -163,7 +156,6 @@ const void* ByteArrayPtr::ptr() const
 
 /*!\brief Speicherreferenz von anderem ByteArrayPtr-Objekt übernehmen
  *
- * \desc
  * Mit diesem Operator wird eine Referenz auf einen Speicherbereich von einer anderen
  * ByteArrayPtr- oder ByteArray Instanz übernommen.
  *
@@ -179,7 +171,6 @@ ByteArrayPtr& ByteArrayPtr::operator=(const ByteArrayPtr& other)
 
 /*!\brief Adresse des Speicherblocks auslesen
  *
- * \desc
  * Mit diesem Operator wird die Adresse des Speicherblocks ausgelesen
  *
  * @return Adresse des Speicherblocks
@@ -191,7 +182,6 @@ ByteArrayPtr::operator const void*() const
 
 /*!\brief Adresse des Speicherblocks auslesen
  *
- * \desc
  * Mit diesem Operator wird die Adresse des Speicherblocks ausgelesen
  *
  * @return Adresse des Speicherblocks
@@ -203,7 +193,6 @@ ByteArrayPtr::operator const unsigned char*() const
 
 /*!\brief Adresse des Speicherblocks auslesen
  *
- * \desc
  * Mit diesem Operator wird die Adresse des Speicherblocks ausgelesen
  *
  * @return Adresse des Speicherblocks
@@ -215,7 +204,6 @@ ByteArrayPtr::operator const char*() const
 
 /*!\brief Einzelnes Byte aus dem Speicherbereich auslesen
  *
- * \desc
  * Mit dem Operator [] kann ein bestimmtes Byte \p pos aus dem Speicherbereich
  * ausgelesen werden. Ist kein Speicher referenziert oder ist \p pos größer als
  * der Speicherblock, wird eine Exception ausgelöst.
@@ -248,7 +236,6 @@ unsigned char ByteArrayPtr::get(size_t pos) const
 
 /*!\brief Adresse des Speicherblocks auslesen
  *
- * \desc
  * Mit diesem Operator wird die Adresse des Speicherblocks ausgelesen
  *
  * @return Adresse des Speicherblocks
@@ -260,7 +247,6 @@ const char* ByteArrayPtr::toCharPtr() const
 
 /*!\brief Speicher mit bestimmtem Wert füllen
  *
- * \desc
  * Diese Funktion füllt den gesamten verwalteten Speicher mit dem Bytewert \p value
  *
  * \param[in] value Bytewert

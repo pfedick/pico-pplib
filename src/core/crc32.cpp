@@ -65,7 +65,6 @@ uint32_t crc32(const void* buffer, size_t size, uint32_t initial_crc)
 /*!\ingroup PPLGroupMath
  * \brief Berechnet den polynomischen CRC32-Wert eines Buffers
  *
- * \desc
  * Berechnet die zyklisch redundante polynomische Prüfsumme mit einer Länge von 32-Bit.
  *
  *
@@ -104,7 +103,6 @@ uint16_t crc16(const void* buffer, size_t size, uint16_t initial_crc)
 /*!\ingroup PPLGroupMath
  * \brief Berechnet den CRC-16-CCITT Wert eines Buffers
  *
- * \desc
  * Berechnet die zyklisch redundante polynomische Prüfsumme mit einer Länge von 16-Bit
  * (CCITT-Polynom 0x1021).
  *

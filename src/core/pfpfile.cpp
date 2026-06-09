@@ -38,7 +38,6 @@ namespace picopplib
 /*!\class PFPChunk
  * \brief Daten-Chunk eines PFP-File Version 3
  *
- * \desc
  * In dieser Klasse werden die Daten eines einzelnen Chunks eines PFP-Files Version 3
  * gespeichert. Um einen Chunk zu erstellen, wird mit "new" eine neue Instanz
  * der Klasse generiert und mit der Funktion PFPFile::addChunk einem PFP-File
@@ -52,7 +51,6 @@ namespace picopplib
 PFPChunk::PFPChunk()
 /*!\brief Konstruktor des PFPChunk
  *
- * \desc
  * Der Konstruktor initialisiert den Datenbereich mit NULL und setzt als
  * Name "UNKN" ein. Ein derartiger Chunk würde durch die PFPFile-Klasse
  * nicht gespeichert.
@@ -67,7 +65,6 @@ PFPChunk::PFPChunk()
 PFPChunk::~PFPChunk()
 /*!\brief Destruktor des PFPChunk
  *
- * \desc
  * Der Destruktor sorgt dafür, dass der Datenbereich des Chunks freigegeben
  * wird, sofern er definiert wurde, und wenn er einem PFPFile zugeordnet
  * wurde, wird er daraus entfernt.
@@ -80,7 +77,6 @@ PFPChunk::~PFPChunk()
 size_t PFPChunk::size() const
 /*!\brief Größe des Chunks auslesen
  *
- * \desc
  * Mit dieser Funktion kann die Größe des Chunks ausgelesen werden.
  *
  * \returns Enthält der Chunk Daten, wird die Anzahl Bytes zurückgegeben.
@@ -94,7 +90,6 @@ size_t PFPChunk::size() const
 const void* PFPChunk::data() const
 /*!\brief Pointer auf die Daten des Chunks holen
  *
- * \desc
  * Mit dieser Funktion wir der Pointer auf die Nutzdaten des Chunks
  * ausgelesen.
  *
@@ -109,7 +104,6 @@ const void* PFPChunk::data() const
 const String& PFPChunk::name() const
 /*!\brief Name des Chunks auslesen
  *
- * \desc
  * Diese Funktion liefert den Namen des Chunks zurück. Dieser ist
  * immer 4 Byte groß.
  *
@@ -193,7 +187,6 @@ PFPFile::PFPFile()
 void PFPFile::clear()
 /*!\brief Inhalt der Klasse löschen
  *
- * \desc
  * Mit dieser Funktion werden alle Chunks im Speicher freigegeben und die Klasse auf den
  * Ursprungszustand zurückgesetzt, das heisst sie ist anschließend leer
  *
@@ -269,7 +262,6 @@ PFPFile::const_iterator PFPFile::end() const
 
 /*!\brief Prüfen, ob es sich um ein PFP-File handelt
  *
- * \desc
  * Diese Funktion prüft, ob es sich bei der geöffneten Datei \p ff um eine Datei
  * im \ref PFPFileVersion3 PFP-Format Version 3 handelt. Ist dies der Fall, wird deren
  * ID und Version eingelesen.

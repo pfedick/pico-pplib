@@ -145,7 +145,6 @@ ByteArray FromBase64(const String& str)
 /*!\brief Schneidet Leerzeichen, Tabs Returns und Linefeeds am Anfang und Ende des Strings ab
  * \relates String
  *
- * \desc
  * Schneidet Leerzeichen, Tabs Returns und Linefeeds am Anfang und Ende des Strings ab
  * @param str Eingabe-String
  * @return Neuer String
@@ -198,7 +197,6 @@ ssize_t Instrcase (const char * haystack, const char * needle, size_t start);
 ssize_t Instrcase (const wchar_t * haystack, const wchar_t * needle, size_t start);
 ssize_t Instrcase (const String &haystack, const String &needle, size_t start);
 \endcode
- * \desc
  * Diese Funktionen suchen nach einer Zeichenkette innerhalb eines Strings, wobei
  * die Funktion \c Instr zwischen Gross- und Kleinschreibung unterschiedet, und
  * die Funktion \c Instrcase nicht.

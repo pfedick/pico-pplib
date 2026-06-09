@@ -48,7 +48,6 @@ static char* empty_string = (char*)"";
  * \ingroup PPLGroupStrings
  * \brief String-Klasse
  *
- * \desc
  * Diese Klasse kann verwendet werden, um beliebige Strings zu speichern und zu verarbeiten. Dabei
  * braucht sich der Anwender keine Gedanken um den verwendeten Speicher zu machen.
  * Die einzelnen Zeichen des Strings werden intern im Unicode-Format gespeichert. Bei Übernahme eines
@@ -59,7 +58,6 @@ static char* empty_string = (char*)"";
 
 /*!\brief Konstruktor für leeren String
  *
- * \desc
  * Es wird ein leerer String erstellt.
  */
 String::String() throw()
@@ -89,7 +87,6 @@ String::String(const char* str)
 
 /*!\brief Konstruktor aus Wide-Character-String mit bestimmer Länge
  *
- * \desc
  * Ein String wird aus dem Wide-Character-String \p str erstellt, von dem maximal
  * \p size Zeichen übernommen werden.
  *
@@ -107,7 +104,6 @@ String::String(const char* str, size_t size)
 
 /*!\brief Konstruktor aus anderem String (Copy-Konstruktor)
  *
- * \desc
  * Ein String wird aus einem anderen String erstellt.
  *
  * @param str Referenz auf einen anderen String
@@ -163,7 +159,6 @@ String::String(const WideString& str)
 
 /*!\brief Destruktor
  *
- * \desc
  * Der Destructor gibt den durch den String belegten Speicher wieder frei.
  *
  */
@@ -174,7 +169,6 @@ String::~String() throw()
 
 /*!\brief String leeren
  *
- * \desc
  * Mit dieser Funktion wird der String geleert und der bisher allokierte Speicher wieder
  * freigegeben.
  */
@@ -188,7 +182,6 @@ void String::clear() throw()
 
 /*!\brief Anzahl Zeichen, die in den bereits allokierten Speicher passen
  *
- * \desc
  * Diese Funktion liefert die Anzahl Zeichen zurück, die in den derzeitig allokierten
  * Puffer passen, ohne dass neuer Speicher allokiert werden muss.
  *
@@ -202,7 +195,6 @@ size_t String::capacity() const
 
 /*!\brief Reserviert Speicher für den String
  *
- * \desc
  * Mit dieser Funktion kann vor Verwendung des Strings vorgegeben werden, wieviel
  * Speicher initial reserviert werden soll. Dies ist insbesondere dann sinnvoll,
  * wenn der String während seiner Lebenszeit häufig verlängert wird.
@@ -233,7 +225,6 @@ void String::reserve(size_t size)
 
 /*!\brief Länge des Strings
  *
- * \desc
  * Diese Funktion gibt die Anzahl Zeichen zurück, aus denen der String besteht.
  *
  * \note
@@ -250,7 +241,6 @@ size_t String::size() const
 
 /*! \brief Prüft, ob der String leer ist.
  *
- * \desc
  * Diese Funktion prüft, ob der String leer ist.
  *
  * \returns Ist der String leer, liefert die Funktion \c true zurück, sonst \c false.
@@ -264,7 +254,6 @@ bool String::isEmpty() const
 
 /*! \brief Prüft, ob der String Zeichen enthält
  *
- * \desc
  * Diese Funktion prüft, ob der String Zeichen enthält.
  *
  * \returns Enthält der String Zeichen, liefert die Funktion \c true zurück, sonst \c false.
@@ -278,7 +267,6 @@ bool String::notEmpty() const
 
 /*!\brief Prüft, ob der String nummerisch ist
  *
- * \desc
  * Diese Funktion prüft, ob im String nur nummerische Zeichen vorhanden sind, also die Ziffern
  * 0-9, Punkt, Komma und Minus.
  *
@@ -306,7 +294,6 @@ bool String::isNumeric() const
 
 /*!\brief Prüft, ob der String einen Integer Wert enthält
  *
- * \desc
  * Diese Funktion prüft, ob im String einen integer Wert enthält, also nur die Ziffern
  * 0-9 und optional ein Minus am Anfang enthalten sind
  *
@@ -372,7 +359,6 @@ bool String::isFalse() const
 
 /*!\brief String anhand eines C-Strings setzen
  *
- * \desc
  * Mit dieser Funktion wird der String anhand eines char * gesetzt. Dabei wird er
  * intern nach Unicode konvertiert.
  *
@@ -426,7 +412,6 @@ String& String::set(const char* str, size_t size)
 
 /*!\brief String anhand eines wchar_t* setzen
  *
- * \desc
  * Mit dieser Funktion wird der String anhand eines wchar_t * gesetzt. Dabei wird der
  * WideString zu UTF-8 konvertiert.
  *
@@ -506,7 +491,6 @@ String& String::set(const wchar_t* str, size_t size)
 
 /*!\brief Wert eines anderen Strings übernehmen
  *
- * \desc
  * Mit dieser Funktion wird der Inhalt des Strings \p str übernommen.
  *
  * \param str Referenz auf einen anderen String
@@ -551,7 +535,6 @@ String& String::set(const ByteArrayPtr& str, size_t size)
 
 /*!\brief Einzelnes Zeichen ersetzen
  *
- * \desc
  * Mit dieser Funktion wird ein einzelnes Zeichen eines Strings an der Position
  * \p position durch das Zeichen \p c ersetzt.
  *
@@ -570,7 +553,6 @@ String& String::set(size_t position, char c)
 
 /*! \brief Erzeugt einen formatierten String
  *
- * \desc
  * Erzeugt einen String anhand des übergebenen Formatstrings \p fmt
  * und den optionalen Parametern \p ...
  *
@@ -616,7 +598,6 @@ String& String::setf(const char* fmt, ...)
 
 /*!\brief Einzelnes ASCII-Zeichen übernehmen
  *
- * \desc
  * Ein einzelnes ASCII-Zeichen \p c wird in den String übernommen.
  *
  * @param c ASCII-Wert des gewünschten Zeichens
@@ -669,7 +650,6 @@ String& String::vasprintf(const char* fmt, va_list args)
 
 /*!\brief String-Speicher übernehmen
  *
- * \desc
  * Mit dieser Funktion wird der Klasse die Verwaltung des Speicherbereich mit der Adresse \p adr und der
  * Größe \p size übergeben. Der Speicher muss zuvor mit "malloc" bzw. "calloc" allokiert worden sein
  * und darf von der Anwendung selbst nicht mehr freigegeben werden.
@@ -701,7 +681,6 @@ String& String::useadr(void* adr, size_t size, size_t stringlen)
 
 /*!\brief Fügt einen C-String an das Ende des bestehenden an
  *
- * \desc
  * Fügt einen C-String an das Ende des bestehenden an. Der String muss entweder
  * UTF-8 kodiert sein, oder es muss mit der statischen Funktion String::setGlobalEncoding
  * zuvor eine andere Kodierung gesetzt worden sein.
@@ -745,7 +724,6 @@ String& String::append(const char* str, size_t size)
 
 /*!\brief Fügt einen String an das Ende des bestehenden an
  *
- * \desc
  * Fügt einen String an das Ende des bestehenden an.
  *
  * \param[in] str Referenz auf ein String-Objekt
@@ -808,7 +786,6 @@ String& String::appendf(const char* fmt, ...)
 
 /*!\brief Einzelnes ASCII-Zeichen anhängen
  *
- * \desc
  * Ein einzelnes ASCII-Zeichen \p c wird in an den String angehangen.
  *
  * @param c ASCII-Wert des gewünschten Zeichens
@@ -825,7 +802,6 @@ String& String::append(char c)
 
 /*!\brief Fügt einen String am Anfang des bestehenden Strings ein
  *
- * \desc
  * Fügt einen String am Anfang des bestehenden Strings ein
  *
  * \param[in] str Referenz auf einen String
@@ -855,7 +831,6 @@ String& String::prepend(const WideString& str, size_t size)
 
 /*!\brief Fügt einen C-String am Anfang des bestehenden Strings ein
  *
- * \desc
  * Fügt einen C-String am Anfang des bestehenden Strings ein
  *
  * \param[in] str Pointer auf einen C-String
@@ -942,7 +917,6 @@ String& String::prependf(const char* fmt, ...)
 
 /*!\brief Einzelnes ASCII-Zeichen am Anfang einfügen
  *
- * \desc
  * Ein einzelnes ASCII-Zeichen \p c wird in am Anfang des Strings eingefügt.
  * Die nachfolgenden Zeichen des Strings verschieben sich nach rechts.
  *
@@ -960,7 +934,6 @@ String& String::prepend(char c)
 
 /*!\brief Einzelnes Zeichen auslesen
  *
- * \desc
  * Mit dieser Funktion kann Bytewert eines einzelnen Zeichens an der Position
  * \p pos ausgelesen werden. Enthält \p pos einen positiven Wert, wird die Position des
  * Zeichens vom Anfang des Strings ermittelt, wobei 0 dem ersten Zeichen entspricht.
@@ -981,7 +954,6 @@ char String::get(ssize_t pos) const
 
 /*!\brief Einzelnes Zeichen auslesen
  *
- * \desc
  * Mit diesem Operator kann der Bytewert eines einzelnen Zeichens an der Position
  * \p pos ausgelesen werden. Enthält \p pos einen positiven Wert, wird die Position des
  * Zeichens vom Anfang des Strings ermittelt, wobei 0 dem ersten Zeichen entspricht.
@@ -1044,7 +1016,6 @@ void String::printnl() const throw()
 
 /*!\brief String übernehmen
  *
- * \desc
  * Mit diesem Operator wird der Angegebene String \p str kopiert. Der Operator
  * ist identisch mit der Funktion String::set
  *
@@ -1058,7 +1029,6 @@ String& String::operator=(const char* str)
 
 /*!\brief String übernehmen
  *
- * \desc
  * Mit diesem Operator wird der Angegebene String \p str kopiert. Der Operator
  * ist identisch mit der Funktion String::set
  *
@@ -1077,7 +1047,6 @@ String& String::operator=(const WideString& str)
 
 /*!\brief Zeichen übernehmen
  *
- * \desc
  * Mit diesem Operator wird ein einzelnes Zeichen in den String kopiert.
  *
  * @param[in] c Unicode Wert des zu übernehmenden Zeichens
@@ -1090,7 +1059,6 @@ String& String::operator=(char c)
 
 /*!\brief String addieren
  *
- * \desc
  * Mit diesem Operator wird der Angegebene String \p str an den bisher vorhandenen
  * String angehangen. Der Operator ist identisch mit der Funktion String::append.
  *
@@ -1104,7 +1072,6 @@ String& String::operator+=(const char* str)
 
 /*!\brief String addieren
  *
- * \desc
  * Mit diesem Operator wird der Angegebene String \p str an den bisher vorhandenen
  * String angehangen. Der Operator ist identisch mit der Funktion String::append.
  *
@@ -1123,7 +1090,6 @@ String& String::operator+=(const WideString& str)
 
 /*!\brief Zeichen anhängen
  *
- * \desc
  * Mit diesem Operator wird das angegebene Zeichen \p c an den bisher vorhandenen
  * String angehangen. Der Operator ist identisch mit der Funktion String::append.
  *
@@ -1136,9 +1102,6 @@ String& String::operator+=(char c)
 }
 
 /*!\brief Führt einen Vergleich mit einem anderen String durch
- *
- * \desc
- * Führt einen Vergleich mit einem anderen String durch.
  *
  * \param str String, mit dem verglichen werden soll
  * \param size Optionaler Parameter, der die Anzahl zu berücksichtigender Zeichen innerhalb des
@@ -1165,7 +1128,6 @@ int String::strcmp(const char* str, size_t size) const
 
 /*!\brief Stringvergleich mit Ignorierung von Gross-/Kleinschreibung
  *
- * \desc
  * Führt einen Vergleich mit einem anderen String durch, unter Ignorierung der
  * Gross-/Kleinschreibung.
  *
@@ -1195,7 +1157,6 @@ int String::strCaseCmp(const char* str, size_t size) const
 
 /*!\brief Linken Teilstring zurückgeben
  *
- * \desc
  * Gibt die ersten \p len Zeichen des Strings als neuen zurück.
  *
  * @param len Länge des Teilstrings
@@ -1212,7 +1173,6 @@ String String::left(size_t len) const
 
 /*!\brief Rechten Teilstring zurückgeben
  *
- * \desc
  * Gibt die letzten \p len Zeichen des Strings als neuen zurück.
  *
  * @param len Länge des Teilstrings
@@ -1229,7 +1189,6 @@ String String::right(size_t len) const
 
 /*!\brief Teilstring zurückgeben
  *
- * \desc
  * Gibt \p len Zeichen des Strings, beginnend ab Position \p start als
  * neuen String zurück.
  *
@@ -1250,7 +1209,6 @@ String String::mid(size_t start, size_t len) const
 
 /*!\brief Teilstring zurückgeben
  *
- * \desc
  * Gibt \p len Zeichen des Strings, beginnend ab Position \p start als
  * neuen String zurück.
  *
@@ -1294,7 +1252,6 @@ void String::trim()
 
 /*!\brief Schneidet Leerzeichen, Tabs, Returns und Linefeeds am Anfang und Ende des Strings ab
  *
- * \desc
  * Es wird eine Kopie des Strings angelegt und bei dieser alle Leerzeichen, Tabs, Returns und
  * Linefeeds am Anfang und Ende des Strings abgeschnitten. Das Ergebnis wird als Returnwert
  * zurückgegeben. Der Original-String bleibt unverändert.
@@ -1408,7 +1365,6 @@ void String::trim(const String& chars)
 
 /*!\brief Schneidet Zeichen am Ende des Strings ab
  *
- * \desc
  * Diese Funktion schneidet \p num Zeichen vom Ende des Strings ab. Falls \p num
  * größer als der String ist, bleibt ein leerer String zurück.
  *
@@ -1425,7 +1381,6 @@ void String::chopRight(size_t num)
 
 /*!\brief Schneidet Zeichen am Ende des Strings ab
  *
- * \desc
  * Diese Funktion schneidet \p num Zeichen vom Ende des Strings ab. Falls \p num
  * größer als der String ist, bleibt ein leerer String zurück.
  *
@@ -1445,7 +1400,6 @@ void String::chop(size_t num)
 
 /*!\brief Schneidet Zeichen am Anfang des Strings ab
  *
- * \desc
  * Diese Funktion schneidet \p num Zeichen vom Anfang des Strings ab. Falls \p num
  * größer als der String ist, bleibt ein leerer String zurück.
  *
@@ -1463,7 +1417,6 @@ void String::chopLeft(size_t num)
 
 /*!\brief Schneidet Returns und Linefeeds am Anfanng und Ende des Strings ab
  *
- * \desc
  * Schneidet Returns und Linefeeds am Anfanng und Ende des Strings ab
  */
 void String::chomp()
@@ -1473,7 +1426,6 @@ void String::chomp()
 
 /*!\brief Schneidet den String an einer bestimmten Stelle ab
  *
- * \desc
  * Der String wird an einer bestimmten Stelle einfach abgeschnitten
  * \param pos Die Position, an der der String abgeschnitten wird. Bei Angabe von 0 ist der String anschließend
  * komplett leer. Ist \c pos größer als die Länge des Strings, passiert nichts.
@@ -1525,7 +1477,6 @@ String String::strrchr(char c) const
 
 /*!\brief Teilstring finden
  *
- * \desc
  * Diese Funktion findet die erste Position der Zeichenfolge \p needle
  * innerhalb des Strings. Abschließende `\0'-Zeichen werden nicht
  * miteinander verglichen.
@@ -1607,7 +1558,6 @@ ssize_t String::find(const String& needle, ssize_t start) const
 
 /*! \brief Sucht nach einem String
  *
- * \desc
  * Diese Funktion sucht nach dem Suchstring \a needle ab der gewünschten Position \a start.
  *
  * \param[in] needle Gesuchter Teilstring
@@ -1643,7 +1593,6 @@ bool String::has(const String& needle) const
 
 /*!\brief String wiederholen
  *
- * \desc
  * Mit dieser Funktion wird der Inhalt des Strings mehrfach wiederholt.
  *
  * @param num Anzahl Wiederholungen. Falls \p num 0 ist, ist der String anschließend leer.
@@ -1704,7 +1653,6 @@ String& String::repeat(char code, size_t num)
 
 /*!\brief String wiederholen
  *
- * \desc
  * Mit dieser Funktion wird der übergebene String \p str \p num mal wiederholt und
  * das Ergebnis in diesem String gespeichert.
  *
@@ -1736,7 +1684,6 @@ String& String::repeat(const String& str, size_t num)
 
 /*!\brief String multiplizieren
  *
- * \desc
  * Der aktuelle String wird \p count mal hintereinander wiederholt und
  * als neuer String zurückgegeben.
  *
@@ -1820,7 +1767,6 @@ void String::shr(char c, size_t size)
 
 /*!\brief Kleinschreibung
  *
- * \desc
  * Diese Funktion wandelt alle Zeichen des Strings in Kleinschreibung um.
  * Dazu wird der String intern kurzzeitig in einen WideString umgewandelt.
  */
@@ -1833,7 +1779,6 @@ void String::lowerCase()
 
 /*!\brief Großschreibung
  *
- * \desc
  * Diese Funktion wandelt alle Zeichen des Strings in Großschreibung um.
  * Dazu wird der String intern kurzzeitig in einen WideString umgewandelt.
  */
@@ -1846,7 +1791,6 @@ void String::upperCase()
 
 /*!\brief Anfangsbuchstaben der Wörter groß
  *
- * \desc
  * Diese Funktion wandelt die Anfangsbuchstaben aller im String enthaltenen Wörter in
  * Großbuchstaben um.
  * Dazu wird der String intern kurzzeitig in einen WideString umgewandelt.
@@ -1860,7 +1804,6 @@ void String::upperCaseWords()
 
 /*!\brief Kleinschreibung
  *
- * \desc
  * Diese Funktion liefert eine Kopie des Strings in Kleinschreibung zurück.
  *
  * @return Neuer String in Kleinschreibung
@@ -1874,7 +1817,6 @@ String String::toLowerCase() const
 
 /*!\brief Großschreibung
  *
- * \desc
  * Diese Funktion liefert eine Kopie des Strings in Großschreibung zurück.
  *
  * @return Neuer String in Großschreibung
@@ -1888,7 +1830,6 @@ String String::toUpperCase() const
 
 /*!\brief Anfangsbuchstaben der Wörter groß
  *
- * \desc
  * Diese Funktion liefert eine Kopie des Strings zurück, bei dem die Anfangsbuchstaben aller Wörter
  * in Großbuchstaben umgewandelt wurden.
  *
@@ -1903,7 +1844,6 @@ String String::toUpperCaseWords() const
 
 /*!\brief Kleiner als
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters kleiner dem des
  * rechten ist.
  *
@@ -1918,7 +1858,6 @@ bool String::operator<(const String& str) const
 
 /*!\brief Kleiner oder gleich
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters kleiner oder gleich
  * dem des rechten ist.
  *
@@ -1933,7 +1872,6 @@ bool String::operator<=(const String& str) const
 
 /*!\brief Gleich
  *
- * \desc
  * Dieser Operator liefert \c true zurück, wenn der Wert des linken Parameters mit dem des
  * rechten identisch ist.
  *
@@ -1948,7 +1886,6 @@ bool String::operator==(const String& str) const
 
 /*!\brief Ungleich
  *
- * \desc
  * Dieser Operator liefert \c true zurück, wenn der Wert des linken Parameters nicht dem des
  * rechten entspricht.
  *
@@ -1963,7 +1900,6 @@ bool String::operator!=(const String& str) const
 
 /*!\brief Größer oder gleich
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters größer oder
  * gleich dem des rechten ist.
  *
@@ -1978,7 +1914,6 @@ bool String::operator>=(const String& str) const
 
 /*!\brief Größer als
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters größer
  * dem des rechten ist.
  *
@@ -1993,7 +1928,6 @@ bool String::operator>(const String& str) const
 
 /*!\brief Kleiner als
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters kleiner dem des
  * rechten ist.
  *
@@ -2008,7 +1942,6 @@ bool String::operator<(const char* str) const
 
 /*!\brief Kleiner oder gleich
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters kleiner oder gleich
  * dem des rechten ist.
  *
@@ -2023,7 +1956,6 @@ bool String::operator<=(const char* str) const
 
 /*!\brief Gleich
  *
- * \desc
  * Dieser Operator liefert \c true zurück, wenn der Wert des linken Parameters mit dem des
  * rechten identisch ist.
  *
@@ -2038,7 +1970,6 @@ bool String::operator==(const char* str) const
 
 /*!\brief Ungleich
  *
- * \desc
  * Dieser Operator liefert \c true zurück, wenn der Wert des linken Parameters nicht dem des
  * rechten entspricht.
  *
@@ -2053,7 +1984,6 @@ bool String::operator!=(const char* str) const
 
 /*!\brief Größer oder gleich
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters größer oder
  * gleich dem des rechten ist.
  *
@@ -2068,7 +1998,6 @@ bool String::operator>=(const char* str) const
 
 /*!\brief Größer als
  *
- * \desc
  * Dieser Operator liefert true zurück, wenn der Wert des linken Parameters größer
  * dem des rechten ist.
  *
@@ -2083,7 +2012,6 @@ bool String::operator>(const char* str) const
 
 /*!\brief %Pointer auf den internen C-String
  *
- * \desc
  * Diese Funktion liefert einen %Pointer im Format "const char*" auf den internen
  * C-String der Klasse zurück. Falls der %String leer ist, wird ein
  * %Pointer auf einen leeren %String zurückgegeben. Das Ergebnis kann in \b printf und
@@ -2131,7 +2059,6 @@ const char* String::toChar() const
 
 /*!\brief WideString-Repräsentation
  *
- * \desc
  * Diese Funktion liefert eine WideString-Repräsentation des Strings zurück.
  *
  * @return WideString
@@ -2277,7 +2204,6 @@ double String::toDouble() const
  *
  * \relates ppl7::String
  *
- * \desc
  * Zwei Strings werden zu einem neuen String zusammengefügt.
  *
  * @param[in] str1 Erster String
@@ -2295,7 +2221,6 @@ String operator+(const String& str1, const String& str2)
  *
  * \relates ppl7::String
  *
- * \desc
  * Zwei Strings werden zu einem neuen String zusammengefügt.
  *
  * @param[in] str1 Erster String
@@ -2313,7 +2238,6 @@ String operator+(const char* str1, const String& str2)
  *
  * \relates ppl7::String
  *
- * \desc
  * Zwei Strings werden zu einem neuen String zusammengefügt.
  *
  * @param[in] str1 Erster String

@@ -47,7 +47,6 @@ String Array::EmptyString;
  * \ingroup PPLGroupDataTypes
  * \brief Ein Array mit Strings
  *
- * \desc
  * Diese Klasse repräsentiert ein Array aus Strings, die über einen Index angesprochen werden
  * können. Die Zählung der Elemente beginnt dabei bei 0, das heisst das erste Element hat den
  * Index 0 (vergleichbar mit Arrays in C/C++).
@@ -57,14 +56,12 @@ String Array::EmptyString;
 /*!\var Array::numElements
  * \brief Anzahl Elemente im Array
  *
- * \desc
  * Diese Variable enthält die tatsächliche Anzahl Elemente im Array
  */
 
 /*!\var Array::numCapacity
  * \brief Maximale Anzahl Elemente im Array
  *
- * \desc
  * Diese Variable enthält die maximal mögliche Anzahl Elemente im Array, ohne dass
  * Speicher reallokiert werden muss. Wird dieser Wert überschritten, wird das Array
  * durch Reallokation von Speicher vergrößert.
@@ -76,7 +73,6 @@ String Array::EmptyString;
 /*!\var Array::rows
  * \brief Array mit den Datenelementen
  *
- * \desc
  * Diese Variable enthält einen Pointer auf die interne Datenstruktur, die die Werte
  * der einzelnen Elemente enthält. Die Größe des Speicherbereichs ergibt sich aus der
  * maximalen Anzahl Elemente im Array (Array::numCapacity) multipliziert mit der größe der
@@ -87,7 +83,6 @@ static String EmptyString;
 
 /*!\brief Konstruktor
  *
- * \desc
  * Der Standard-Konstruktor erstellt ein leeres Array
  */
 Array::Array()
@@ -99,7 +94,6 @@ Array::Array()
 
 /*!\brief Copy-Konstruktor
  *
- * \desc
  * Mit dem Copy-Konstruktor wird der Inhalt des Arrays \p other 1:1 kopiert.
  *
  * @param other Anderes Array
@@ -114,7 +108,6 @@ Array::Array(const Array& other)
 
 /*!\brief Move-Konstruktor
  *
- * \desc
  * Mit dem Move-Konstruktor wird der Inhalt des Arrays \p other auf dieses Array übertragen. Das Array \p other
  * ist danach leer.
  *
@@ -132,7 +125,6 @@ Array::Array(Array&& other) noexcept
 
 /*!\brief Konstruktor aus String
  *
- * \desc
  * Mit diesem Konstruktor wird der String \p str anhand des Trennzeichens
  * \p delimiter in einzelne Elemente zerlegt
  *
@@ -156,7 +148,6 @@ Array::Array(const String& str, const String& delimiter, size_t limit, bool skip
 
 /*!\brief Destruktor
  *
- * \desc
  * Das Array und aller dadurch belegter Speicher wird wieder freigegeben.
  */
 Array::~Array()
@@ -166,7 +157,6 @@ Array::~Array()
 
 /*!\brief Array löschen
  *
- * \desc
  * Der durch das Array belegte Speicher wird freigegeben. Das Array ist danach leer und kann erneut befüllt werden.
  *
  */
@@ -189,7 +179,6 @@ void Array::clear()
 
 /*!\brief Array kopieren
  *
- * \desc
  * Der bisherige Inhalt des Arrays wird gelöscht und mit dem das Arrays \p other gefüllt. Falls der bestehende
  * Inhalt nicht gelöscht werden soll, muss die Funktion Array::add(const Array &other) verwendet werden.
  *
@@ -207,7 +196,6 @@ void Array::copy(const Array& other)
 
 /*!\brief Array hinzufügen
  *
- * \desc
  * Der Inhalt des Arrays \p other wird an das Array angehangen.
  *
  * @param other Zu kopierendes Array
@@ -224,7 +212,6 @@ void Array::add(const Array& other)
 
 /*!\brief String anhängen
  *
- * \desc
  * Der Inhalt des Strings \p value wird dem Array hinzugefügt.
  *
  * @param value String
@@ -236,7 +223,6 @@ void Array::add(const String& value)
 
 /*!\brief Teilstring anhängen
  *
- * \desc
  * Der Inhalt des Strings \p value und der Länge \p size wird dem Array hinzugefügt.
  *
  * @param value String
@@ -251,7 +237,6 @@ void Array::add(const String& value, size_t size)
 
 /*!\brief Teilstring anhängen
  *
- * \desc
  * Der Inhalt des Strings \p value und der Länge \p size wird dem Array hinzugefügt.
  *
  * @param value String
@@ -266,7 +251,6 @@ void Array::add(const char* value, size_t size)
 
 /*!\brief Formatierten String anhängen
  *
- * \desc
  * Mittels Formatstring \p fmt und der optionalen Parameter wird ein neuer String gebildet, der am
  * Ende des Array angehangen wird.
  *
@@ -285,7 +269,6 @@ void Array::addf(const char* fmt, ...)
 
 /*!\brief Wert eines Elements setzen
  *
- * \desc
  * Der Wert des Strings \p value wird an der Position \p index des Arrays gesetzt. Der vorherige Wert
  * des Arrays an dieser Stelle wird dadurch überschrieben.
  *
@@ -314,7 +297,6 @@ void Array::set(size_t index, const String& value)
 
 /*!\brief Formatierten String setzen
  *
- * \desc
  * Mittels Formatstring \p fmt und der optionalen Parameter wird ein neuer String gebildet, der an
  * die Position \p index des Arrays gesetzt wird. Der vorherige Wert
  * des Arrays an dieser Stelle wird überschrieben.
@@ -335,7 +317,6 @@ void Array::setf(size_t index, const char* fmt, ...)
 
 /*!\brief Element im Array einfügen
  *
- * \desc
  * Alle vorhandenen Elemente des Arrays ab Position \p index werden um eins nach hinten
  * verschoben. Anschließend wird das neue Element \p value an der Position \p index
  * eingefügt.
@@ -362,7 +343,6 @@ void Array::insert(size_t index, const String& value)
 
 /*!\brief Array einfügen
  *
- * \desc
  * Das komplette Array \p other wird ab der Position \p index eingefügt. Alle bisher
  * vorhandenen Elemente werden ab dieser Position um die Größe des einzufügenden
  * Arrays nach hinten verschoben.
@@ -400,7 +380,6 @@ void Array::insert(size_t index, const Array& other)
 
 /*!\brief Element mittels Formatstring einfügen
  *
- * \desc
  * Alle vorhandenen Elemente des Arrays ab Position \p index werden um eins nach hinten
  * verschoben. Anschließend wird ein neuer Wert mittels des Formatstrings \p fmt
  * und den zusätzlichen Parametern gebildet und an der Position \p index
@@ -422,7 +401,6 @@ void Array::insertf(size_t index, const char* fmt, ...)
 
 /*!\brief Platz reservieren
  *
- * \desc
  * Durch Aufruf dieser Funktion wird vorab Speicher allokiert, um die durch \p size angegebene
  * Anzahl Elemente aufnehmen zu können. Die Funktion sollte immer dann aufgerufen werden, wenn
  * schon vor dem Befüllen des Array bekannt ist, wieviele Elemente es aufnehmen soll. Insbesondere
@@ -460,7 +438,6 @@ void Array::reserve(size_t size)
 
 /*!\brief Anzahl Elemente, für die Speicher reserviert ist
  *
- * \desc
  * Diese Funktion gibt aus, wieviele Elemente das Array aufnehmen kann, ohne dass Speicher reallokiert
  * und kopiert werden muss.
  *
@@ -475,7 +452,6 @@ size_t Array::capacity() const
 
 /*!\brief Anzahl Elemente im Array
  *
- * \desc
  * Diese Funktion gibt die Anzahl Elemente im Array zurück.
  *
  * @return Anzahl Elemente
@@ -493,7 +469,6 @@ size_t Array::count() const
 
 /*!\brief Anzahl Elemente im Array
  *
- * \desc
  * Diese Funktion gibt die Anzahl Elemente im Array zurück.
  *
  * @return Anzahl Elemente
@@ -511,7 +486,6 @@ size_t Array::size() const
 
 /*!\brief Array leer?
  *
- * \desc
  * Prüft, ob das Array leer ist.
  * @return Gibt \c true zurück, wenn das Array leer ist, also keine Elemente enthält, andernfalls \c true.
  */
@@ -523,7 +497,6 @@ bool Array::empty() const
 
 /*!\brief Inhalt des Arrays ausgeben
  *
- * \desc
  * Der Inhalt des Arrays wird auf der Konsole ausgegeben
  *
  * @param prefix Optionaler String, der jedem Element vorangestellt wird.
@@ -569,7 +542,6 @@ void Array::list(const String& prefix) const
 
 /*!\brief Element als Konstante auslesen
  *
- * \desc
  * Gibt das Element an Position \p index des Arrays als Referenz zurück, dessen Inhalt nicht
  * verändert werden kann. Ist \p index größer als die Anzahl Elemente des Arrays, wird eine Exception geworfen.
  *
@@ -591,7 +563,6 @@ const String& Array::get(ssize_t index) const
 
 /*!\brief Element auslesen
  *
- * \desc
  * Gibt das Element an Position \p index des Arrays als Referenz zurück. Ist \p index größer als die Anzahl
  * Elemente des Arrays, wird eine Exception geworfen.
  *
@@ -613,7 +584,6 @@ String& Array::get(ssize_t index)
 
 /*!\brief Zufälliges Element als Konstante auslesen
  *
- * \desc
  * Gibt eine Referenz auf ein zufälliges Element des Arrays zurück, dessen Inhalt nicht verändert
  * werden kann.
  *
@@ -631,7 +601,6 @@ const String& Array::getRandom() const
 
 /*!\brief Zufälliges Element auslesen
  *
- * \desc
  * Gibt eine Referenz auf ein zufälliges Element des Arrays zurück.
  *
  * @return Referenz auf ein zufälliges Elements des Arrays.
@@ -648,7 +617,6 @@ String& Array::getRandom()
 
 /*!\brief char Pointer auf ein Element auslesen
  *
- * \desc
  * Gibt einen const char Pointer auf das Element \p index zurück.
  * Liegt \p index ausserhalb des Arrays wird
  * eine Exception geworfen.
@@ -664,7 +632,6 @@ const char* Array::getPtr(ssize_t index) const
 
 /*!\brief Zufälliges Element als char Pointer auslesen
  *
- * \desc
  * Gibt einen const char Pointer auf ein zufälliges Element des Arrays zurück.
  *
  * @return Pointer auf den C-String eines zufälligen Elements des Arrays.
@@ -681,7 +648,6 @@ const char* Array::getRandomPtr() const
 
 /*!\brief Inhalt des Arrays ab einer bestimmten Position als String zurückgeben
  *
- * \desc
  * Inhalt des Arrays ab einer bestimmten Position als String zurückgeben
  *
  * @param index Position im Array
@@ -702,7 +668,6 @@ String Array::getRest(size_t index, const String& delimiter)
 
 /*!\brief Iterator auf den Anfang setzen
  *
- * \desc
  * Mit diesem Befehl wird der Iterator zum Durchwandern des Arrays auf das erste Element gesetzt
  *
  * @param it Iterator
@@ -730,7 +695,6 @@ void Array::reset(Iterator& it) const
 
 /*!\brief Referenz auf das erste Element mittels Iterator auslesen
  *
- * \desc
  * Der Iterator \p it wird auf das erste Element gesetzt. Dieses gibt die Funktion zurück und
  * erhöht den Iterator auf das nächste Element.
  *
@@ -762,7 +726,6 @@ const String& Array::getFirst(Iterator& it) const
 
 /*!\brief Referenz auf das nächste Element mittels Iterator auslesen
  *
- * \desc
  * Der Iterator \p it wird auf das erste Element gesetzt. Dieses gibt die Funktion zurück und
  * erhöht den Iterator auf das nächste Element.
  *
@@ -799,7 +762,6 @@ const String& Array::getNext(Iterator& it) const
 
 /*!\brief Das erste Element aus dem Array holen
  *
- * \desc
  * Das erste Element des Arrays (also das mit dem Index 0) wird aus
  * dem Array entfernt und als String zurückgegeben. Der Rest des Arrays wird um
  * eine Position nach vorne gerückt. Ist das Array leer, wird eine
@@ -831,7 +793,6 @@ String Array::erase(size_t index)
 
 /*!\brief Das erste Element aus dem Array holen
  *
- * \desc
  * Das erste Element des Arrays (also das mit dem Index 0) wird aus
  * dem Array entfernt und als String zurückgegeben. Der Rest des Arrays wird um
  * eine Position nach vorne gerückt. Ist das Array leer, wird eine
@@ -862,7 +823,6 @@ String Array::shift()
 
 /*!\brief Das letzte Element aus dem Array holen
  *
- * \desc
  * Das letzte Element des Arrays (also das mit dem höchsten Index) wird aus
  * dem Array entfernt und als String zurückgegeben. Ist das Array leer, wird eine
  * Exception geworfen.
@@ -886,7 +846,6 @@ String Array::pop()
 
 /*!\brief Array aus String erzeugen
  *
- * \desc
  * Der String \p text wird anhand des Trennzeichens \p delimiter in einzelne Elemente zerlegt, die
  * wiederum an das Array angefügt werden
  *
@@ -947,7 +906,6 @@ Array& Array::explode(const String& text, const String& delimiter, size_t limit,
 
 /*!\brief Array zu einem String zusammenfügen
  *
- * \desc
  * Der Inhalt des Arrays wird zu einem String zusammengefügt, wobei das im Parameter \p delimiter
  * angegebene Zeichen oder String als Trennzeichen verwendet wird.
  *
@@ -966,7 +924,6 @@ String Array::implode(const String& delimiter) const
 
 /*!\brief Array aus den Aufrufparametern des Programms erzeugen
  *
- * \desc
  * Ein Array wird aus den Aufrufparametern des Programms erstellt.
  *
  * @param argc Anzahl Parameter
@@ -984,7 +941,6 @@ Array& Array::fromArgs(int argc, const char** argv)
 
 /*!\brief Array aus dem Aufrufstring des Programms erzeugen
  *
- * \desc
  * Ein Array wird aus dem Aufrufstring des Programms erstellt.
  *
  * @param args Aufrufstring
@@ -1051,7 +1007,6 @@ Array& Array::fromArgs(const String& args)
 
 /*!\brief Element aus dem Array auslesen
  *
- * \desc
  * Gibt das Element an Position \p index des Arrays als Referenz zurück. Ist \p index größer als die Anzahl
  * Elemente des Arrays, wird eine Exception geworfen.
  *
@@ -1066,7 +1021,6 @@ String& Array::operator[](ssize_t index)
 
 /*!\brief Element aus dem Array als Konstante auslesen
  *
- * \desc
  * Gibt das Element an Position \p index des Arrays als Referenz zurück, dessen Inhalt nicht verändert werden
  * kann. Ist \p index größer als die Anzahl Elemente des Arrays, wird eine Exception geworfen.
  *
@@ -1081,7 +1035,6 @@ const String& Array::operator[](ssize_t index) const
 
 /*!\brief Inhalt eines anderen Arrays übernehmen
  *
- * \desc
  * Wie bei der Funktion Array::copy wird der aktuelle Inhalt des Arrays gelöscht und der
  * Inhalt des Arrays \p other übernommen.
  *
@@ -1111,7 +1064,6 @@ Array& Array::operator=(Array&& other) noexcept
 
 /*!\brief Inhalt eines anderen Arrays hinzufügen
  *
- * \desc
  * Wie bei der Funktion Array::add wird der Inhalt des Arrays \p other am Ende des
  * bestehenden Arrays angefügt.
  *
@@ -1127,7 +1079,6 @@ Array& Array::operator+=(const Array& other)
 
 /*!\brief Prüfen, ob zwei Arrays identisch sind
  *
- * \desc
  * Mit dem Operator "==" wird geprüft, ob zwei Arrays inhaltlich identisch sind.
  * Dazu wird die Gesamtlänge des Arrays sowie jedes einzelne Element miteinander
  * verglichen.
@@ -1145,7 +1096,6 @@ bool Array::operator==(const Array& other) const
 
 /*!\brief Prüfen, ob zwei Arrays unterschiedlich sind
  *
- * \desc
  * Mit dem Operator "!=" wird geprüft, ob zwei Arrays inhaltlich unterschiedlich sind.
  * Dazu wird die Gesamtlänge des Arrays sowie jedes einzelne Element miteinander
  * verglichen.
@@ -1164,7 +1114,6 @@ bool Array::operator!=(const Array& other) const
 /*!\brief Zwei Arrays zusammenaddieren
  * \relates Array
  *
- * \desc
  * Mit diesem Operator wird der Inhalt zweier Arrays zu einem neuen Array
  * zusammenaddiert
  *
@@ -1182,7 +1131,6 @@ Array operator+(const Array& a1, const Array& a2)
 /*!\class Array::Iterator
  * \brief Iterator zum Durchwandern eines String Array
  *
- * \desc
  * Diese Klasse wird als Iterator zum Durchwandern eines Array verwendet.
  * Sie wird als Parameter zu den Funktionen Array::reset, Array::getFirst und Array::getNext
  * erwartet.
@@ -1195,7 +1143,6 @@ Array::Iterator::Iterator()
 
 /*!\brief Elemente nach ihrem Wert sortieren
  *
- * \desc
  * Die einzelnen Elemente des Arrays werden alphabetisch sortiert. Duplikate bleiben erhalten
  */
 void Array::sort()
@@ -1212,7 +1159,6 @@ void Array::sort()
 
 /*!\brief Elemente nach ihrem Wert in umgekehrter Reihenfolge sortieren
  *
- * \desc
  * Die einzelnen Elemente des Arrays werden in umgekehrter alphabetischer Reihenfolge
  * sortiert. Duplikate bleiben erhalten.
  */
@@ -1230,7 +1176,6 @@ void Array::sortReverse()
 
 /*!\brief Elemente nach ihrem Wert sortieren, Duplikate entfernen
  *
- * \desc
  * Die einzelnen Elemente des Arrays werden alphabetisch sortiert. Duplikate werden entfernt.
  */
 void Array::sortUnique()
@@ -1247,7 +1192,6 @@ void Array::sortUnique()
 
 /*!\brief Duplikate entfernen
  *
- * \desc
  * Elemente, die mehrfach im Array vorkommen, werden entfernt. Die Reihenfolge der Elemente
  * bleibt bestehen.
  *
@@ -1293,7 +1237,6 @@ bool Array::has(const String& search)
 /*!\brief Inhalt eines Arrays alphabetisch sortieren
  * \relates Array
  *
- * \desc
  * Die einzelnen Elemente des Arrays \p array werden alphabetisch sortiert.
  *
  * \param array Das zu sortierende Array
@@ -1327,7 +1270,6 @@ Array Sort(const Array& array, bool unique)
 /*!\brief Inhalt eines Arrays in umgekehrter Reihenfolge sortieren
  * \relates Array
  *
- * \desc
  * Die einzelnen Elemente des Arrays \p array werden in alphabetisch umgekehrter Reihenfolge sortiert.
  *
  * \param array Das zu sortierende Array
