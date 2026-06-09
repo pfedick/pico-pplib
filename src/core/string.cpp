@@ -1614,7 +1614,7 @@ String& String::repeat(size_t num)
         strncpy(tmp, ptr, stringlen);
         tmp += stringlen;
     }
-    free(ptr);
+    if (ptr != empty_string) free(ptr);
     ptr = buf;
     stringlen = stringlen * num;
     ptr[stringlen] = 0;

@@ -146,7 +146,7 @@ WideString::WideString(const String& str)
  */
 WideString::~WideString() noexcept
 {
-    free(ptr);
+    if (ptr != empty_string) ::free(ptr);
 }
 
 /*!\brief String leeren
@@ -475,6 +475,7 @@ WideString& WideString::set(const wchar_t* str, size_t size)
         ptr = (wchar_t*)malloc(s);
         if (!ptr) {
             s = 0;
+            ptr = empty_string;
             throw Exception("OutOfMemoryException");
         }
     }
@@ -683,7 +684,7 @@ WideString& WideString::vasprintf(const char* fmt, va_list args)
 WideString& WideString::append(const wchar_t* str, size_t size)
 {
     if (!str) return *this;
-    if (!ptr) {
+    if (ptr == empty_string) {
         set(str, size);
         return *this;
     }
@@ -814,7 +815,7 @@ WideString& WideString::append(wchar_t c)
 WideString& WideString::prepend(const wchar_t* str, size_t size)
 {
     if (!str) return *this;
-    if (!ptr) {
+    if (ptr == empty_string) {
         set(str, size);
         return *this;
     }
@@ -1058,13 +1059,15 @@ WideString& WideString::operator=(const WideString& str)
 
 WideString& WideString::operator=(WideString&& other) noexcept
 {
-    if (this == &other) return *this;
-    ptr = other.ptr;
-    s = other.s;
-    stringlen = other.stringlen;
-    other.ptr = NULL;
-    other.s = 0;
-    other.stringlen = 0;
+    if (this != &other) {
+        if (ptr != empty_string) ::free(ptr);
+        ptr = other.ptr;
+        s = other.s;
+        stringlen = other.stringlen;
+        other.ptr = empty_string;
+        other.s = 0;
+        other.stringlen = 0;
+    }
     return *this;
 }
 /*!\brief String übernehmen
@@ -1839,7 +1842,7 @@ WideString& WideString::repeat(size_t num)
         wcsncpy(tmp, ptr, stringlen);
         tmp += stringlen;
     }
-    free(ptr);
+    if (ptr != empty_string) ::free(ptr);
     ptr = buf;
     stringlen = stringlen * num;
     ptr[stringlen] = 0;
@@ -1868,7 +1871,7 @@ WideString& WideString::repeat(wchar_t unicode, size_t num)
     if (!buf) throw Exception("OutOfMemory");
     for (size_t i = 0; i < num; i++)
         buf[i] = unicode;
-    free(ptr);
+    if (ptr != empty_string) ::free(ptr);
     ptr = buf;
     stringlen = num;
     ptr[stringlen] = 0;
@@ -1899,7 +1902,7 @@ WideString& WideString::repeat(const WideString& str, size_t num)
         wcsncpy(tmp, str.ptr, str.stringlen);
         tmp += str.stringlen;
     }
-    free(ptr);
+    if (ptr != empty_string) ::free(ptr);
     ptr = buf;
     stringlen = num;
     ptr[stringlen] = 0;

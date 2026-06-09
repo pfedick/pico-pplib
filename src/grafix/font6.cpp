@@ -77,8 +77,7 @@ private:
 
     const Font6Face* getFace(int size, int flags);
 
-    void renderInternal(
-        const Font6Face& face, Drawable& draw, const Font& font, int x, int y, const WideStringRepresentation& text, int color);
+    void renderInternal(const Font6Face& face, Drawable& draw, const Font& font, int x, int y, const WideString& text, int color);
 
 public:
     Font6Renderer();
@@ -490,7 +489,7 @@ void Font6Renderer::render(Drawable& draw, const Font& font, int x, int y, const
     if (font.italic()) flags |= 4;
     const Font6Face* face = getFace(font.size(), flags);
 
-    WideStringRepresentation wtext(text);
+    WideString wtext(text);
     if (face) {
         renderInternal(*face, draw, font, x, y, wtext, color);
         return;
@@ -557,8 +556,7 @@ static BltGlyphFunction getBlitter(const Font6Face& face, const Drawable& draw, 
     // throw Exception("InvalidFontException");
 }
 
-void Font6Renderer::renderInternal(
-    const Font6Face& face, Drawable& draw, const Font& font, int x, int y, const WideStringRepresentation& text, int color)
+void Font6Renderer::renderInternal(const Font6Face& face, Drawable& draw, const Font& font, int x, int y, const WideString& text, int color)
 {
     const Font6Glyph *glyph = NULL, *previous = NULL;
     void (*BltGlyph)(Drawable& draw, const Font6Glyph& glyph, int x, int y, int c) = NULL;
@@ -666,7 +664,7 @@ Size Font6Renderer::measure(const Font& font, const String& text)
     int lasty = 0;
     int kerningx = 0;
     int rotate = (int)font.rotation();
-    WideStringRepresentation wtext(text);
+    WideString wtext(text);
     size_t textlen = wtext.size();
     size_t p = 0;
     int flags = 0;
