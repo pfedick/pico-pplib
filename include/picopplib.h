@@ -450,26 +450,6 @@ WideString operator+(const WideString& str1, const WideString& str2);
 WideString operator+(const wchar_t* str1, const WideString& str2);
 WideString operator+(const WideString& str1, const wchar_t* str2);
 
-class WideStringRepresentation
-{
-private:
-    wchar_t* ptr;
-    size_t stringlen;
-
-public:
-    WideStringRepresentation(const String& str) throw();
-    WideStringRepresentation(const WideStringRepresentation& other) throw();
-    WideStringRepresentation(WideStringRepresentation&& other) noexcept;
-
-    ~WideStringRepresentation() throw();
-    const wchar_t* c_str() const throw();
-    size_t size() const;
-    wchar_t operator[](ssize_t pos) const;
-
-    WideStringRepresentation& operator=(const WideStringRepresentation& other) throw();
-    WideStringRepresentation& operator=(WideStringRepresentation&& other) noexcept;
-};
-
 class Array
 {
 private:
