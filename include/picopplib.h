@@ -110,6 +110,8 @@ public:
     unsigned char operator[](size_t pos) const;
 };
 
+class Array;
+class WideString;
 class String
 {
 private:
@@ -121,6 +123,7 @@ public:
     String(const char* str);
     String(const char* str, size_t size);
     String(const String& str);
+    String(const WideString& str);
     explicit String(const ByteArrayPtr& str);
     String(String&& other) noexcept;            // move construct
     String& operator=(String&& other) noexcept; // move assignment
@@ -149,8 +152,11 @@ public:
     String substr(size_t start, size_t len = (size_t)-1) const;
 
     String& set(const char* str, size_t size = (size_t)-1);
+    String& set(const wchar_t* str, size_t size = (size_t)-1);
     String& set(const String& str, size_t size = (size_t)-1);
+    String& set(const WideString& str, size_t size = (size_t)-1);
     String& set(const ByteArrayPtr& str, size_t size = (size_t)-1);
+
     String& set(char c);
     String& set(size_t position, char c);
     String& setf(const char* fmt, ...);
@@ -158,11 +164,13 @@ public:
 
     String& append(const char* str, size_t size = (size_t)-1);
     String& append(const String& str, size_t size = (size_t)-1);
+    String& append(const WideString& str, size_t size = (size_t)-1);
     String& appendf(const char* fmt, ...);
     String& append(char c);
 
     String& prepend(const char* str, size_t size = (size_t)-1);
     String& prepend(const String& str, size_t size = (size_t)-1);
+    String& prepend(const WideString& str, size_t size = (size_t)-1);
     String& prependf(const char* fmt, ...);
     String& prepend(char c);
 
@@ -224,6 +232,7 @@ public:
     float toFloat() const;
     double toDouble() const;
     const char* toChar() const;
+    WideString toWideString() const;
 
     //! @name Operatoren
     //@{
@@ -243,9 +252,12 @@ public:
 
     String& operator=(const char* str);
     String& operator=(const String& str);
+    String& operator=(const String&& str);
+    String& operator=(const WideString& str);
     String& operator=(char c);
     String& operator+=(const char* str);
     String& operator+=(const String& str);
+    String& operator+=(const WideString& str);
     String& operator+=(char c);
     bool operator<(const String& str) const;
     bool operator<=(const String& str) const;
@@ -265,6 +277,178 @@ public:
 String operator+(const String& str1, const String& str2);
 String operator+(const char* str1, const String& str2);
 String operator+(const String& str1, const char* str2);
+
+class WideString
+{
+private:
+    wchar_t* ptr;
+    size_t s, stringlen;
+
+public:
+    WideString() throw();
+    WideString(const wchar_t* str);
+    WideString(const wchar_t* str, size_t size);
+    WideString(const WideString& str);
+    WideString(const String& str);
+    WideString(WideString&& other) noexcept;            // move construct
+    WideString& operator=(WideString&& other) noexcept; // move assignment
+
+    ~WideString() throw();
+
+    void clear() throw();
+    size_t capacity() const;
+    void reserve(size_t size);
+    size_t size() const;
+    size_t byteLength() const;
+    bool isEmpty() const;
+    bool notEmpty() const;
+    bool isNumeric() const;
+    bool isInteger() const;
+    bool isTrue() const;
+    bool isFalse() const;
+
+    int strcmp(const WideString& str, size_t size = (size_t)-1) const;
+    int strcmp(const wchar_t* str, size_t size = (size_t)-1) const;
+    int strCaseCmp(const WideString& str, size_t size = (size_t)-1) const;
+    int strCaseCmp(const wchar_t* str, size_t size = (size_t)-1) const;
+
+    WideString left(size_t len) const;
+    WideString right(size_t len) const;
+    WideString mid(size_t start, size_t len = (size_t)-1) const;
+    WideString substr(size_t start, size_t len = (size_t)-1) const;
+
+    WideString& set(const char* str, size_t size = (size_t)-1);
+    WideString& set(const wchar_t* str, size_t size = (size_t)-1);
+    WideString& set(const WideString& str, size_t size = (size_t)-1);
+    WideString& set(const String& str, size_t size = (size_t)-1);
+    WideString& set(wchar_t c);
+    WideString& set(size_t position, wchar_t c);
+    WideString& setf(const char* fmt, ...);
+    WideString& useadr(void* adr, size_t size, size_t stringlen = (size_t)-1);
+
+    WideString& append(const wchar_t* str, size_t size = (size_t)-1);
+    WideString& append(const char* str, size_t size = (size_t)-1);
+    WideString& append(const WideString& str, size_t size = (size_t)-1);
+    WideString& append(const String& str, size_t size = (size_t)-1);
+    WideString& appendf(const char* fmt, ...);
+    WideString& append(wchar_t c);
+
+    WideString& prepend(const wchar_t* str, size_t size = (size_t)-1);
+    WideString& prepend(const WideString& str, size_t size = (size_t)-1);
+    WideString& prepend(const String& str, size_t size = (size_t)-1);
+    WideString& prependf(const char* fmt, ...);
+    WideString& prepend(wchar_t c);
+
+    WideString& vasprintf(const char* fmt, va_list args);
+
+    WideString& repeat(size_t num);
+    WideString& repeat(wchar_t code, size_t num);
+    WideString& repeat(const WideString& str, size_t num);
+    WideString repeated(size_t num) const;
+
+    void trim();
+    WideString trimmed() const;
+    void trimLeft();
+    void trimRight();
+    void trim(const WideString& chars);
+    void trimLeft(const WideString& chars);
+    void trimRight(const WideString& chars);
+    void chopRight(size_t num = 1);
+    void chop(size_t num = 1);
+    void chopLeft(size_t num = 1);
+    void chomp();
+    void cut(size_t pos);
+    void cut(const WideString& letter);
+
+    void shl(wchar_t c, size_t size);
+    void shr(wchar_t c, size_t size);
+
+    void lowerCase();
+    void upperCase();
+    void upperCaseWords();
+    WideString toLowerCase() const;
+    WideString toUpperCase() const;
+    WideString toUpperCaseWords() const;
+
+    WideString strchr(wchar_t c) const;
+    WideString strrchr(wchar_t c) const;
+    WideString strstr(const WideString& needle) const;
+    ssize_t find(const WideString& needle, ssize_t start = 0) const;
+    ssize_t findCase(const WideString& needle, ssize_t start) const;
+    ssize_t instr(const WideString& needle, size_t start = 0) const;
+    ssize_t instrCase(const WideString& needle, size_t start) const;
+    bool has(const WideString& needle) const;
+
+    bool startsWith(const WideString& prefix, size_t start = 0, size_t end = (size_t)-1) const;
+    bool endsWith(const WideString& suffix, size_t start = 0, size_t end = (size_t)-1) const;
+
+    WideString& replace(const WideString& search, const WideString& replacement);
+    WideString join(const Array& iterable) const;
+
+    void print(bool withNewline = false) const throw();
+    void printnl() const throw();
+    wchar_t get(ssize_t pos) const;
+    const wchar_t* getPtr() const;
+    const wchar_t* c_str() const;
+
+    int toInt() const;
+    unsigned int toUnsignedInt() const;
+    int64_t toInt64() const;
+    uint64_t toUnsignedInt64() const;
+    bool toBool() const;
+    long toLong() const;
+    unsigned long toUnsignedLong() const;
+    long long toLongLong() const;
+    unsigned long long toUnsignedLongLong() const;
+    float toFloat() const;
+    double toDouble() const;
+    const wchar_t* toWchart() const;
+    String toString() const;
+
+    //! @name Operatoren
+    //@{
+    operator const wchar_t*() const;
+    operator int() const;
+    operator unsigned int() const;
+    operator bool() const;
+    operator long() const;
+    operator unsigned long() const;
+    operator long long() const;
+    operator unsigned long long() const;
+    operator float() const;
+    operator double() const;
+
+    wchar_t operator[](ssize_t pos) const;
+
+    WideString& operator=(const char* str);
+    WideString& operator=(const wchar_t* str);
+    WideString& operator=(const String& str);
+    WideString& operator=(const WideString& str);
+    WideString& operator=(const WideString&& str);
+    WideString& operator=(wchar_t c);
+    WideString& operator+=(const char* str);
+    WideString& operator+=(const wchar_t* str);
+    WideString& operator+=(const String& str);
+    WideString& operator+=(const WideString& str);
+    WideString& operator+=(wchar_t c);
+    bool operator<(const WideString& str) const;
+    bool operator<=(const WideString& str) const;
+    bool operator==(const WideString& str) const;
+    bool operator!=(const WideString& str) const;
+    bool operator>=(const WideString& str) const;
+    bool operator>(const WideString& str) const;
+
+    bool operator<(const wchar_t* str) const;
+    bool operator<=(const wchar_t* str) const;
+    bool operator==(const wchar_t* str) const;
+    bool operator!=(const wchar_t* str) const;
+    bool operator>=(const wchar_t* str) const;
+    bool operator>(const wchar_t* str) const;
+};
+
+WideString operator+(const WideString& str1, const WideString& str2);
+WideString operator+(const wchar_t* str1, const WideString& str2);
+WideString operator+(const WideString& str1, const wchar_t* str2);
 
 class WideStringRepresentation
 {
