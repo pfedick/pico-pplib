@@ -44,9 +44,9 @@ ImageReference::ImageReference(const Drawable& draw, DrawMethod method, const Co
     this->pixel = draw;
 }
 
-Size ImageReference::size() const
+Size16 ImageReference::size() const
 {
-    return Size(pixel.width(), pixel.height());
+    return Size16(pixel.width(), pixel.height());
 }
 
 DrawMethod ImageReference::drawMethod() const

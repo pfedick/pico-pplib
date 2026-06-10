@@ -567,6 +567,7 @@ public:
     void draw(const ImageList& iml, int nr, int x, int y);
     void draw(const ImageList& iml, int nr, int x, int y, const Color& diffuse);
     void draw(const ImageReference& imgref, int x, int y);
+    void drawBlend(const ImageReference& imgref, int x, int y, float factor);
 
     void colorGradient(const Rect16& rect, const Color& c1, const Color& c2, int direction);
     void colorGradient(int x1, int y1, int x2, int y2, const Color& c1, const Color& c2, int direction);
@@ -620,13 +621,13 @@ class ImageReference
 
 private:
     Color diffuse_color;
-    DrawMethod draw_method;
     Drawable pixel;
+    DrawMethod draw_method;
 
 public:
     ImageReference();
     ImageReference(const Drawable& draw, DrawMethod method = DrawMethod::ALPHABLT, const Color& diffuse = Color());
-    Size size() const;
+    Size16 size() const;
     DrawMethod drawMethod() const;
     const Drawable& getDrawable() const;
     Color diffuseColor() const;
@@ -634,6 +635,10 @@ public:
     void setDiffuseColor(const Color& c);
     void setDrawable(const Drawable& draw);
     void useDrawable(const Drawable& draw, DrawMethod method, const Color& diffuse = Color());
+    inline uint16_t width() const { return pixel.width(); };
+    inline uint16_t height() const { return pixel.height(); };
+    inline RGBFormat format() const { return pixel.format(); };
+    inline bool isEmpty() const { return pixel.isEmpty(); };
 };
 
 class ImageList

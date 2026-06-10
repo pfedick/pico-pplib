@@ -1128,4 +1128,19 @@ void Drawable::draw(const ImageReference& imgref, int x, int y)
     }
 }
 
+void Drawable::drawBlend(const ImageReference& imgref, int x, int y, float factor)
+{
+    switch (imgref.draw_method) {
+    case DrawMethod::BLT:
+        blt(imgref.pixel, imgref.pixel.rect(), x, y);
+        return;
+    case DrawMethod::ALPHABLT:
+        bltBlend(imgref.pixel, factor, x, y);
+        return;
+    case DrawMethod::DIFFUSE:
+        bltDiffuse(imgref.pixel, x, y, imgref.diffuse_color);
+        return;
+    }
+}
+
 } // namespace picopplib
