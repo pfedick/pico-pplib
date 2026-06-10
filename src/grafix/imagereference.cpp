@@ -32,104 +32,58 @@
 namespace picopplib
 {
 
-/*!\class ImageList
- * \ingroup PPLGroupGrafik
- * \brief Ein Container für eine Grafik mit mehreren gleichgroßen Icons
- * @return
- */
-
-ImageList::ImageList()
+ImageReference::ImageReference()
 {
-    method = DrawMethod::BLT;
-    width = height = 0;
-    numIcons = 0;
-    numX = numY = 0;
+    draw_method = DrawMethod::ALPHABLT;
 }
 
-ImageList::ImageList(const Drawable& draw, int icon_width, int icon_height, DrawMethod method)
+ImageReference::ImageReference(const Drawable& draw, DrawMethod method, const Color& diffuse)
 {
-    useDrawable(draw, icon_width, icon_height, method);
+    this->draw_method = method;
+    this->diffuse_color = diffuse;
+    this->pixel = draw;
 }
 
-ImageList::~ImageList() {}
-
-void ImageList::clear()
+Size ImageReference::size() const
 {
-    method = DrawMethod::BLT;
-    width = height = 0;
-    numIcons = 0;
-    numX = numY = 0;
+    return Size(pixel.width(), pixel.height());
 }
 
-void ImageList::useDrawable(const Drawable& draw, int icon_width, int icon_height, DrawMethod method)
+DrawMethod ImageReference::drawMethod() const
 {
-    pixel = draw;
-    this->method = method;
-    numX = draw.width() / icon_width;
-    numY = draw.height() / icon_height;
-    numIcons = numX * numY;
+    return draw_method;
 }
 
-void ImageList::setDrawMethod(DrawMethod method)
+const Drawable& ImageReference::getDrawable() const
 {
-    this->method = method;
+    return pixel;
 }
 
-void ImageList::setDiffuseColor(const Color& c)
+Color ImageReference::diffuseColor() const
 {
-    diffuse = c;
+    return diffuse_color;
 }
 
-void ImageList::setIconSize(int width, int height)
+void ImageReference::setDrawMethod(DrawMethod method)
 {
-    this->width = width;
-    this->height = height;
-    numX = pixel.width() / width;
-    numY = pixel.height() / height;
-    numIcons = numX * numY;
+    this->draw_method = method;
 }
 
-size_t ImageList::num() const
+void ImageReference::setDiffuseColor(const Color& c)
 {
-    return numIcons;
+    this->diffuse_color = c;
 }
 
-Size ImageList::iconSize() const
+void ImageReference::setDrawable(const Drawable& draw)
 {
-    return Size(width, height);
+    this->pixel = draw;
 }
 
-Rect16 ImageList::getRect(size_t nr) const
+void ImageReference::useDrawable(const Drawable& draw, DrawMethod method, const Color& diffuse)
 {
-    Rect16 r;
-    if (numIcons == 0 || nr >= numIcons) return r;
-    int h, w;
-    h = (int)(nr / numX);
-    w = (int)(nr % numX);
-    r.setRect(w * width, h * height, width, height);
-    return r;
-}
-
-DrawMethod ImageList::drawMethod() const
-{
-    return method;
-}
-
-Drawable ImageList::getDrawable(size_t nr) const
-{
-    Rect16 r = getRect(nr);
-    return pixel.getDrawable(r);
-}
-
-Color ImageList::diffuseColor() const
-{
-    return diffuse;
-}
-
-ImageReference ImageList::getImageReference(size_t nr) const
-{
-    Rect16 r = getRect(nr);
-    return ImageReference(pixel.getDrawable(r), method, diffuse);
+    this->pixel = draw;
+    this->draw_method = method;
+    this->diffuse_color = diffuse;
 }
 
 } // namespace picopplib

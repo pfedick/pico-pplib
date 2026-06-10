@@ -460,6 +460,7 @@ inline bool operator==(RGBFormat::Identifier id, const RGBFormat& fmt)
 
 class Image;
 class ImageList;
+class ImageReference;
 
 class Drawable
 {
@@ -565,6 +566,7 @@ public:
 
     void draw(const ImageList& iml, int nr, int x, int y);
     void draw(const ImageList& iml, int nr, int x, int y, const Color& diffuse);
+    void draw(const ImageReference& imgref, int x, int y);
 
     void colorGradient(const Rect16& rect, const Color& c1, const Color& c2, int direction);
     void colorGradient(int x1, int y1, int x2, int y2, const Color& c1, const Color& c2, int direction);
@@ -605,18 +607,40 @@ public:
     operator ByteArrayPtr() const;
 };
 
+enum class DrawMethod : uint8_t
+{
+    BLT = 1,
+    ALPHABLT,
+    DIFFUSE
+};
+
+class ImageReference
+{
+    friend class Drawable;
+
+private:
+    Color diffuse_color;
+    DrawMethod draw_method;
+    Drawable pixel;
+
+public:
+    ImageReference();
+    ImageReference(const Drawable& draw, DrawMethod method = DrawMethod::ALPHABLT, const Color& diffuse = Color());
+    Size size() const;
+    DrawMethod drawMethod() const;
+    const Drawable& getDrawable() const;
+    Color diffuseColor() const;
+    void setDrawMethod(DrawMethod method);
+    void setDiffuseColor(const Color& c);
+    void setDrawable(const Drawable& draw);
+    void useDrawable(const Drawable& draw, DrawMethod method, const Color& diffuse = Color());
+};
+
 class ImageList
 {
     friend class Drawable;
 
 public:
-    enum class DrawMethod : uint8_t
-    {
-        BLT = 1,
-        ALPHABLT,
-        DIFFUSE
-    };
-
 private:
     uint16_t numIcons;
     uint16_t width, height;
@@ -638,10 +662,11 @@ public:
 
     size_t num() const;
     Size iconSize() const;
-    Rect getRect(size_t nr) const;
+    Rect16 getRect(size_t nr) const;
     DrawMethod drawMethod() const;
     Drawable getDrawable(size_t nr) const;
     Color diffuseColor() const;
+    ImageReference getImageReference(size_t nr) const;
 };
 
 class ImageFilter;

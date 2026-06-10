@@ -509,7 +509,7 @@ Rect Drawable::rect() const
 
 Rect16 Drawable::rect16() const
 {
-    return Rect(0, 0, my_width, my_height);
+    return Rect16(0, 0, my_width, my_height);
 }
 
 void Drawable::drawRect(int x1, int y1, int x2, int y2, const Color& color)
@@ -952,7 +952,7 @@ int Drawable::fitRect(int& x, int& y, Rect16& r)
 
 void Drawable::blt(const Drawable& source, int x, int y)
 {
-    blt(source, source.rect(), x, y);
+    blt(source, source.rect16(), x, y);
 }
 
 void Drawable::blt(const Drawable& source, const Rect16& srect, int x, int y)
@@ -979,7 +979,7 @@ void Drawable::blt(const Drawable& source, const Rect16& srect, int x, int y)
 
 void Drawable::bltDiffuse(const Drawable& source, int x, int y, const Color& c)
 {
-    bltDiffuse(source, source.rect(), x, y, c);
+    bltDiffuse(source, source.rect16(), x, y, c);
 }
 
 void Drawable::bltDiffuse(const Drawable& source, const Rect16& srect, int x, int y, const Color& c)
@@ -1012,7 +1012,7 @@ void Drawable::bltDiffuse(const Drawable& source, const Rect16& srect, int x, in
 
 void Drawable::bltAlpha(const Drawable& source, int x, int y)
 {
-    bltAlpha(source, source.rect(), x, y);
+    bltAlpha(source, source.rect16(), x, y);
 }
 
 void Drawable::bltAlpha(const Drawable& source, const Rect16& srect, int x, int y)
@@ -1043,7 +1043,7 @@ void Drawable::bltAlpha(const Drawable& source, const Rect16& srect, int x, int 
 
 void Drawable::bltBlend(const Drawable& source, float factor, int x, int y)
 {
-    bltBlend(source, factor, source.rect(), x, y);
+    bltBlend(source, factor, source.rect16(), x, y);
 }
 
 static inline uint8_t clamp_uint8_t(float value)
@@ -1083,15 +1083,15 @@ void Drawable::bltBlend(const Drawable& source, float factor, const Rect16& srec
 
 void Drawable::draw(const ImageList& iml, int nr, int x, int y)
 {
-    Rect r = iml.getRect(nr);
+    Rect16 r = iml.getRect(nr);
     switch (iml.method) {
-    case ImageList::DrawMethod::BLT:
+    case DrawMethod::BLT:
         blt(iml.pixel, r, x, y);
         return;
-    case ImageList::DrawMethod::ALPHABLT:
+    case DrawMethod::ALPHABLT:
         bltAlpha(iml.pixel, r, x, y);
         return;
-    case ImageList::DrawMethod::DIFFUSE:
+    case DrawMethod::DIFFUSE:
         bltDiffuse(iml.pixel, r, x, y, iml.diffuse);
         return;
     }
@@ -1099,16 +1099,31 @@ void Drawable::draw(const ImageList& iml, int nr, int x, int y)
 
 void Drawable::draw(const ImageList& iml, int nr, int x, int y, const Color& diffuse)
 {
-    Rect r = iml.getRect(nr);
+    Rect16 r = iml.getRect(nr);
     switch (iml.method) {
-    case ImageList::DrawMethod::BLT:
+    case DrawMethod::BLT:
         blt(iml.pixel, r, x, y);
         return;
-    case ImageList::DrawMethod::ALPHABLT:
+    case DrawMethod::ALPHABLT:
         bltAlpha(iml.pixel, r, x, y);
         return;
-    case ImageList::DrawMethod::DIFFUSE:
+    case DrawMethod::DIFFUSE:
         bltDiffuse(iml.pixel, r, x, y, diffuse);
+        return;
+    }
+}
+
+void Drawable::draw(const ImageReference& imgref, int x, int y)
+{
+    switch (imgref.draw_method) {
+    case DrawMethod::BLT:
+        blt(imgref.pixel, imgref.pixel.rect(), x, y);
+        return;
+    case DrawMethod::ALPHABLT:
+        bltAlpha(imgref.pixel, x, y);
+        return;
+    case DrawMethod::DIFFUSE:
+        bltDiffuse(imgref.pixel, x, y, imgref.diffuse_color);
         return;
     }
 }
