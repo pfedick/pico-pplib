@@ -30,6 +30,7 @@
 #include "picopplib-grafix.h"
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 namespace picopplib
 {
@@ -1141,6 +1142,162 @@ void Drawable::drawBlend(const ImageReference& imgref, int x, int y, float facto
         bltDiffuse(imgref.pixel, x, y, imgref.diffuse_color);
         return;
     }
+}
+
+/**************************************************************************
+ * Kreise: Elipse, Circle                                                 *
+ **************************************************************************/
+void Drawable::elipse(int x, int y, int radx, int rady, const Color& c, bool fill)
+{
+    int d;
+    int x2 = 0, y2 = 0;
+
+    float pi = 3.1415926535f;
+    float rad = pi / 180.0f;
+
+    for (float i = 0.0f; i < 360.0f; i++) {
+        int x1 = x + (int)(sinf(i * rad) * (float)radx);
+        int y1 = y + (int)(cosf(i * rad) * (float)rady);
+        //::printf ("x1=%i, y1=%i\n",x1,y1);
+        if (i > 0) {
+            d = abs(x2 - x1) + abs(y2 - y1);
+            if (d > 1)
+                line(x1, y1, x2, y2, c);
+            else if (d == 1)
+                putPixel(x1, y1, c);
+        }
+        x2 = x1;
+        y2 = y1;
+    }
+    if (fill) floodFill(x, y, c, c);
+}
+
+void Drawable::elipse(int x, int y, int radx, int rady, const Color& c, bool fill, const Color& fillcolor, int start, int end)
+{
+    float st = (float)start / 360.0f;
+    float en = (float)end / 360.0f;
+    if (st != en) {
+        int x2 = x + (int)(sinf(st) * (float)radx);
+        int y2 = y + (int)(cosf(st) * (float)rady);
+        putPixel(x2, y2, c);
+
+        for (int i = start; i < end + 1; i++) {
+            int x1 = x + (int)(sinf((float)i) * radx);
+            int y1 = y + (int)(cosf((float)i) * rady);
+            if (i > 0) {
+                int d = abs(x2 - x1) + abs(y2 - y1);
+                if (d > 1)
+                    line(x1, y1, x2, y2, c);
+                else if (d == 1)
+                    putPixel(x1, y1, c);
+            }
+            x2 = x1;
+            y2 = y1;
+        }
+        if (fill) {
+            int x1 = x + (int)(sinf((float)(start + end) / 2) * (float)(radx - 2));
+            int y1 = y + (int)(cosf((float)(start + end) / 2) * (float)(rady - 2));
+            floodFill(x1, y1, fillcolor, c);
+        }
+    }
+}
+
+void Drawable::circle(int x, int y, int rad, const Color& c, bool fill)
+{
+    elipse(x, y, rad, rad, c, fill);
+}
+
+void Drawable::circle(const Point& p, int rad, const Color& c, bool fill)
+{
+    elipse(p.x, p.y, rad, rad, c, fill);
+}
+
+void Drawable::floodFill(int x, int y, const Color& color, const Color& border)
+/*!\brief Fläche mit Farbe füllen
+ *
+ * \desc
+ * Mit dieser Funktion kann eine beliebig geformte Fläche mit einer Farbe ausgefüllt werden.
+ *
+ * \param[in] x X-Koordinate eines beliebigen Punktes innerhalb der zu füllenden Fläche
+ * \param[in] y Y-Koordinate eines beliebigen Punktes innerhalb der zu füllenden Fläche
+ * \param[in] color Farbwert, mit der die Fläche gefüllt werden soll
+ * \param[in] border Farbwert, der die Grenze der zu füllenden Fläche darstellt
+ *
+ * \remarks
+ * Die Funktion ruft sich selbst mehrfach rekursiv auf. Der Code wurde im wesentlichen aus der freien
+ * GD-Library, Version 1.2 entnommen
+ *
+ * \code
+ * Portions copyright 1994, 1995, 1996, 1997, 1998, by Cold Spring
+ * Harbor Laboratory. Funded under Grant P41-RR02188 by the National
+ * Institutes of Health.
+ *
+ * Portions copyright 1996, 1997, 1998, by Boutell.Com, Inc.
+ * \endcode
+ */
+{
+    /*
+     * Quelle des Codes: GD-Library Version 1.2
+     */
+
+    int lastBorder;
+    /* Seek left */
+    int leftLimit, rightLimit;
+    int i;
+    leftLimit = (-1);
+    for (i = x; (i >= 0); i--) {
+        if (getPixel(i, y) == border) {
+            break;
+        }
+        putPixel(i, y, color);
+        leftLimit = i;
+    }
+    if (leftLimit == (-1)) {
+        return;
+    }
+    /* Seek right */
+    rightLimit = x;
+    for (i = (x + 1); (i < my_width); i++) {
+        if (getPixel(i, y) == border) {
+            break;
+        }
+        putPixel(i, y, color);
+        rightLimit = i;
+    }
+    /* Look at lines above and below and start paints */
+    /* Above */
+    if (y > 0) {
+        lastBorder = 1;
+        for (i = leftLimit; (i <= rightLimit); i++) {
+            Color c;
+            c = getPixel(i, y - 1);
+            if (lastBorder) {
+                if ((c != border) && (c != color)) {
+                    floodFill(i, y - 1, color, border);
+                    lastBorder = 0;
+                }
+            } else if ((c == border) || (c == color)) {
+                lastBorder = 1;
+            }
+        }
+    }
+    /* Below */
+    if (y < ((my_height)-1)) {
+        lastBorder = 1;
+        for (i = leftLimit; (i <= rightLimit); i++) {
+            Color c;
+            c = getPixel(i, y + 1);
+            if (lastBorder) {
+                if ((c != border) && (c != color)) {
+                    floodFill(i, y + 1, color, border);
+                    lastBorder = 0;
+                }
+            } else if ((c == border) || (c == color)) {
+                lastBorder = 1;
+            }
+        }
+    }
+    return;
 }
 
 } // namespace picopplib

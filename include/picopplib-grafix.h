@@ -561,6 +561,12 @@ public:
     void lineAA(int x1, int y1, int x2, int y2, const Color& c, int strength = 1);
     void lineAA(const Point& start, const Point& end, const Color& c, int strength = 1);
 
+    void floodFill(int x, int y, const Color& color, const Color& border);
+    void elipse(int x, int y, int radx, int rady, const Color& c, bool fill = false);
+    void elipse(int x, int y, int radx, int rady, const Color& c, bool fill, const Color& fillcolor, int startangle, int endangle);
+    void circle(int x, int y, int rad, const Color& c, bool fill = false);
+    void circle(const Point& p, int rad, const Color& c, bool fill = false);
+
     void print(const Font& font, int x, int y, const String& text);
     void printf(const Font& font, int x, int y, const char* fmt, ...);
 
