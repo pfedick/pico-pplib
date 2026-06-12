@@ -55,9 +55,34 @@ Font::Font(const Font& other)
     rotationDegrees = other.rotationDegrees;
 }
 
+Font::Font(Font&& other) noexcept
+{
+    Name = std::move(other.Name);
+    cForeground = other.cForeground;
+    cBorder = other.cBorder;
+    cShadow = other.cShadow;
+    fontSize = other.fontSize;
+    flags = other.flags;
+    ori = other.ori;
+    rotationDegrees = other.rotationDegrees;
+}
+
 Font& Font::operator=(const Font& other)
 {
     Name = other.Name;
+    cForeground = other.cForeground;
+    cBorder = other.cBorder;
+    cShadow = other.cShadow;
+    fontSize = other.fontSize;
+    flags = other.flags;
+    ori = other.ori;
+    rotationDegrees = other.rotationDegrees;
+    return *this;
+}
+
+Font& Font::operator=(Font&& other) noexcept
+{
+    Name = std::move(other.Name);
     cForeground = other.cForeground;
     cBorder = other.cBorder;
     cShadow = other.cShadow;
@@ -73,17 +98,17 @@ const String& Font::name() const
     return Name;
 }
 
-Color Font::color() const
+const Color& Font::color() const
 {
     return cForeground;
 }
 
-Color Font::borderColor() const
+const Color& Font::borderColor() const
 {
     return cBorder;
 }
 
-Color Font::shadowColor() const
+const Color& Font::shadowColor() const
 {
     return cShadow;
 }
@@ -124,7 +149,13 @@ bool Font::drawUnderline() const
     return false;
 }
 
-int Font::size() const
+bool Font::monospace() const
+{
+    if (flags & fMonospace) return true;
+    return false;
+}
+
+uint16_t Font::size() const
 {
     return fontSize;
 }
@@ -134,7 +165,7 @@ Font::Orientation Font::orientation() const
     return (Orientation)ori;
 }
 
-float Font::rotation() const
+uint16_t Font::rotation() const
 {
     return rotationDegrees;
 }
@@ -164,7 +195,7 @@ void Font::setShadowColor(const Color& c)
 void Font::setBold(bool enable)
 {
     if (!enable)
-        flags &= (0xff - fBold);
+        flags &= ~fBold;
     else
         flags |= fBold;
 }
@@ -172,7 +203,7 @@ void Font::setBold(bool enable)
 void Font::setItalic(bool enable)
 {
     if (!enable)
-        flags &= (0xff - fItalic);
+        flags &= ~fItalic;
     else
         flags |= fItalic;
 }
@@ -180,7 +211,7 @@ void Font::setItalic(bool enable)
 void Font::setAntialias(bool enable)
 {
     if (!enable)
-        flags &= (0xff - fAntialias);
+        flags &= ~fAntialias;
     else
         flags |= fAntialias;
 }
@@ -188,7 +219,7 @@ void Font::setAntialias(bool enable)
 void Font::setDrawBorder(bool enable)
 {
     if (!enable)
-        flags &= (0xff - fDrawBorder);
+        flags &= ~fDrawBorder;
     else
         flags |= fDrawBorder;
 }
@@ -196,7 +227,7 @@ void Font::setDrawBorder(bool enable)
 void Font::setDrawShadow(bool enable)
 {
     if (!enable)
-        flags &= (0xff - fDrawShadow);
+        flags &= ~fDrawShadow;
     else
         flags |= fDrawShadow;
 }
@@ -204,7 +235,7 @@ void Font::setDrawShadow(bool enable)
 void Font::setDrawUnderline(bool enable)
 {
     if (!enable)
-        flags &= (0xff - fUnderline);
+        flags &= ~fUnderline;
     else
         flags |= fUnderline;
 }
@@ -212,12 +243,12 @@ void Font::setDrawUnderline(bool enable)
 void Font::setMonospace(bool enable)
 {
     if (!enable)
-        flags &= (0xff - fMonospace);
+        flags &= ~fMonospace;
     else
         flags |= fMonospace;
 }
 
-void Font::setSize(int size)
+void Font::setSize(uint16_t size)
 {
     fontSize = size;
 }
@@ -227,14 +258,14 @@ void Font::setOrientation(Orientation o)
     ori = o;
 }
 
-void Font::setRotation(float degrees)
+void Font::setRotation(uint16_t degrees)
 {
     rotationDegrees = degrees;
 }
 
-Size Font::measure(const String& text) const
+Size16 Font::measure(const String& text) const
 {
-    Size s;
+    Size16 s;
     Grafix* gfx = GetGrafix();
     const FontFile* file = gfx->findFont(Name);
     if (!file) return s;
@@ -242,9 +273,9 @@ Size Font::measure(const String& text) const
     return file->engine->measure(*file, *this, text);
 }
 
-Rect Font::boundary(const String& text, int x, int y) const
+Rect16 Font::boundary(const String& text, int x, int y) const
 {
-    Rect r;
+    Rect16 r;
     Grafix* gfx = GetGrafix();
     const FontFile* file = gfx->findFont(Name);
     if (!file) return r;
@@ -254,14 +285,7 @@ Rect Font::boundary(const String& text, int x, int y) const
 
 bool operator!=(const Font& f1, const Font& f2)
 {
-    if (f1.Name == f2.Name) return false;
-    if (f1.fontSize == f2.fontSize) return false;
-    if (f1.flags == f2.flags) return false;
-    if (f1.cForeground == f2.cForeground) return false;
-    if (f1.cBorder == f2.cBorder) return false;
-    if (f1.cShadow == f2.cShadow) return false;
-    if (f1.ori == f2.ori) return false;
-    return true;
+    return !(f1 == f2);
 }
 
 bool operator==(const Font& f1, const Font& f2)
@@ -273,6 +297,7 @@ bool operator==(const Font& f1, const Font& f2)
     if (f1.cBorder != f2.cBorder) return false;
     if (f1.cShadow != f2.cShadow) return false;
     if (f1.ori != f2.ori) return false;
+    if (f1.rotationDegrees != f2.rotationDegrees) return false;
     return true;
 }
 
@@ -317,13 +342,13 @@ void Grafix::addFontEngine(FontEngine* engine)
 void Grafix::loadFont(const ByteArrayPtr& memory, const String& fontname)
 {
     std::list<FontEngine*>::iterator it;
-    printf("check font engine, we have %d engines\n", (int)FontEngineList.size());
+    // printf("check font engine, we have %d engines\n", (int)FontEngineList.size());
     for (it = FontEngineList.begin(); it != FontEngineList.end(); ++it) {
-        printf("checking engine...\n");
+        // printf("checking engine...\n");
         FontEngine* engine = *it;
-        printf("Engine: %s\n", (const char*)engine->description());
+        // printf("Engine: %s\n", (const char*)engine->description());
         if (engine->ident(memory)) {
-            printf("Engine gefunden\n");
+            // printf("Engine gefunden\n");
             FontFile* font = engine->loadFont(memory, fontname);
             if (!font) throw Exception("InvalidFontException");
             std::map<String, FontFile*>::const_iterator fit;
@@ -333,7 +358,7 @@ void Grafix::loadFont(const ByteArrayPtr& memory, const String& fontname)
                 FontList.erase(fit);
                 old->engine->deleteFont(old);
             }
-            printf("Font geladen\n");
+            // printf("Font geladen\n");
             FontList.insert(std::pair<String, FontFile*>(font->Name, font));
             return;
         }
@@ -362,11 +387,9 @@ void Grafix::clearFontEngines()
 
 const FontFile* Grafix::findFont(const String& fontname) const
 {
-    std::map<String, FontFile*>::const_iterator fit;
-    for (fit = FontList.begin(); fit != FontList.end(); ++fit) {
-        if (fontname == fit->first) return fit->second;
-    }
-    throw Exception("FontNotFoundException", "%s", (const char*)fontname);
+    std::map<String, FontFile*>::const_iterator fit = FontList.find(fontname);
+    if (fit != FontList.end()) return fit->second;
+    return NULL;
 }
 
 const FontFile* Grafix::findFont(const Font& font) const
@@ -389,12 +412,14 @@ void Drawable::print(const Font& font, int x, int y, const String& text)
 {
     Grafix* gfx = GetGrafix();
     const FontFile* file = gfx->findFont(font.name());
+    if (!file) return;
     if (font.drawShadow()) {
         file->engine->render(*file, font, *this, x + 2, y + 2, text, toNativeColor(font.shadowColor()));
     }
     if (font.drawBorder()) {
         for (int a = -1; a < 2; a++) {
             for (int b = -1; b < 2; b++) {
+                if (a == 0 && b == 0) continue;
                 file->engine->render(*file, font, *this, x + a, y + b, text, toNativeColor(font.borderColor()));
             }
         }

@@ -371,7 +371,7 @@ private:
     uint16_t fontSize;
     uint8_t flags;
     uint8_t ori;
-    float rotationDegrees;
+    uint16_t rotationDegrees;
 
 public:
     enum Orientation
@@ -386,11 +386,12 @@ public:
 
     Font();
     Font(const Font& other);
+    Font(Font&& other) noexcept;
 
     const String& name() const;
-    Color color() const;
-    Color borderColor() const;
-    Color shadowColor() const;
+    const Color& color() const;
+    const Color& borderColor() const;
+    const Color& shadowColor() const;
     bool bold() const;
     bool italic() const;
     bool antialias() const;
@@ -398,11 +399,11 @@ public:
     bool drawShadow() const;
     bool drawUnderline() const;
     bool monospace() const;
-    int size() const;
+    uint16_t size() const;
     Orientation orientation() const;
-    Size measure(const String& text) const;
-    Rect boundary(const String& text, int x = 0, int y = 0) const;
-    float rotation() const;
+    Size16 measure(const String& text) const;
+    Rect16 boundary(const String& text, int x = 0, int y = 0) const;
+    uint16_t rotation() const;
 
     int setName(const String& name);
     void setColor(const Color& c);
@@ -415,11 +416,12 @@ public:
     void setDrawShadow(bool enable);
     void setDrawUnderline(bool enable);
     void setMonospace(bool enable);
-    void setSize(int size);
+    void setSize(uint16_t size);
     void setOrientation(Orientation o);
-    void setRotation(float degrees);
+    void setRotation(uint16_t degrees);
 
     Font& operator=(const Font& other);
+    Font& operator=(Font&& other) noexcept;
 };
 bool operator!=(const Font& f1, const Font& f2);
 bool operator==(const Font& f1, const Font& f2);
@@ -733,8 +735,8 @@ public:
     virtual FontFile* loadFont(const ByteArrayPtr& memory, const String& fontname) = 0;
     virtual void deleteFont(FontFile* file) = 0;
     virtual void render(const FontFile& file, const Font& font, Drawable& draw, int x, int y, const String& text, int color) const = 0;
-    virtual Size measure(const FontFile& file, const Font& font, const String& text) const = 0;
-    virtual Rect boundary(const FontFile& file, const Font& font, const String& text, int x, int y) const = 0;
+    virtual Size16 measure(const FontFile& file, const Font& font, const String& text) const = 0;
+    virtual Rect16 boundary(const FontFile& file, const Font& font, const String& text, int x, int y) const = 0;
     virtual String name() const = 0;
     virtual String description() const = 0;
 };
@@ -750,8 +752,8 @@ public:
     FontFile* loadFont(const ByteArrayPtr& memory, const String& fontname) override;
     void deleteFont(FontFile* file) override;
     void render(const FontFile& file, const Font& font, Drawable& draw, int x, int y, const String& text, int native_color) const override;
-    Size measure(const FontFile& file, const Font& font, const String& text) const override;
-    Rect boundary(const FontFile& file, const Font& font, const String& text, int x, int y) const override;
+    Size16 measure(const FontFile& file, const Font& font, const String& text) const override;
+    Rect16 boundary(const FontFile& file, const Font& font, const String& text, int x, int y) const override;
     String name() const override;
     String description() const override;
 };
