@@ -223,12 +223,8 @@ float DS3231::getTemperature() const
         printf("ERROR: i2c_read_blocking failed\n");
         return 0.0f;
     }
-    /*Upper: 0xfe, Lower: 0xc0, v1=0x7ec0, v2=0xfffffe05
-     */
     int16_t v1 = (buf[0] << 8) | buf[1];
     int16_t v2 = v1 / 64;
-    // printf("Upper: 0x%x, Lower: 0x%x, v1=0x%x, v2=0x%x\n", buf[0], buf[1], v1, v2);
-
     return (float)v2 * 0.25f;
 }
 
