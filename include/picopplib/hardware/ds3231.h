@@ -38,6 +38,13 @@ public:
     datetime_t getTime() const;
     void setTime(const datetime_t& time);
     void setTime(const struct tm& time);
+    void setYear(int16_t year);
+    void setMonth(int8_t month);
+    void setDay(int8_t day);
+    void setWeekday(int8_t dotw);
+    void setHour(int8_t hour);
+    void setMinute(int8_t min);
+    void setSecond(int8_t sec);
 
     void getTime(struct tm& time) const;
     void syncTimeToSystem();

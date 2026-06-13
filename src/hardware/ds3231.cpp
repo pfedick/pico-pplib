@@ -60,39 +60,105 @@ void DS3231::init(i2c_inst_t* i2c_port, int i2c_scl, int i2c_sda, int addr)
 void DS3231::setTime(const struct tm& time)
 {
     uint8_t buf[2];
+    struct tm old_time;
+    getTime(old_time);
     // set second
-    buf[0] = 0x00;
-    buf[1] = num2bcd(time.tm_sec);
-    i2c_write_blocking(i2c_port, addr, buf, 2, false);
-
+    if (old_time.tm_sec != time.tm_sec) {
+        buf[0] = 0x00;
+        buf[1] = num2bcd(time.tm_sec);
+        i2c_write_blocking(i2c_port, addr, buf, 2, false);
+    }
     // set minute
-    buf[0] = 0x01;
-    buf[1] = num2bcd(time.tm_min);
-    i2c_write_blocking(i2c_port, addr, buf, 2, false);
-
+    if (old_time.tm_min != time.tm_min) {
+        buf[0] = 0x01;
+        buf[1] = num2bcd(time.tm_min);
+        i2c_write_blocking(i2c_port, addr, buf, 2, false);
+    }
     // set hour
-    buf[0] = 0x02;
-    buf[1] = num2bcd(time.tm_hour);
-    i2c_write_blocking(i2c_port, addr, buf, 2, false);
-
+    if (old_time.tm_hour != time.tm_hour) {
+        buf[0] = 0x02;
+        buf[1] = num2bcd(time.tm_hour);
+        i2c_write_blocking(i2c_port, addr, buf, 2, false);
+    }
     // set weekday
-    buf[0] = 0x03;
-    buf[1] = num2bcd((time.tm_wday == 0 ? 7 : time.tm_wday));
-    i2c_write_blocking(i2c_port, addr, buf, 2, false);
-
+    if (old_time.tm_wday != time.tm_wday) {
+        buf[0] = 0x03;
+        buf[1] = num2bcd((time.tm_wday == 0 ? 7 : time.tm_wday));
+        i2c_write_blocking(i2c_port, addr, buf, 2, false);
+    }
     // set day
-    buf[0] = 0x04;
-    buf[1] = num2bcd(time.tm_mday);
-    i2c_write_blocking(i2c_port, addr, buf, 2, false);
-
+    if (old_time.tm_mday != time.tm_mday) {
+        buf[0] = 0x04;
+        buf[1] = num2bcd(time.tm_mday);
+        i2c_write_blocking(i2c_port, addr, buf, 2, false);
+    }
     // set month
-    buf[0] = 0x05;
-    buf[1] = num2bcd(time.tm_mon + 1);
-    i2c_write_blocking(i2c_port, addr, buf, 2, false);
-
+    if (old_time.tm_mon != time.tm_mon) {
+        buf[0] = 0x05;
+        buf[1] = num2bcd(time.tm_mon + 1);
+        i2c_write_blocking(i2c_port, addr, buf, 2, false);
+    }
     // set year (adjust for years since 2000)
+    if (old_time.tm_year != time.tm_year) {
+        buf[0] = 0x06;
+        buf[1] = num2bcd(time.tm_year % 100);
+        i2c_write_blocking(i2c_port, addr, buf, 2, false);
+    }
+}
+
+void DS3231::setYear(int16_t year)
+{
+    uint8_t buf[2];
     buf[0] = 0x06;
-    buf[1] = num2bcd(time.tm_year % 100);
+    buf[1] = num2bcd(year % 100);
+    i2c_write_blocking(i2c_port, addr, buf, 2, false);
+}
+
+void DS3231::setMonth(int8_t month)
+{
+    uint8_t buf[2];
+    buf[0] = 0x05;
+    buf[1] = num2bcd(month);
+    i2c_write_blocking(i2c_port, addr, buf, 2, false);
+}
+
+void DS3231::setDay(int8_t day)
+{
+    uint8_t buf[2];
+    buf[0] = 0x04;
+    buf[1] = num2bcd(day);
+    i2c_write_blocking(i2c_port, addr, buf, 2, false);
+}
+
+void DS3231::setWeekday(int8_t dotw)
+{
+    uint8_t buf[2];
+    buf[0] = 0x03;
+    buf[1] = num2bcd((dotw == 0 ? 7 : dotw));
+    i2c_write_blocking(i2c_port, addr, buf, 2, false);
+}
+
+void DS3231::setHour(int8_t hour)
+{
+    uint8_t buf[2];
+    buf[0] = 0x02;
+    buf[1] = num2bcd(hour);
+    i2c_write_blocking(i2c_port, addr, buf, 2, false);
+}
+
+void DS3231::setMinute(int8_t min)
+{
+    uint8_t buf[2];
+    buf[0] = 0x01;
+    buf[1] = num2bcd(min);
+    i2c_write_blocking(i2c_port, addr, buf, 2, false);
+}
+
+void DS3231::setSecond(int8_t sec)
+{
+    uint8_t buf[2];
+    buf[0] = 0x00;
+    buf[1] = num2bcd(sec);
     i2c_write_blocking(i2c_port, addr, buf, 2, false);
 }
 
