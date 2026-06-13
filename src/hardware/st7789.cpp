@@ -1,8 +1,8 @@
-#include "st7789.h"
 #include <malloc.h>
 #include <string.h>
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
+#include "st7789.h"
 
 typedef enum write_type
 {
@@ -185,12 +185,14 @@ void ST7789::init(uint16_t width, uint16_t height, const Config& config, bool us
 
 void ST7789::init_pwm()
 {
-    gpio_set_function(spi_blk, GPIO_FUNC_PWM);
-    uint slice_num = pwm_gpio_to_slice_num(spi_blk);
-    pwm_config cfg = pwm_get_default_config();
-    pwm_config_set_clkdiv(&cfg, 4.0f); // Teiler für weichere PWM
-    pwm_init(slice_num, &cfg, true);
-    pwm_set_wrap(slice_num, 255); // 0-255 Range
+    if (spi_blk != UNUSED_PIN) {
+        gpio_set_function(spi_blk, GPIO_FUNC_PWM);
+        uint slice_num = pwm_gpio_to_slice_num(spi_blk);
+        pwm_config cfg = pwm_get_default_config();
+        pwm_config_set_clkdiv(&cfg, 4.0f); // Teiler für weichere PWM
+        pwm_init(slice_num, &cfg, true);
+        pwm_set_wrap(slice_num, 255); // 0-255 Range
+    }
 }
 
 void ST7789::write(const uint8_t cmd, const uint8_t* data, size_t len)
@@ -499,6 +501,7 @@ void ST7789::clear(picopplib::Color color)
 
 void ST7789::setBrightness(uint8_t brightness)
 {
+    if (spi_blk == UNUSED_PIN) return; // Kein PWM-Pin konfiguriert, daher keine Helligkeitsregelung möglich
     uint slice_num = pwm_gpio_to_slice_num(spi_blk);
     uint channel = pwm_gpio_to_channel(spi_blk);
     pwm_set_chan_level(slice_num, channel, brightness);

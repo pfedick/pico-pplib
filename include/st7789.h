@@ -15,6 +15,7 @@
 class ST7789
 {
 public:
+    static constexpr uint8_t UNUSED_PIN = 255;
     class Config
     {
     public:
@@ -24,8 +25,7 @@ public:
         uint8_t pin_spi_sck;
         uint8_t pin_spi_data;
         uint32_t pin_spi_speed;
-        uint8_t pin_spi_blk;
-
+        uint8_t pin_spi_blk; // can be UNUSED_PIN if not used
         spi_inst_t* spi_num;
     };
 
