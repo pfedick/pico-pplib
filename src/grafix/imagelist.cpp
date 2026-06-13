@@ -64,6 +64,8 @@ void ImageList::clear()
 void ImageList::useDrawable(const Drawable& draw, int icon_width, int icon_height, DrawMethod method)
 {
     pixel = draw;
+    width = icon_width;
+    height = icon_height;
     this->method = method;
     numX = draw.width() / icon_width;
     numY = draw.height() / icon_height;

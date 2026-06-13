@@ -112,10 +112,12 @@ void Drawable::blendPixel16BitR5G6B5(Drawable& self, int x, int y, uint32_t c, u
     if (x < 0 || x >= (int)self.my_width || y < 0 || y >= (int)self.my_height) return;
 
     uint16_t* row = (uint16_t*)(self.buffer + y * self.pitch);
-    uint16_t dst = row[x];
-    uint16_t src = c & 0xFFFF;
+    uint16_t dst_swapped = row[x];
+    uint16_t dst = (dst_swapped >> 8) | (dst_swapped << 8);
+    uint16_t src_swapped = c & 0xFFFF;
+    uint16_t src = (src_swapped >> 8) | (src_swapped << 8);
 
-    // Einfache Alpha-Blending-Formel: result = (src * intensity + dst * (255 - intensity)) / 255
+    // Kanäle extrahieren
     uint8_t src_r = (src >> 11) & 0x1F;
     uint8_t src_g = (src >> 5) & 0x3F;
     uint8_t src_b = src & 0x1F;
@@ -124,11 +126,14 @@ void Drawable::blendPixel16BitR5G6B5(Drawable& self, int x, int y, uint32_t c, u
     uint8_t dst_g = (dst >> 5) & 0x3F;
     uint8_t dst_b = dst & 0x1F;
 
+    // Blending
     uint8_t out_r = (src_r * intensity + dst_r * (255 - intensity)) / 255;
     uint8_t out_g = (src_g * intensity + dst_g * (255 - intensity)) / 255;
     uint8_t out_b = (src_b * intensity + dst_b * (255 - intensity)) / 255;
 
-    row[x] = ((out_r & 0x1F) << 11) | ((out_g & 0x3F) << 5) | (out_b & 0x1F);
+    // Ergebnis zusammensetzen und wieder swappen
+    uint16_t res = ((out_r & 0x1F) << 11) | ((out_g & 0x3F) << 5) | (out_b & 0x1F);
+    row[x] = (res >> 8) | (res << 8);
 }
 
 void Drawable::fillRect16BitR5G6B5(Drawable& self, int x1, int y1, int x2, int y2, uint32_t c)
@@ -444,7 +449,7 @@ uint32_t Drawable::toNativeColor(const Color& c) const
     case RGBFormat::R5G6B5: {
         // SSD1351 needs byte-swapped R5G6B5 (from original Color::operator uint16_t)
         uint16_t color = ((c.red() & 0xf8) << 8) | ((c.green() & 0xfc) << 3) | ((c.blue() & 0xf8) >> 3);
-        return (color >> 8) | (color << 8); // Byte swap for SPI transmission
+        return (uint16_t)((color >> 8) | (color << 8)); // Byte swap for SPI transmission und auf 16 Bit stutzen
     }
 
     case RGBFormat::A8R8G8B8:

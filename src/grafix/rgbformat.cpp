@@ -28,6 +28,8 @@ uint8_t RGBFormat::bitdepth() const
     switch (format_id) {
     case Monochrome1BitVertical:
         return 1;
+    case GREY8:
+        return 8;
     case R5G6B5:
         return 16;
     case A8R8G8B8:
@@ -43,6 +45,8 @@ uint32_t RGBFormat::bytesForWidth(uint16_t width) const
     case Monochrome1BitVertical:
         return width; // 1 Bit pro Pixel, aber vertikal gepackt: 8 Pixel pro Byte, also width/8, aber da vertikal gepackt, ist es einfach
                       // width
+    case GREY8:
+        return width; // 1 Byte
     case R5G6B5:
         return width * 2; // 16 Bit pro Pixel = 2 Bytes
     case A8R8G8B8:
