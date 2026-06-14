@@ -119,8 +119,8 @@ Color blendColor(const Color& background, const Color& foreground, float intensi
 Color& Color::operator*=(float factor)
 {
     r = clamp((int)(r * factor));
-    g = clamp((int)(r * factor));
-    b = clamp((int)(r * factor));
+    g = clamp((int)(g * factor));
+    b = clamp((int)(b * factor));
     return *this;
 }
 
