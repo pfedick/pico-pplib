@@ -73,12 +73,12 @@ int Color::brightness() const
 Color Color::grey() const
 {
     int v = brightness();
-    return Color(v, v, v);
+    return Color(v, v, v, a);
 }
 
 Color Color::negativ() const
 {
-    return Color(255 - r, 255 - g, 255 - b);
+    return Color(255 - r, 255 - g, 255 - b, a);
 }
 
 bool Color::match(const Color& other, int tolerance) const
@@ -183,7 +183,7 @@ const Color operator*(float factor, const Color& color)
 
 const Color operator+(const Color& color1, const Color& color2)
 {
-    return Color(clamp(color1.r + color2.r), clamp(color1.g + color2.g), clamp(color1.b + color2.b));
+    return Color(clamp(color1.r + color2.r), clamp(color1.g + color2.g), clamp(color1.b + color2.b), clamp(color1.a + color2.a));
 }
 
 } // namespace picopplib
