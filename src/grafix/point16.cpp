@@ -29,6 +29,7 @@
 
 #include "picopplib-grafix.h"
 #include <math.h>
+#include <assert.h>
 
 namespace picopplib
 {
@@ -59,13 +60,7 @@ Point16::Point16(int16_t x, int16_t y)
     this->y = y;
 }
 
-Point16::Point16(const Point16& other)
-{
-    x = other.x;
-    y = other.y;
-}
-
-Point16::Point16(const Point& other)
+Point16::Point16(const Point& other) noexcept
 {
     x = clamp16(other.x);
     y = clamp16(other.y);
@@ -143,7 +138,7 @@ void Point16::setPoint(const Point& other)
  *
  * \desc
  * Diese Funktion berechnet die Länge des Vektors, gerechnet vom Ursprung (0/0) bis zu den
- * aktuellen Koordinaten anhand des "Satz des Pythagoras", und liefert diese als \c double zurück.
+ * aktuellen Koordinaten anhand des "Satz des Pythagoras", und liefert diese als \c float zurück.
  * \par
  * Die Formel lautet:
  * \f$length = \sqrt{x^2+y^2}\f$
@@ -153,16 +148,16 @@ void Point16::setPoint(const Point& other)
  * berechnet.
  *
  */
-double Point16::vectorLength() const
+float Point16::vectorLength() const
 {
-    return sqrt((double)((x * x) + (y * y)));
+    return std::sqrt(static_cast<float>(x) * x + static_cast<float>(y) * y);
 }
 
 /*!\brief Berechnet den Abstand zwischen zwei Punkten
  *
  * \desc
  * Diese Funktion berechnet die Länge des Vektors zwischen den beiden Punkten \p p1 und \p p2
- * anhand des "Satz des Pythagoras", und liefert diese als \c double zurück.
+ * anhand des "Satz des Pythagoras", und liefert diese als \c float zurück.
  * \par
  * Die Formel lautet:
  * \f$distance = \sqrt{(p2.x()-p1.x())^2+(p2.y()-p1.y())^2}\f$
@@ -170,15 +165,15 @@ double Point16::vectorLength() const
  * \param[in] p1 Die Anfangskoordinate
  * \param[in] p2 Die Endkoordinate
  * \return
- * Der Abstand zwischen den beiden Punkten als \c double.
+ * Der Abstand zwischen den beiden Punkten als \c float.
  *
  * \relates Point
  */
-double Distance(const Point16& p1, const Point16& p2)
+float Distance(const Point16& p1, const Point16& p2)
 {
-    double a = abs(p2.x - p1.x);
-    double b = abs(p2.y - p1.y);
-    return sqrt((a * a) + (b * b));
+    float dx = static_cast<float>(p2.x) - p1.x;
+    float dy = static_cast<float>(p2.y) - p1.y;
+    return std::sqrt(dx * dx + dy * dy);
 }
 
 /*!\brief Länge des Vektors in "Manhattan Distance"
@@ -211,6 +206,13 @@ bool Point16::inside(const Rect16& r) const
     return false;
 }
 
+Point16& Point16::operator=(const Point& other) noexcept
+{
+    x = clamp16(other.x);
+    y = clamp16(other.y);
+    return *this;
+}
+
 /*!\brief Multiplikation mit einem Faktor
  *
  * \desc
@@ -220,10 +222,10 @@ bool Point16::inside(const Rect16& r) const
  * \param[in] factor Der Faktor, mit dem die Koordinate multipliziert werden soll
  * \return Referenz auf den Point
  */
-Point16& Point16::operator*=(double factor)
+Point16& Point16::operator*=(float factor)
 {
-    x = (int)((double)x * factor);
-    y = (int)((double)y * factor);
+    x = (int)((float)x * factor);
+    y = (int)((float)y * factor);
     return *this;
 }
 
@@ -268,19 +270,20 @@ Point16& Point16::operator-=(const Point16& point)
  * \param[in] divisor Der Divisor, durch den die aktuelle Koordinate geteilt werden soll
  * \return Referenz auf den Point
  */
-Point16& Point16::operator/=(double divisor)
+Point16& Point16::operator/=(float divisor)
 {
-    x = (int)((double)x / divisor);
-    y = (int)((double)y / divisor);
+    assert(divisor != 0.0f && "Division by zero in Point16 operator /");
+    x = static_cast<uint16_t>(x / divisor);
+    y = static_cast<uint16_t>(y / divisor);
     return *this;
 }
 
-const Point16 operator*(const Point16& point, double factor)
+const Point16 operator*(const Point16& point, float factor)
 {
     return Point((int)(point.x * factor), (int)(point.y * factor));
 }
 
-const Point16 operator*(double factor, const Point16& point)
+const Point16 operator*(float factor, const Point16& point)
 {
     return Point16((int)(point.x * factor), (int)(point.y * factor));
 }
@@ -300,7 +303,7 @@ const Point16 operator-(const Point16& point)
     return Point16(0 - point.x, 0 - point.y);
 }
 
-const Point16 operator/(const Point16& point, double divisor)
+const Point16 operator/(const Point16& point, float divisor)
 {
     return Point16((int)(point.x / divisor), (int)(point.y / divisor));
 }
@@ -355,5 +358,4 @@ bool Point16::operator>(const Point16& other) const
     if (c > 0) return true;
     return false;
 }
-
 }; // namespace picopplib

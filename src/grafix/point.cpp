@@ -29,6 +29,7 @@
 
 #include "picopplib-grafix.h"
 #include <math.h>
+#include <assert.h>
 
 namespace picopplib
 {
@@ -51,7 +52,7 @@ Point::Point(int x, int y)
     this->y = y;
 }
 
-Point::Point(const Point& other)
+Point::Point(const Point16& other) noexcept
 {
     x = other.x;
     y = other.y;
@@ -123,7 +124,7 @@ void Point::setPoint(const Point& other)
  *
  * \desc
  * Diese Funktion berechnet die Länge des Vektors, gerechnet vom Ursprung (0/0) bis zu den
- * aktuellen Koordinaten anhand des "Satz des Pythagoras", und liefert diese als \c double zurück.
+ * aktuellen Koordinaten anhand des "Satz des Pythagoras", und liefert diese als \c float zurück.
  * \par
  * Die Formel lautet:
  * \f$length = \sqrt{x^2+y^2}\f$
@@ -133,16 +134,16 @@ void Point::setPoint(const Point& other)
  * berechnet.
  *
  */
-double Point::vectorLength() const
+float Point::vectorLength() const
 {
-    return sqrt((double)((x * x) + (y * y)));
+    return std::sqrt(static_cast<float>(x) * x + static_cast<float>(y) * y);
 }
 
 /*!\brief Berechnet den Abstand zwischen zwei Punkten
  *
  * \desc
  * Diese Funktion berechnet die Länge des Vektors zwischen den beiden Punkten \p p1 und \p p2
- * anhand des "Satz des Pythagoras", und liefert diese als \c double zurück.
+ * anhand des "Satz des Pythagoras", und liefert diese als \c float zurück.
  * \par
  * Die Formel lautet:
  * \f$distance = \sqrt{(p2.x()-p1.x())^2+(p2.y()-p1.y())^2}\f$
@@ -150,15 +151,15 @@ double Point::vectorLength() const
  * \param[in] p1 Die Anfangskoordinate
  * \param[in] p2 Die Endkoordinate
  * \return
- * Der Abstand zwischen den beiden Punkten als \c double.
+ * Der Abstand zwischen den beiden Punkten als \c float.
  *
  * \relates Point
  */
-double Distance(const Point& p1, const Point& p2)
+float Distance(const Point& p1, const Point& p2)
 {
-    double a = abs(p2.x - p1.x);
-    double b = abs(p2.y - p1.y);
-    return sqrt((a * a) + (b * b));
+    float dx = static_cast<float>(p2.x) - p1.x;
+    float dy = static_cast<float>(p2.y) - p1.y;
+    return std::sqrt(dx * dx + dy * dy);
 }
 
 /*!\brief Länge des Vektors in "Manhattan Distance"
@@ -191,6 +192,13 @@ bool Point::inside(const Rect& r) const
     return false;
 }
 
+Point& Point::operator=(const Point16& other) noexcept
+{
+    x = other.x;
+    y = other.y;
+    return *this;
+}
+
 /*!\brief Multiplikation mit einem Faktor
  *
  * \desc
@@ -200,10 +208,10 @@ bool Point::inside(const Rect& r) const
  * \param[in] factor Der Faktor, mit dem die Koordinate multipliziert werden soll
  * \return Referenz auf den Point
  */
-Point& Point::operator*=(double factor)
+Point& Point::operator*=(float factor)
 {
-    x = (int)((double)x * factor);
-    y = (int)((double)y * factor);
+    x = (int)((float)x * factor);
+    y = (int)((float)y * factor);
     return *this;
 }
 
@@ -248,19 +256,20 @@ Point& Point::operator-=(const Point& point)
  * \param[in] divisor Der Divisor, durch den die aktuelle Koordinate geteilt werden soll
  * \return Referenz auf den Point
  */
-Point& Point::operator/=(double divisor)
+Point& Point::operator/=(float divisor)
 {
-    x = (int)((double)x / divisor);
-    y = (int)((double)y / divisor);
+    assert(divisor != 0.0f && "Division by zero in Point operator /");
+    x = static_cast<int>(x / divisor);
+    y = static_cast<int>(y / divisor);
     return *this;
 }
 
-const Point operator*(const Point& point, double factor)
+const Point operator*(const Point& point, float factor)
 {
     return Point((int)(point.x * factor), (int)(point.y * factor));
 }
 
-const Point operator*(double factor, const Point& point)
+const Point operator*(float factor, const Point& point)
 {
     return Point((int)(point.x * factor), (int)(point.y * factor));
 }
@@ -280,7 +289,7 @@ const Point operator-(const Point& point)
     return Point(0 - point.x, 0 - point.y);
 }
 
-const Point operator/(const Point& point, double divisor)
+const Point operator/(const Point& point, float divisor)
 {
     return Point((int)(point.x / divisor), (int)(point.y / divisor));
 }

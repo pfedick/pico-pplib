@@ -28,6 +28,7 @@
  *******************************************************************************/
 
 #include "picopplib-grafix.h"
+#include <assert.h>
 
 namespace picopplib
 {
@@ -55,12 +56,6 @@ Size16::Size16(const Size& other)
 {
     width = clamp16(other.width);
     height = clamp16(other.height);
-}
-
-Size16::Size16(const Size16& other)
-{
-    width = other.width;
-    height = other.height;
 }
 
 bool Size16::isNull() const
@@ -104,7 +99,14 @@ void Size16::setSize(const Size16& other)
     height = other.height;
 }
 
-Size16& Size16::operator*=(double factor)
+Size16& Size16::operator=(const Size& other)
+{
+    width = clamp16(other.width);
+    height = clamp16(other.height);
+    return *this;
+}
+
+Size16& Size16::operator*=(float factor)
 {
     width = (int)(width * factor);
     height = (int)(height * factor);
@@ -125,8 +127,9 @@ Size16& Size16::operator-=(const Size16& size)
     return *this;
 }
 
-Size16& Size16::operator/=(double divisor)
+Size16& Size16::operator/=(float divisor)
 {
+    assert(divisor != 0.0 && "Division by zero in Size16 operator /");
     width = (int)(width / divisor);
     height = (int)(height / divisor);
     return *this;
@@ -146,12 +149,12 @@ bool operator==(const Size16& s1, const Size16& s2)
     return true;
 }
 
-const Size16 operator*(const Size16& size, double factor)
+const Size16 operator*(const Size16& size, float factor)
 {
     return Size16((int)(size.width * factor), (int)(size.height * factor));
 }
 
-const Size16 operator*(double factor, const Size16& size)
+const Size16 operator*(float factor, const Size16& size)
 {
     return Size16((int)(size.width * factor), (int)(size.height * factor));
 }
@@ -171,9 +174,9 @@ const Size16 operator-(const Size16& size)
     return Size16(0 - size.width, 0 - size.height);
 }
 
-const Size16 operator/(const Size16& size, double divisor)
+const Size16 operator/(const Size16& size, float divisor)
 {
-    return Size16((int)(size.width / divisor), (int)(size.height * divisor));
+    return Size16((int)(size.width / divisor), (int)(size.height / divisor));
 }
 
 } // namespace picopplib

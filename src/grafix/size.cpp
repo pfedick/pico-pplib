@@ -28,6 +28,7 @@
  *******************************************************************************/
 
 #include "picopplib-grafix.h"
+#include <assert.h>
 
 namespace picopplib
 {
@@ -44,7 +45,7 @@ Size::Size(int width, int height)
     this->height = height;
 }
 
-Size::Size(const Size& other)
+Size::Size(const Size16& other)
 {
     width = other.width;
     height = other.height;
@@ -91,7 +92,14 @@ void Size::setSize(const Size& other)
     height = other.height;
 }
 
-Size& Size::operator*=(double factor)
+Size& Size::operator=(const Size16& other)
+{
+    width = other.width;
+    height = other.height;
+    return *this;
+}
+
+Size& Size::operator*=(float factor)
 {
     width = (int)(width * factor);
     height = (int)(height * factor);
@@ -112,8 +120,9 @@ Size& Size::operator-=(const Size& size)
     return *this;
 }
 
-Size& Size::operator/=(double divisor)
+Size& Size::operator/=(float divisor)
 {
+    assert(divisor != 0.0f && "Division by zero in Size operator /");
     width = (int)(width / divisor);
     height = (int)(height / divisor);
     return *this;
@@ -133,12 +142,12 @@ bool operator==(const Size& s1, const Size& s2)
     return true;
 }
 
-const Size operator*(const Size& size, double factor)
+const Size operator*(const Size& size, float factor)
 {
     return Size((int)(size.width * factor), (int)(size.height * factor));
 }
 
-const Size operator*(double factor, const Size& size)
+const Size operator*(float factor, const Size& size)
 {
     return Size((int)(size.width * factor), (int)(size.height * factor));
 }
@@ -158,9 +167,9 @@ const Size operator-(const Size& size)
     return Size(0 - size.width, 0 - size.height);
 }
 
-const Size operator/(const Size& size, double divisor)
+const Size operator/(const Size& size, float divisor)
 {
-    return Size((int)(size.width / divisor), (int)(size.height * divisor));
+    return Size((int)(size.width / divisor), (int)(size.height / divisor));
 }
 
 } // namespace picopplib
