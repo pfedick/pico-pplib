@@ -34,103 +34,103 @@ namespace picopplib
 
 Rect::Rect()
 {
-    x1 = 0;
-    y1 = 0;
-    x2 = 0;
-    y2 = 0;
+    x = 0;
+    y = 0;
+    w = 0;
+    h = 0;
 }
 
 Rect::Rect(const Point& p1, const Point& p2)
 {
-    x1 = p1.x;
-    y1 = p1.y;
-    x2 = p2.x;
-    y2 = p2.y;
+    x = p1.x;
+    y = p1.y;
+    w = p2.x - p1.x + 1;
+    h = p2.y - p1.y + 1;
 }
 
 Rect::Rect(const Point& p, const Size& s)
 {
-    x1 = p.x;
-    y1 = p.y;
-    x2 = x1 + s.width;
-    y2 = y1 + s.height;
+    x = p.x;
+    y = p.y;
+    w = s.width;
+    h = s.height;
 }
 
-Rect::Rect(const Rect& other)
+Rect::Rect(const Rect16& other)
 {
-    x1 = other.x1;
-    y1 = other.y1;
-    x2 = other.x2;
-    y2 = other.y2;
+    x = other.x;
+    y = other.y;
+    w = other.w;
+    h = other.h;
 }
 
 Rect::Rect(int x, int y, int width, int height)
 {
-    x1 = x;
-    y1 = y;
-    x2 = x + width;
-    y2 = y + height;
+    this->x = x;
+    this->y = y;
+    this->w = width;
+    this->h = height;
 }
 
 bool Rect::isNull() const
 {
-    if (x1 == x2 && y1 == y2) return true;
+    if (w == 0 || h == 0) return true;
     return false;
 }
 
 int Rect::left() const
 {
-    return x1;
+    return x;
 }
 
 int Rect::right() const
 {
-    return x2 - 1;
+    return x + w - 1;
 }
 
 int Rect::top() const
 {
-    return y1;
+    return y;
 }
 
 int Rect::bottom() const
 {
-    return y2 - 1;
+    return y + h - 1;
 }
 
 int Rect::width() const
 {
-    return x2 - x1;
+    return w;
 }
 
 int Rect::height() const
 {
-    return y2 - y1;
+    return h;
 }
 
 Size Rect::size() const
 {
-    return Size(x2 - x1, y2 - y1);
+    return Size(w, h);
 }
 
 Point Rect::topLeft() const
 {
-    return Point(x1, y1);
+    return Point(x, y);
 }
 
 Point Rect::topRight() const
 {
-    return Point(x2, y1);
+    return Point(x + w - 1, y);
 }
 
 Point Rect::bottomLeft() const
 {
-    return Point(x1, y2);
+    return Point(x, y + h - 1);
 }
 
 Point Rect::bottomRight() const
 {
-    return Point(x2, y2);
+    return Point(x + w - 1, y + h - 1);
 }
 
 inline static void swap_int(int& i1, int& i2)

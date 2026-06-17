@@ -192,22 +192,29 @@ class Rect
 
 private:
 public:
-    int x1, y1;
-    int x2, y2;
+    int x, y;
+    int w, h;
     Rect();
     Rect(const Point& p1, const Point& p2);
     Rect(const Point& p, const Size& s);
     Rect(int x, int y, int width, int height);
-    Rect(const Rect& r);
+    Rect(const Rect16& r);
 
+    /**@brief Rechteck hat keine Breite oder Höhe
+     * @return Gibt true zurück, wenn Höche oder Breite 0 sind, andernfalls false.
+     */
     bool isNull() const;
-    int left() const;
-    int right() const;
-    int top() const;
-    int bottom() const;
-    int width() const;
-    int height() const;
-    Size size() const;
+    constexpr inline int left() const { return x; };      ///< Gibt die X-Koordinate der linken Seite des Rechtecks zurück.
+    constexpr inline int right() const { return x + w; }; ///< Gibt die X-Koordinate der rechten Seite des Rechtecks zurück.
+    int top() const;                                      ///< Gibt die Y-Koordinate der oberen Seite des Rechtecks zurück.
+    int bottom() const;                                   ///< Gibt die Y-Koordinate der unteren Seite des Rechtecks zurück.
+    // Inklusive Grenzen (Nur wenn man den exakten "letzten Pixel" braucht)
+    constexpr inline int lastX() const { return x + w - 1; }
+    constexpr inline int lastY() const { return y + h - 1; }
+
+    int width() const;  ///< Gibt die Breite des Rechtecks zurück.
+    int height() const; ///< Gibt die Höhe des Rechtecks zurück.
+    Size size() const;  ///< Gibt die Größe des Rechtecks als Size-Objekt zurück.
 
     Point topLeft() const;
     Point topRight() const;
@@ -233,6 +240,7 @@ public:
     void setSize(const Size& size);
     void setWidth(int width);
     void setHeight(int height);
+    Rect& operator=(const Rect16& other);
 };
 
 bool operator!=(const Rect& r1, const Rect& r2);
@@ -245,8 +253,8 @@ class Rect16
 
 private:
 public:
-    int16_t x1, y1;
-    int16_t x2, y2;
+    uint16_t x, y;
+    uint16_t w, h;
     Rect16();
     Rect16(const Point16& p1, const Point16& p2);
     Rect16(const Point16& p, const Size16& s);
@@ -432,30 +440,77 @@ public:
 bool operator!=(const Font& f1, const Font& f2);
 bool operator==(const Font& f1, const Font& f2);
 
+/**@class RGBFormat
+ * @brief Datentyp, der das Farbformat einer Zeichenfläche repräsentiert
+ *
+ * Mit dieser Klasse wird das Farbformat einer Zeichenfläche repräsentiert. Sie enthält nur
+ * einen einzigen Wert aus der Enumeration RGBFormat::Identifier, der das verwendete
+ * Farbformat festlegt.
+ */
 class RGBFormat
 {
 public:
+    /// @brief Enumeration der unterstützten Farbformate
     enum Identifier
     {
-        unknown = 0,
-        Monochrome1BitVertical, // 1 Bit pro Pixel, vertikal gepackt (z.B. SSD1322)
-        R5G6B5,
-        A8R8G8B8,
-        GREY8,
-        MaxIdentifiers
+        unknown = 0,            ///< 0: Unbekanntes Format
+        Monochrome1BitVertical, ///< 1 Bit pro Pixel, vertikal gepackt (z.B. SSD1322)
+        R5G6B5,                 ///< 16 Bit pro Pixel: 5 Bit Rot, 6 Bit Grün, 5 Bit Blau
+        A8R8G8B8,               ///< 32 Bit pro Pixel: 8 Bit Alpha, 8 Bit Rot, 8 Bit Grün, 8 Bit Blau
+        GREY8,                  ///< 8 Bit pro Pixel: 8 Bit Graustufe
+        MaxIdentifiers          ///< Obergrenze der Identifikatoren
     };
 
 private:
+    /**
+     * @brief Das aktuell gesetzte Farbformat.
+     */
     Identifier format_id;
 
 public:
     RGBFormat();
     RGBFormat(Identifier id);
 
+    /**@brief Farbformat Anhand einer ID festlegen
+     *
+     * Mit dieser Funktion wird das Farbformat anhand eines Wertes aus der Enumeration
+     * RGBFormat::Identifier gesetzt.
+     *
+     * @param[in] id Wert aus der Enumeration RGBFormat::Identifier
+     */
     void setFormat(Identifier id);
 
+    /**@brief Integer-Wert des Farbformats auslesen
+     *
+     * Mit dieser Funktion wird der Integer-Wert des Farbformates ausgelesen.
+     * Der Wert entspricht der Position des Farbformates innerhalb der Enumeration RGBFormat::Identifier.
+     *
+     * @return Integer-Wert, der das Farbformat repräsentiert.
+     */
     Identifier format() const;
+
+    /**@brief Bittiefe des Farbformates
+     *
+     * Diese Funktion liefert die Anzahl Bits zurück, die zur Darstellung des gewählten
+     * Farbformats erforderlich sind. Ist in der Regel 8, 16, 24, 32 oder 64. Die Funktion ist
+     * identisch mit RGBFormat::bitsPerPixel.
+     *
+     * @return Anzahl erforderlicher Bits oder 0, wenn kein Farbformat gesetzt ist.
+     */
     uint8_t bitdepth() const;
+
+    /**@brief Anzahl Bytes pro Pixel
+     *
+     * Diese Funktion liefert die Anzahl Bytes für eine bestimmte Anzahl von Pixeln zurück,
+     * abhängig vom gewählten Farbformat.
+     *
+     * @param[in] width Anzahl Pixel, für die die erforderlichen Bytes berechnet werden sollen.
+     * @return Anzahl erforderlicher Bytes pro Pixel oder 0, wenn kein Farbformat gesetzt ist.
+     * @note Sonderfall ist das Farbformat Monochrome1BitVertical, bei dem die Pixel
+     * vertikal gepackt sind. In diesem Fall entspricht die Anzahl Bytes der Anzahl Pixel,
+     * da 8 Pixel pro Byte gespeichert werden, aber vertikal gepackt, so dass es einfach
+     * width ist.
+     */
     uint32_t bytesForWidth(uint16_t width) const;
 
     bool operator==(const RGBFormat& other) const;
