@@ -26,11 +26,37 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
+#include <math.h>
 
-#include "picopplib-grafix.h"
+#include "picopplib/grafix/point.h"
+#include "picopplib/grafix/size.h"
+#include "picopplib/grafix/rect.h"
 
 namespace picopplib
 {
+
+inline static int max(int v1, int v2)
+{
+    if (v1 > v2) return v1;
+    return v2;
+}
+
+inline static int min(int v1, int v2)
+{
+    if (v1 < v2) return v1;
+    return v2;
+}
+
+Rect Rect::fromPoints(const Point& p1, const Point& p2)
+{
+    /// Hilfsfunktion, um ein Rechteck aus zwei Punkten zu erstellen, ohne sich Gedanken über die Reihenfolge der Punkte machen zu müssen
+    Rect r;
+    r.x = min(p1.x, p2.x);
+    r.y = min(p1.y, p2.y);
+    r.w = abs(p1.x - p2.x) + 1;
+    r.h = abs(p1.y - p2.y) + 1;
+    return r;
+}
 
 Rect::Rect()
 {
@@ -42,10 +68,7 @@ Rect::Rect()
 
 Rect::Rect(const Point& p1, const Point& p2)
 {
-    x = p1.x;
-    y = p1.y;
-    w = p2.x - p1.x + 1;
-    h = p2.y - p1.y + 1;
+    *this = fromPoints(p1, p2);
 }
 
 Rect::Rect(const Point& p, const Size& s)
@@ -58,10 +81,10 @@ Rect::Rect(const Point& p, const Size& s)
 
 Rect::Rect(const Rect16& other)
 {
-    x = other.x;
-    y = other.y;
-    w = other.w;
-    h = other.h;
+    x = other.left();
+    y = other.top();
+    w = other.width();
+    h = other.height();
 }
 
 Rect::Rect(int x, int y, int width, int height)
@@ -78,214 +101,121 @@ bool Rect::isNull() const
     return false;
 }
 
-int Rect::left() const
-{
-    return x;
-}
-
-int Rect::right() const
-{
-    return x + w - 1;
-}
-
-int Rect::top() const
-{
-    return y;
-}
-
-int Rect::bottom() const
-{
-    return y + h - 1;
-}
-
-int Rect::width() const
-{
-    return w;
-}
-
-int Rect::height() const
-{
-    return h;
-}
-
-Size Rect::size() const
-{
-    return Size(w, h);
-}
-
-Point Rect::topLeft() const
-{
-    return Point(x, y);
-}
-
-Point Rect::topRight() const
-{
-    return Point(x + w - 1, y);
-}
-
-Point Rect::bottomLeft() const
-{
-    return Point(x, y + h - 1);
-}
-
-Point Rect::bottomRight() const
-{
-    return Point(x + w - 1, y + h - 1);
-}
-
-inline static void swap_int(int& i1, int& i2)
-{
-    int t = i1;
-    i1 = i2;
-    i2 = t;
-}
-
-Rect Rect::normalized() const
-{
-    Rect r(*this);
-    if (x2 < x1) swap_int(r.x1, r.x2);
-    if (y2 < y1) swap_int(r.y1, r.y2);
-    return r;
-}
-
 bool Rect::intersects(const Rect& other)
 {
-    return (other.x1 < x2 && other.x2 > x1 && other.y1 < y2 && other.y2 > y1);
+    if (isNull() || other.isNull()) return false;
+    return left() < other.right() && right() > other.left() && top() < other.bottom() && bottom() > other.top();
 }
-
-#ifndef max
-inline static int max(int v1, int v2)
-{
-    if (v1 > v2) return v1;
-    return v2;
-}
-#endif
-
-#ifndef min
-inline static int min(int v1, int v2)
-{
-    if (v1 < v2) return v1;
-    return v2;
-}
-#endif
 
 Rect Rect::intersected(const Rect& other)
 {
-    Rect r;
-    if (isNull() == true || other.isNull() == true) return r;
-    if (!intersects(other)) return r;
-    r.x1 = max(x1, other.x1);
-    r.y1 = max(y1, other.y1);
-    r.x2 = min(x2, other.x2);
-    r.y2 = min(y2, other.y2);
-    return r;
+    if (isNull() || other.isNull() || !intersects(other)) {
+        return Rect();
+    }
+
+    int resX = max(x, other.x);
+    int resY = max(y, other.y);
+    int resW = min(right(), other.right()) - resX;
+    int resH = min(bottom(), other.bottom()) - resY;
+
+    return Rect(resX, resY, resW, resH);
 }
 
 void Rect::setTopLeft(const Point& topLeft)
 {
-    x1 = topLeft.x;
-    y1 = topLeft.y;
+    x = topLeft.x;
+    y = topLeft.y;
 }
 
 void Rect::setBottomRight(const Point& bottomRight)
 {
-    x2 = bottomRight.x;
-    y2 = bottomRight.y;
+    w = abs(bottomRight.x - x);
+    if (bottomRight.x < x) {
+        x = bottomRight.x;
+    }
+    h = abs(bottomRight.y - y);
+    if (bottomRight.y < y) {
+        y = bottomRight.y;
+    }
 }
 
 void Rect::setRect(int x, int y, int width, int height)
 {
-    x1 = x;
-    y1 = y;
-    x2 = x + width;
-    y2 = y + height;
+    x = x;
+    y = y;
+    w = width;
+    h = height;
 }
 
 void Rect::setRect(const Rect& other)
 {
-    x1 = other.x1;
-    y1 = other.y1;
-    x2 = other.x2;
-    y2 = other.y2;
+    x = other.x;
+    y = other.y;
+    w = other.w;
+    h = other.h;
+}
+
+void Rect::setRect(const Rect16& other)
+{
+    x = other.left();
+    y = other.top();
+    w = other.width();
+    h = other.height();
 }
 
 void Rect::setCoords(int x1, int y1, int x2, int y2)
 {
-    this->x1 = x1;
-    this->y1 = y1;
-    this->x2 = x2;
-    this->y2 = y2;
+    x = min(x1, x2);
+    y = min(y1, y2);
+    w = abs(x2 - x1) + 1;
+    h = abs(y2 - y1) + 1;
 }
 
 void Rect::setCoords(const Point& p1, const Point& p2)
 {
-    x1 = p1.x;
-    y1 = p1.y;
-    x2 = p2.x;
-    y2 = p2.y;
-}
-
-void Rect::setLeft(int left)
-{
-    x1 = left;
+    *this = fromPoints(p1, p2);
 }
 
 void Rect::setRight(int right)
 {
-    x2 = right;
-}
-
-void Rect::setTop(int top)
-{
-    y1 = top;
+    w = abs(right - x);
+    if (right < x) {
+        x = right;
+    }
 }
 
 void Rect::setBottom(int bottom)
 {
-    y2 = bottom;
+    h = abs(bottom - y);
+    if (bottom < y) {
+        y = bottom;
+    }
 }
 
-void Rect::setX(int x)
+Rect& Rect::operator=(const Rect16& other)
 {
-    x1 = x;
-}
-
-void Rect::setY(int y)
-{
-    y1 = y;
-}
-
-void Rect::setSize(const Size& size)
-{
-    x2 = x1 + size.width;
-    y2 = y1 + size.height;
-}
-
-void Rect::setWidth(int width)
-{
-    x2 = x1 + width;
-}
-
-void Rect::setHeight(int height)
-{
-    y2 = y1 + height;
+    x = other.left();
+    y = other.top();
+    w = other.width();
+    h = other.height();
+    return *this;
 }
 
 bool operator!=(const Rect& r1, const Rect& r2)
 {
-    if (r1.x1 != r2.x1) return true;
-    if (r1.y1 != r2.y1) return true;
-    if (r1.x2 != r2.x2) return true;
-    if (r1.y2 != r2.y2) return true;
+    if (r1.x != r2.x) return true;
+    if (r1.y != r2.y) return true;
+    if (r1.w != r2.w) return true;
+    if (r1.h != r2.h) return true;
     return false;
 }
 
 bool operator==(const Rect& r1, const Rect& r2)
 {
-    if (r1.x1 != r2.x1) return false;
-    if (r1.y1 != r2.y1) return false;
-    if (r1.x2 != r2.x2) return false;
-    if (r1.y2 != r2.y2) return false;
+    if (r1.x != r2.x) return false;
+    if (r1.y != r2.y) return false;
+    if (r1.w != r2.w) return false;
+    if (r1.h != r2.h) return false;
     return true;
 }
 
