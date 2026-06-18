@@ -108,13 +108,13 @@ bool Rect16::isNull() const
     return false;
 }
 
-bool Rect16::intersects(const Rect16& other)
+bool Rect16::intersects(const Rect16& other) const
 {
     if (isNull() || other.isNull()) return false;
     return left() < other.right() && right() > other.left() && top() < other.bottom() && bottom() > other.top();
 }
 
-Rect16 Rect16::intersected(const Rect16& other)
+Rect16 Rect16::intersected(const Rect16& other) const
 {
     if (isNull() || other.isNull() || !intersects(other)) {
         return Rect16();

@@ -198,8 +198,8 @@ int Point16::manhattanLength() const
 
 bool Point16::inside(const Rect16& r) const
 {
-    if (r.x1 <= x && x <= r.x2) {
-        if (r.y1 <= y && y <= r.y2) {
+    if (r.left() <= x && x <= r.lastX()) {
+        if (r.top() <= y && y <= r.lastY()) {
             return true;
         }
     }

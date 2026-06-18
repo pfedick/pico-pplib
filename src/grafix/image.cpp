@@ -86,7 +86,7 @@ void Image::copy(const Drawable& other, const Rect& rect)
     create(rect.width(), rect.height(), other.format());
     for (int y = 0; y < rect.height(); y++) {
         for (int x = 0; x < rect.width(); x++) {
-            putPixelDirect(x, y, other.getPixelDirect(rect.x1 + x, rect.y1 + y));
+            putPixelDirect(x, y, other.getPixelDirect(rect.left() + x, rect.top() + y));
         }
     }
 }

@@ -101,13 +101,13 @@ bool Rect::isNull() const
     return false;
 }
 
-bool Rect::intersects(const Rect& other)
+bool Rect::intersects(const Rect& other) const
 {
     if (isNull() || other.isNull()) return false;
     return left() < other.right() && right() > other.left() && top() < other.bottom() && bottom() > other.top();
 }
 
-Rect Rect::intersected(const Rect& other)
+Rect Rect::intersected(const Rect& other) const
 {
     if (isNull() || other.isNull() || !intersects(other)) {
         return Rect();

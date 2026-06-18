@@ -40,6 +40,7 @@ class Point;
 class Point16;
 class Size;
 class Size16;
+class Rect16;
 
 /**@class Rect
  * @brief Repräsentiert ein Rechteck in einem zweidimensionalen Koordinatensystem
@@ -127,10 +128,10 @@ public:
 
     //@brief Berechnet das Schnittrechteck zwischen diesem Rechteck und einem anderen Rechteck. Wenn die Rechtecke sich nicht schneiden,
     // wird ein Null-Rechteck zurückgegeben.
-    Rect intersected(const Rect& other);
+    Rect intersected(const Rect& other) const;
 
     //@brief Überprüft, ob dieses Rechteck mit einem anderen Rechteck schneidet. Null-Rechtecke schneiden nicht.
-    bool intersects(const Rect& other);
+    bool intersects(const Rect& other) const;
 
     /**@brief Setzt die Koordinaten der oberen linken Ecke des Rechtecks.
      * @param[in] topLeft Punkt, der die neue obere linke Ecke des Rechtecks definiert
@@ -330,10 +331,10 @@ public:
 
     //@brief Berechnet das Schnittrechteck zwischen diesem Rechteck und einem anderen Rechteck. Wenn die Rechtecke sich nicht schneiden,
     // wird ein Null-Rechteck zurückgegeben.
-    Rect16 intersected(const Rect16& other);
+    Rect16 intersected(const Rect16& other) const;
 
     //@brief Überprüft, ob dieses Rechteck mit einem anderen Rechteck schneidet. Null-Rechtecke schneiden nicht.
-    bool intersects(const Rect16& other);
+    bool intersects(const Rect16& other) const;
 
     /**@brief Setzt die Koordinaten der oberen linken Ecke des Rechtecks.
      * @param[in] topLeft Punkt, der die neue obere linke Ecke des Rechtecks definiert

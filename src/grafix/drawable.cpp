@@ -398,40 +398,49 @@ void Drawable::use(const Drawable& other)
 
 Drawable Drawable::getDrawable(const Rect& rect) const
 {
-    return getDrawable(rect.x1, rect.y1, rect.x2, rect.y2);
+    // TODO: Das funktioniert nicht für das Monochrome OLED!
+    if (rgb_format.format() == RGBFormat::Monochrome1BitVertical) {
+        throw Exception("getDrawable for Monochrome1BitVertical format not supported");
+    }
+    Rect self_rect(0, 0, my_width, my_height);
+    Rect intersect = rect.intersected(self_rect);
+    if (intersect.isNull()) {
+        // Leeres Drawable zurückgeben
+        return Drawable();
+    }
+    return Drawable(buffer + intersect.top() * pitch + (intersect.left() * rgb_format.bitdepth()) / 8, pitch, intersect.width(),
+                    intersect.height(), rgb_format);
 }
 
 Drawable Drawable::getDrawable(const Rect16& rect) const
-{
-    return getDrawable(rect.x1, rect.y1, rect.x2, rect.y2);
-}
-
-Drawable Drawable::getDrawable(const Point& p, const Size& s) const
-{
-    return getDrawable(p.x, p.y, p.x + s.width - 1, p.y + s.height - 1);
-}
-
-Drawable Drawable::getDrawable(const Point16& p, const Size16& s) const
-{
-    return getDrawable(p.x, p.y, p.x + s.width, p.y + s.height);
-}
-
-Drawable Drawable::getDrawable(int x1, int y1, int x2, int y2) const
 {
     // TODO: Das funktioniert nicht für das Monochrome OLED!
     if (rgb_format.format() == RGBFormat::Monochrome1BitVertical) {
         throw Exception("getDrawable for Monochrome1BitVertical format not supported");
     }
-
-    Rect r(x1, y1, x2 - x1, y2 - y1);
-    Rect self_rect(0, 0, my_width, my_height);
-    Rect intersect = r.intersected(self_rect);
+    Rect16 self_rect(0, 0, my_width, my_height);
+    Rect16 intersect = rect.intersected(self_rect);
     if (intersect.isNull()) {
         // Leeres Drawable zurückgeben
         return Drawable();
     }
-    return Drawable(buffer + intersect.y1 * pitch + (intersect.x1 * rgb_format.bitdepth()) / 8, pitch, intersect.width(),
+    return Drawable(buffer + intersect.top() * pitch + (intersect.left() * rgb_format.bitdepth()) / 8, pitch, intersect.width(),
                     intersect.height(), rgb_format);
+}
+
+Drawable Drawable::getDrawable(const Point& p, const Size& s) const
+{
+    return getDrawable(Rect(p.x, p.y, s.width, s.height));
+}
+
+Drawable Drawable::getDrawable(const Point16& p, const Size16& s) const
+{
+    return getDrawable(Rect16(p.x, p.y, s.width, s.height));
+}
+
+Drawable Drawable::getDrawable(int x1, int y1, int x2, int y2) const
+{
+    return getDrawable(Rect(x1, y1, x2 - x1, y2 - y1));
 }
 
 bool Drawable::isEmpty() const
@@ -886,18 +895,18 @@ void Drawable::lineAA(const Point& start, const Point& end, const Color& c, int 
     lineAA(start.x, start.y, end.x, end.y, c, strength);
 }
 
-void Drawable::colorGradient(const Rect16& rect, const Color& c1, const Color& c2, int direction)
+void Drawable::colorGradient(const Rect16& rect, const Color& c1, const Color& c2, Orientation orientation)
 {
-    colorGradient(rect.x1, rect.y1, rect.x2 - 1, rect.y2 - 1, c1, c2, direction);
+    colorGradient(rect.left(), rect.top(), rect.lastX(), rect.lastY(), c1, c2, orientation);
 }
 
-void Drawable::colorGradient(int x1, int y1, int x2, int y2, const Color& c1, const Color& c2, int direction)
+void Drawable::colorGradient(int x1, int y1, int x2, int y2, const Color& c1, const Color& c2, Orientation orientation)
 {
     Color c;
     uint32_t w1, w2;
     int range;
     c.setAlpha(255);
-    if (direction == 0) {
+    if (orientation == Orientation::Vertical) {
         range = x2 - x1 + 1;
         for (int32_t x = 0; x < range; x++) {
             w1 = range - x;
@@ -924,7 +933,7 @@ void Drawable::colorGradient(int x1, int y1, int x2, int y2, const Color& c1, co
  *
  * \desc
  * Diese Funktion prüft, ob das zu zeichnende Rechteck überhaupt in die aktuelle
- * Zeichenfläche. Dabei wird das Quellrechteck bei Bedarf angepasst.
+ * Zeichenfläche passt. Dabei wird das Quellrechteck bei Bedarf angepasst.
  *
  * \param[in,out] x X-Koordinate der Zielposition
  * \param[in,out] y Y-Koordinate der Zielposition
@@ -944,15 +953,15 @@ int Drawable::fitRect(int& x, int& y, Rect16& r)
     Rect16 i = screen.intersected(object);
 
     if (i.isNull()) return 0;
-    int16_t shiftx = i.x1 - object.x1;
-    int16_t shifty = i.y1 - object.y1;
+    int16_t shiftx = i.left() - object.left();
+    int16_t shifty = i.top() - object.top();
     x += shiftx;
     y += shifty;
 
-    r.x1 += shiftx;
-    r.y1 += shifty;
-    r.x2 = r.x1 + i.width();
-    r.y2 = r.y1 + i.height();
+    r.setLeft(r.left() + shiftx);
+    r.setTop(r.top() + shifty);
+    r.setWidth(i.width());
+    r.setHeight(i.height());
     return 1;
 }
 
@@ -976,9 +985,9 @@ void Drawable::blt(const Drawable& source, const Rect16& srect, int x, int y)
         if (q.height() > source.height()) q.setHeight(source.height());
     }
     if (!fitRect(x, y, q)) return;
-    for (int16_t yy = 0; yy <= q.height(); yy++) {
-        for (int16_t xx = 0; xx <= q.width(); xx++) {
-            putPixel(x + xx, y + yy, source.getPixel(q.x1 + xx, q.y1 + yy));
+    for (int16_t yy = 0; yy < q.height(); yy++) {
+        for (int16_t xx = 0; xx < q.width(); xx++) {
+            putPixel(x + xx, y + yy, source.getPixel(q.left() + xx, q.top() + yy));
         }
     }
 }
@@ -1008,7 +1017,7 @@ void Drawable::bltDiffuse(const Drawable& source, const Rect16& srect, int x, in
 
     for (int16_t yy = 0; yy <= q.height(); yy++) {
         for (int16_t xx = 0; xx <= q.width(); xx++) {
-            uint8_t intensity = source.getPixelDirect(q.x1 + xx, q.y1 + yy);
+            uint8_t intensity = source.getPixelDirect(q.left() + xx, q.top() + yy);
             if (intensity > 0) {
                 blendPixelDirect(x + xx, y + yy, native_color, intensity);
             }
@@ -1039,7 +1048,7 @@ void Drawable::bltAlpha(const Drawable& source, const Rect16& srect, int x, int 
     if (!fitRect(x, y, q)) return;
     for (int16_t yy = 0; yy <= q.height(); yy++) {
         for (int16_t xx = 0; xx <= q.width(); xx++) {
-            Color pixel = source.getPixel(q.x1 + xx, q.y1 + yy);
+            Color pixel = source.getPixel(q.left() + xx, q.top() + yy);
             if (pixel.alpha() > 0) {
                 blendPixel(x + xx, y + yy, pixel, pixel.alpha());
             }
@@ -1078,7 +1087,7 @@ void Drawable::bltBlend(const Drawable& source, float factor, const Rect16& srec
 
     for (int16_t yy = 0; yy <= q.height(); yy++) {
         for (int16_t xx = 0; xx <= q.width(); xx++) {
-            Color pixel = source.getPixel(q.x1 + xx, q.y1 + yy);
+            Color pixel = source.getPixel(q.left() + xx, q.top() + yy);
             pixel.setAlpha(clamp_uint8_t((float)pixel.alpha() * factor));
             if (pixel.alpha() > 0) {
                 blendPixel(x + xx, y + yy, pixel, pixel.alpha());

@@ -43,6 +43,8 @@ namespace picopplib
 class Size16;
 class Rect16;
 class Drawable;
+class FontEngine;
+class FontFile;
 
 class Font
 {
