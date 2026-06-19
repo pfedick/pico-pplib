@@ -60,7 +60,7 @@ Image::Image(uint16_t width, uint16_t height, const RGBFormat& format)
 
 void Image::create(uint16_t width, uint16_t height, const RGBFormat& format)
 {
-    size_t bytes = (width * height * format.bitdepth() + 7) / 8;
+    size_t bytes = height * format.bytesForWidth(width);
     void* data = myMemory.malloc(bytes);
     Drawable::create(data, format.bytesForWidth(width), width, height, format);
 }

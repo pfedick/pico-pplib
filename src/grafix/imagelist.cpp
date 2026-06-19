@@ -67,8 +67,8 @@ void ImageList::useDrawable(const Drawable& draw, int icon_width, int icon_heigh
     width = icon_width;
     height = icon_height;
     this->method = method;
-    numX = draw.width() / icon_width;
-    numY = draw.height() / icon_height;
+    numX = (icon_width > 0) ? draw.width() / icon_width : 0;
+    numY = (icon_height > 0) ? draw.height() / icon_height : 0;
     numIcons = numX * numY;
 }
 
@@ -86,8 +86,8 @@ void ImageList::setIconSize(int width, int height)
 {
     this->width = width;
     this->height = height;
-    numX = pixel.width() / width;
-    numY = pixel.height() / height;
+    numX = (width > 0) ? pixel.width() / width : 0;
+    numY = (height > 0) ? pixel.height() / height : 0;
     numIcons = numX * numY;
 }
 
