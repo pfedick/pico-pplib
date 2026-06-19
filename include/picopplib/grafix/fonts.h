@@ -68,9 +68,9 @@ private:
     Color cBorder;
     Color cShadow;
     uint16_t fontSize;
+    uint16_t rotationDegrees;
     uint8_t flags;
     uint8_t ori;
-    uint16_t rotationDegrees;
 
 public:
     enum Orientation

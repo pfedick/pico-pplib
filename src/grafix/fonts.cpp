@@ -356,7 +356,7 @@ void Grafix::loadFont(const ByteArrayPtr& memory, const String& fontname)
             if (fit != FontList.end()) {
                 FontFile* old = fit->second;
                 FontList.erase(fit);
-                old->engine->deleteFont(old);
+                delete old;
             }
             // printf("Font geladen\n");
             FontList.insert(std::pair<String, FontFile*>(font->Name, font));
@@ -370,10 +370,9 @@ void Grafix::clearFonts()
 {
     std::map<String, FontFile*>::iterator fit;
     for (fit = FontList.begin(); fit != FontList.end(); ++fit) {
-        fit->second->engine->deleteFont(fit->second);
+        delete fit->second;
     }
     FontList.clear();
-    FontEngineList.clear();
 }
 
 void Grafix::clearFontEngines()

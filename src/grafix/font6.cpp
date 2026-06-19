@@ -284,7 +284,7 @@ static void DrawGlyphAA2_90(Drawable& data, const Font6Glyph& glyph, int x, int 
                 if (v2 == 192)
                     data.blendPixelDirect(x - yy, y + xx, c, 255);
                 else if (v2 == 128)
-                    data.blendPixelDirect(x - yy, y + xx, c, 200); // 200
+                    data.blendPixelDirect(x - yy, y + xx, c, 192); // 192
                 else
                     data.blendPixelDirect(x - yy, y + xx, c, 100); // 100
             }
@@ -310,7 +310,7 @@ static void DrawGlyphAA2_180(Drawable& data, const Font6Glyph& glyph, int x, int
                 if (v2 == 192)
                     data.blendPixelDirect(x - xx, y - yy, c, 255);
                 else if (v2 == 128)
-                    data.blendPixelDirect(x - xx, y - yy, c, 200); // 200
+                    data.blendPixelDirect(x - xx, y - yy, c, 192); // 192
                 else
                     data.blendPixelDirect(x - xx, y - yy, c, 100); // 100
             }
@@ -336,7 +336,7 @@ static void DrawGlyphAA2_270(Drawable& data, const Font6Glyph& glyph, int x, int
                 if (v2 == 192)
                     data.blendPixelDirect(x + yy, y - xx, c, 255);
                 else if (v2 == 128)
-                    data.blendPixelDirect(x + yy, y - xx, c, 200); // 200
+                    data.blendPixelDirect(x + yy, y - xx, c, 192); // 192
                 else
                     data.blendPixelDirect(x + yy, y - xx, c, 100); // 100
             }
@@ -500,7 +500,21 @@ void Font6Renderer::render(Drawable& draw, const Font& font, int x, int y, const
         face = getFace(font.size(), flags);
         if (face) {
             renderInternal(*face, draw, font, x, y, wtext, color);
-            renderInternal(*face, draw, font, x + 1, y, wtext, color);
+            uint16_t rotate = (uint16_t)font.rotation();
+            switch (rotate) {
+            case 0:
+                renderInternal(*face, draw, font, x + 1, y, wtext, color);
+                break;
+            case 90:
+                renderInternal(*face, draw, font, x, y + 1, wtext, color);
+                break;
+            case 180:
+                renderInternal(*face, draw, font, x - 1, y, wtext, color);
+                break;
+            case 270:
+                renderInternal(*face, draw, font, x, y - 1, wtext, color);
+                break;
+            }
             return;
         }
     }
