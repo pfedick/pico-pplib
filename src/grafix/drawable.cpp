@@ -231,7 +231,15 @@ uint32_t Drawable::getPixel8BitGREY(const Drawable& self, int x, int y)
 
 void Drawable::blendPixel8BitGREY(Drawable& self, int x, int y, uint32_t c, uint8_t intensity)
 {
-    // Not implemented
+    if (!self.buffer) return;
+    if (x < 0 || x >= (int)self.my_width || y < 0 || y >= (int)self.my_height) return;
+
+    uint8_t* row = (uint8_t*)(self.buffer + y * self.pitch);
+    uint8_t dst = row[x];
+    uint8_t src = c & 0xFF;
+
+    uint8_t out = (src * intensity + dst * (255 - intensity)) / 255;
+    row[x] = out;
 }
 
 void Drawable::fillRect8BitGREY(Drawable& self, int x1, int y1, int x2, int y2, uint32_t c)
@@ -464,6 +472,9 @@ uint32_t Drawable::toNativeColor(const Color& c) const
     case RGBFormat::A8R8G8B8:
         return (c.alpha() << 24) | (c.red() << 16) | (c.green() << 8) | c.blue();
 
+    case RGBFormat::GREY8:
+        return c.brightness() & 0xFF;
+
     default:
         return 0;
     }
@@ -490,6 +501,11 @@ Color Drawable::fromNativeColor(uint32_t native) const
         uint8_t g = (native >> 8) & 0xFF;
         uint8_t b = native & 0xFF;
         return Color(r, g, b, a);
+    }
+
+    case RGBFormat::GREY8: {
+        uint8_t g = native & 0xFF;
+        return Color(g, g, g, 255);
     }
 
     default:
@@ -543,7 +559,6 @@ void Drawable::drawRect(int x1, int y1, int x2, int y2, const Color& color)
 void Drawable::invertRect(int x1, int y1, int x2, int y2)
 // Das ist nur für 1-Bit Monochrom
 {
-    int c;
     for (int y = y1; y <= y2; y++) {
         for (int x = x1; x <= x2; x++) {
             int c = getPixelImpl(*this, x, y);
@@ -1015,8 +1030,8 @@ void Drawable::bltDiffuse(const Drawable& source, const Rect16& srect, int x, in
     if (!fitRect(x, y, q)) return;
     uint32_t native_color = toNativeColor(c);
 
-    for (int16_t yy = 0; yy <= q.height(); yy++) {
-        for (int16_t xx = 0; xx <= q.width(); xx++) {
+    for (int16_t yy = 0; yy < q.height(); yy++) {
+        for (int16_t xx = 0; xx < q.width(); xx++) {
             uint8_t intensity = source.getPixelDirect(q.left() + xx, q.top() + yy);
             if (intensity > 0) {
                 blendPixelDirect(x + xx, y + yy, native_color, intensity);
@@ -1033,7 +1048,7 @@ void Drawable::bltAlpha(const Drawable& source, int x, int y)
 void Drawable::bltAlpha(const Drawable& source, const Rect16& srect, int x, int y)
 {
     if (source.isEmpty()) return;
-    if (source.rgb_format.format() != RGBFormat::GREY8) return;
+    if (source.rgb_format.format() == RGBFormat::Monochrome1BitVertical) return;
     // Quellrechteck
     Rect16 q;
     if (srect.isNull()) {
@@ -1046,8 +1061,8 @@ void Drawable::bltAlpha(const Drawable& source, const Rect16& srect, int x, int 
         if (q.height() > source.height()) q.setHeight(source.height());
     }
     if (!fitRect(x, y, q)) return;
-    for (int16_t yy = 0; yy <= q.height(); yy++) {
-        for (int16_t xx = 0; xx <= q.width(); xx++) {
+    for (int16_t yy = 0; yy < q.height(); yy++) {
+        for (int16_t xx = 0; xx < q.width(); xx++) {
             Color pixel = source.getPixel(q.left() + xx, q.top() + yy);
             if (pixel.alpha() > 0) {
                 blendPixel(x + xx, y + yy, pixel, pixel.alpha());
@@ -1071,7 +1086,7 @@ static inline uint8_t clamp_uint8_t(float value)
 void Drawable::bltBlend(const Drawable& source, float factor, const Rect16& srect, int x, int y)
 {
     if (source.isEmpty()) return;
-    if (source.rgb_format.format() != RGBFormat::GREY8) return;
+    if (source.rgb_format.format() == RGBFormat::Monochrome1BitVertical) return;
     // Quellrechteck
     Rect16 q;
     if (srect.isNull()) {
@@ -1085,8 +1100,8 @@ void Drawable::bltBlend(const Drawable& source, float factor, const Rect16& srec
     }
     if (!fitRect(x, y, q)) return;
 
-    for (int16_t yy = 0; yy <= q.height(); yy++) {
-        for (int16_t xx = 0; xx <= q.width(); xx++) {
+    for (int16_t yy = 0; yy < q.height(); yy++) {
+        for (int16_t xx = 0; xx < q.width(); xx++) {
             Color pixel = source.getPixel(q.left() + xx, q.top() + yy);
             pixel.setAlpha(clamp_uint8_t((float)pixel.alpha() * factor));
             if (pixel.alpha() > 0) {
@@ -1188,17 +1203,21 @@ void Drawable::elipse(int x, int y, int radx, int rady, const Color& c, bool fil
 
 void Drawable::elipse(int x, int y, int radx, int rady, const Color& c, bool fill, const Color& fillcolor, int start, int end)
 {
-    float st = (float)start / 360.0f;
-    float en = (float)end / 360.0f;
+    float pi = 3.1415926535f;
+    float rad = pi / 180.0f;
+
+    float st = (float)start * rad;
+    float en = (float)end * rad;
     if (st != en) {
         int x2 = x + (int)(sinf(st) * (float)radx);
         int y2 = y + (int)(cosf(st) * (float)rady);
         putPixel(x2, y2, c);
 
         for (int i = start; i < end + 1; i++) {
-            int x1 = x + (int)(sinf((float)i) * radx);
-            int y1 = y + (int)(cosf((float)i) * rady);
-            if (i > 0) {
+            float angle = (float)i * rad;
+            int x1 = x + (int)(sinf(angle) * (float)radx);
+            int y1 = y + (int)(cosf(angle) * (float)rady);
+            if (i > start) {
                 int d = abs(x2 - x1) + abs(y2 - y1);
                 if (d > 1)
                     line(x1, y1, x2, y2, c);
@@ -1209,8 +1228,9 @@ void Drawable::elipse(int x, int y, int radx, int rady, const Color& c, bool fil
             y2 = y1;
         }
         if (fill) {
-            int x1 = x + (int)(sinf((float)(start + end) / 2) * (float)(radx - 2));
-            int y1 = y + (int)(cosf((float)(start + end) / 2) * (float)(rady - 2));
+            float mid_angle = ((float)(start + end) / 2.0f) * rad;
+            int x1 = x + (int)(sinf(mid_angle) * (float)(radx - 2));
+            int y1 = y + (int)(cosf(mid_angle) * (float)(rady - 2));
             floodFill(x1, y1, fillcolor, c);
         }
     }
