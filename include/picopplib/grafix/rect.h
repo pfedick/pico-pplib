@@ -364,6 +364,7 @@ public:
      */
 
     void setRect(int16_t x, int16_t y, int16_t width, int16_t height);
+
     /**@brief Setzt die Koordinaten des Rechtecks anhand von zwei Punkten, die gegenüberliegende Ecken des Rechtecks bilden. Die Reihenfolge
      * der Punkte spielt keine Rolle.
      * @param[in] x1 X-Koordinate des ersten Punkts
@@ -439,7 +440,7 @@ public:
      * Diese Funktion erstellt ein Rechteck aus zwei Punkten, ohne dass die Reihenfolge der Punkte eine Rolle spielt.
      * Es wird automatisch das obere linke und das untere rechte Ende des Rechtecks bestimmt.
      * @param[in] p1 Erster Punkt
-     * @param[in] p2 Zweiter Punkt
+     * @param[in] p2 Zweiter Punkt, die Koordinaten sind "exklusiv" und liegen 1 Pixel außerhalb des Rechtecks
      * @return Rechteck, das die beiden Punkte als gegenüberliegende Ecken hat
      */
     static Rect16 fromPoints(const Point16& p1, const Point16& p2);

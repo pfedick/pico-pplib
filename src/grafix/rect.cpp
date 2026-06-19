@@ -53,8 +53,8 @@ Rect Rect::fromPoints(const Point& p1, const Point& p2)
     Rect r;
     r.x = min(p1.x, p2.x);
     r.y = min(p1.y, p2.y);
-    r.w = abs(p1.x - p2.x) + 1;
-    r.h = abs(p1.y - p2.y) + 1;
+    r.w = abs(p1.x - p2.x);
+    r.h = abs(p1.y - p2.y);
     return r;
 }
 
@@ -141,10 +141,10 @@ void Rect::setBottomRight(const Point& bottomRight)
 
 void Rect::setRect(int x, int y, int width, int height)
 {
-    x = x;
-    y = y;
-    w = width;
-    h = height;
+    this->x = x;
+    this->y = y;
+    this->w = width;
+    this->h = height;
 }
 
 void Rect::setRect(const Rect& other)
@@ -167,8 +167,8 @@ void Rect::setCoords(int x1, int y1, int x2, int y2)
 {
     x = min(x1, x2);
     y = min(y1, y2);
-    w = abs(x2 - x1) + 1;
-    h = abs(y2 - y1) + 1;
+    w = abs(x2 - x1);
+    h = abs(y2 - y1);
 }
 
 void Rect::setCoords(const Point& p1, const Point& p2)

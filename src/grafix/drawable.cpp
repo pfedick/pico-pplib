@@ -77,8 +77,8 @@ void Drawable::fillRectMonochrome1BitVertical(Drawable& self, int x1, int y1, in
     Rect r(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
     Rect clipped = s.intersected(r);
     if (clipped.isNull()) return;
-    for (int y = clipped.top(); y <= clipped.bottom(); y++) {
-        for (int x = clipped.left(); x <= clipped.right(); x++) {
+    for (int y = clipped.top(); y < clipped.bottom(); y++) {
+        for (int x = clipped.left(); x < clipped.right(); x++) {
             uint8_t* ptr = self.buffer + x + (y >> 3) * self.pitch;
             int bit_offset = y & 7; // Bit innerhalb des Bytes (vertikal!)
             if (c)
@@ -144,8 +144,8 @@ void Drawable::fillRect16BitR5G6B5(Drawable& self, int x1, int y1, int x2, int y
     Rect clipped = s.intersected(r);
     if (clipped.isNull()) return;
     uint16_t* row = (uint16_t*)(self.buffer + clipped.top() * self.pitch);
-    for (int y = clipped.top(); y <= clipped.bottom(); y++) {
-        for (int x = clipped.left(); x <= clipped.right(); x++) {
+    for (int y = clipped.top(); y < clipped.bottom(); y++) {
+        for (int x = clipped.left(); x < clipped.right(); x++) {
             row[x] = c & 0xFFFF;
         }
         row = (uint16_t*)((uint8_t*)row + self.pitch);
@@ -205,8 +205,8 @@ void Drawable::fillRect32BitA8R8G8B8(Drawable& self, int x1, int y1, int x2, int
     Rect clipped = s.intersected(r);
     if (clipped.isNull()) return;
     uint32_t* row = (uint32_t*)(self.buffer + clipped.top() * self.pitch);
-    for (int y = clipped.top(); y <= clipped.bottom(); y++) {
-        for (int x = clipped.left(); x <= clipped.right(); x++) {
+    for (int y = clipped.top(); y < clipped.bottom(); y++) {
+        for (int x = clipped.left(); x < clipped.right(); x++) {
             row[x] = c;
         }
         row = (uint32_t*)((uint8_t*)row + self.pitch);
@@ -250,8 +250,8 @@ void Drawable::fillRect8BitGREY(Drawable& self, int x1, int y1, int x2, int y2, 
     Rect clipped = s.intersected(r);
     if (clipped.isNull()) return;
     uint8_t* row = (uint8_t*)(self.buffer + clipped.top() * self.pitch);
-    for (int y = clipped.top(); y <= clipped.bottom(); y++) {
-        for (int x = clipped.left(); x <= clipped.right(); x++) {
+    for (int y = clipped.top(); y < clipped.bottom(); y++) {
+        for (int x = clipped.left(); x < clipped.right(); x++) {
             row[x] = c;
         }
         row = (uint8_t*)((uint8_t*)row + self.pitch);
@@ -448,7 +448,7 @@ Drawable Drawable::getDrawable(const Point16& p, const Size16& s) const
 
 Drawable Drawable::getDrawable(int x1, int y1, int x2, int y2) const
 {
-    return getDrawable(Rect(x1, y1, x2 - x1, y2 - y1));
+    return getDrawable(Rect(x1, y1, x2 - x1 + 1, y2 - y1 + 1));
 }
 
 bool Drawable::isEmpty() const
