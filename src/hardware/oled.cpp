@@ -15,8 +15,8 @@
 #include "pico/binary_info.h"
 #include "hardware/i2c.h"
 
-#include "picopplib-grafix.h"
-#include "oled.h"
+#include "picopplib/grafix.h"
+#include "picopplib/hardware/oled.h"
 
 /* Example code to talk to an SSD1306-based OLED display
 

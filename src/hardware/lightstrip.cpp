@@ -3,8 +3,8 @@
 #include <malloc.h>
 #include <string.h>
 
-#include "picopplib-grafix.h"
-#include "lightstrip.h"
+#include "picopplib/grafix.h"
+#include "picopplib/hardware/lightstrip.h"
 
 #include "pico/types.h"
 #include "pico/time.h"
@@ -64,40 +64,28 @@ size_t LightStrip::size() const
 
 void LightStrip::clear(const picopplib::Color& color)
 {
-    uint32_t native_color = toWS2812(color);
     for (int i = 0; i < num; i++) {
-        pixel[i] = native_color;
+        pixel[i] = color;
     }
-}
-
-void LightStrip::putPixel(int p, const picopplib::Color& color)
-{
-    if (p < num && p >= 0) pixel[p] = toWS2812(color);
-}
-
-picopplib::Color LightStrip::getPixel(int p) const
-{
-    if (p < num && p >= 0) {
-        uint32_t ws = pixel[p];
-        uint8_t g = (ws >> 16) & 0xFF;
-        uint8_t r = (ws >> 8) & 0xFF;
-        uint8_t b = ws & 0xFF;
-        return picopplib::Color(r, g, b);
-    }
-    return picopplib::Color(0, 0, 0);
 }
 
 void LightStrip::write()
 {
-    for (int i = 0; i < num; i++) {
-        pio_sm_put_blocking(pio, sm, (pixel[i]) << 8u);
-        // pio_sm_put_blocking(pio, sm, 0);
+    if (is_rgbw) {
+        for (int i = 0; i < num; i++) {
+            pio_sm_put_blocking(pio, sm, toSK6812(pixel[i]));
+        }
+    } else {
+        for (int i = 0; i < num; i++) {
+            // Nach links shiften für die 24-Bit PIO-State-Machine
+            pio_sm_put_blocking(pio, sm, toWS2812(pixel[i]) << 8u);
+        }
     }
 }
 
 void LightStrip::shift(Direction d, int count, bool rotate)
 {
-    std::vector<uint32_t> old;
+    std::vector<picopplib::Color> old;
     old.resize(num);
     for (int i = 0; i < num; i++)
         old[i] = pixel[i];
@@ -257,57 +245,57 @@ void LightStripSection::write()
 void LightStripSection::shift(Direction d, int count, bool rotate)
 {
     // TODO: check this code
-    std::vector<uint32_t> old;
+    std::vector<picopplib::Color> old;
     old.resize(my_size);
     for (size_t i = 0; i < my_size; i++) {
         if (dir == Direction::Forward)
-            old[i] = ls->getPixelDirect(start + i);
+            old[i] = ls->getPixel(start + i);
         else
-            old[i] = ls->getPixelDirect(end - i);
+            old[i] = ls->getPixel(end - i);
     }
     if (count > my_size || count == 0) return;
     if (d == Direction::Forward) {
         for (int i = (my_size - 1); i >= (count - 1); i--) {
             if (dir == Direction::Forward)
-                ls->putPixelDirect(start + i, old[i - count]);
+                ls->putPixel(start + i, old[i - count]);
             else
-                ls->putPixelDirect(end - i, old[i - count]);
+                ls->putPixel(end - i, old[i - count]);
         }
         if (rotate) {
             for (int i = 0; i < count; i++) {
                 if (dir == Direction::Forward)
-                    ls->putPixelDirect(start + i, old[my_size - count + i]);
+                    ls->putPixel(start + i, old[my_size - count + i]);
                 else
-                    ls->putPixelDirect(end - i, old[my_size - count + i]);
+                    ls->putPixel(end - i, old[my_size - count + i]);
             }
         } else {
             for (int i = 0; i < count; i++) {
                 if (dir == Direction::Forward)
-                    ls->putPixelDirect(start + i, 0);
+                    ls->putPixel(start + i, 0);
                 else
-                    ls->putPixelDirect(end - i, 0);
+                    ls->putPixel(end - i, 0);
             }
         }
     } else {
         for (int i = 0; i < my_size - count; i++) {
             if (dir == Direction::Forward)
-                ls->putPixelDirect(start + i, old[i + count]);
+                ls->putPixel(start + i, old[i + count]);
             else
-                ls->putPixelDirect(end - i, old[i + count]);
+                ls->putPixel(end - i, old[i + count]);
         }
         if (rotate) {
             for (int i = 0; i < count; i++) {
                 if (dir == Direction::Forward)
-                    ls->putPixelDirect(end - i, old[i]);
+                    ls->putPixel(end - i, old[i]);
                 else
-                    ls->putPixelDirect(start + i, old[i]);
+                    ls->putPixel(start + i, old[i]);
             }
         } else {
             for (int i = 0; i < count; i++) {
                 if (dir == Direction::Forward)
-                    ls->putPixelDirect(end - i, 0);
+                    ls->putPixel(end - i, 0);
                 else
-                    ls->putPixelDirect(start + i, 0);
+                    ls->putPixel(start + i, 0);
             }
         }
     }

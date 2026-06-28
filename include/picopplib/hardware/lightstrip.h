@@ -27,8 +27,8 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef LIGHTSTRIP_H
-#define LIGHTSTRIP_H
+#ifndef PICOPPLIB_HARDWARE_LIGHTSTRIP_H
+#define PICOPPLIB_HARDWARE_LIGHTSTRIP_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -77,17 +77,29 @@ public:
 class LightStrip
 {
 private:
-    std::vector<uint32_t> pixel;
-    size_t num;
+    std::vector<picopplib::Color> pixel;
     PIO pio;
     uint sm = 0;
     uint offset = 0;
+    uint16_t num;
     bool is_rgbw;
+    uint8_t brightness = 255;
 
-    inline uint32_t toWS2812(const picopplib::Color& c) const { return (c.green() << 16) | (c.red() << 8) | c.blue(); }
-    inline uint32_t toSK6812(const picopplib::Color& c) const
+    constexpr inline uint32_t toWS2812(const picopplib::Color& c) const
     {
-        return (c.green() << 24) | (c.red() << 16) | (c.blue() << 8) | 0; // White=0
+        uint8_t r = (c.red() * brightness) >> 8;
+        uint8_t g = (c.green() * brightness) >> 8;
+        uint8_t b = (c.blue() * brightness) >> 8;
+        return (g << 16) | (r << 8) | b;
+    }
+    constexpr inline uint32_t toSK6812(const picopplib::Color& c) const
+    {
+        uint8_t r = (c.red() * brightness) >> 8;
+        uint8_t g = (c.green() * brightness) >> 8;
+        uint8_t b = (c.blue() * brightness) >> 8;
+        // Alpha-Kanal könnte hier als "White"-Kanal genutzt werden, falls gewünscht
+        uint8_t w = (c.alpha() * brightness) >> 8;
+        return (g << 24) | (r << 16) | (b << 8) | w;
     }
 
 public:
@@ -106,18 +118,23 @@ public:
 
     void clear(const picopplib::Color& color = picopplib::Color(0, 0, 0));
     void write();
-    void putPixel(int p, const picopplib::Color& color);
-    picopplib::Color getPixel(int p) const;
 
-    inline void putPixelDirect(int p, uint32_t color)
+    void setBrightness(uint8_t b) { brightness = b; }
+    uint8_t getBrightness() const { return brightness; }
+
+    inline void putPixel(int p, const picopplib::Color& color)
     {
+
         if (p < num && p >= 0) pixel[p] = color;
     }
-    inline uint32_t getPixelDirect(int p) const
+
+    inline picopplib::Color getPixel(int p) const
     {
+
         if (p < num && p >= 0) return pixel[p];
-        return 0;
+        return picopplib::Color();
     }
+
     void shift(Direction d, int count = 1, bool rotate = false);
 
     LightStripSection getSection(size_t start, size_t end, LightStripSection::Direction dir = LightStripSection::Direction::Forward);
@@ -125,4 +142,4 @@ public:
     void playIntro();
 };
 
-#endif
+#endif // PICOPPLIB_HARDWARE_LIGHTSTRIP_H

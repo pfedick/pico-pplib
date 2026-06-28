@@ -2,7 +2,7 @@
 #include <string.h>
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
-#include "st7789.h"
+#include "picopplib/hardware/st7789.h"
 
 typedef enum write_type
 {

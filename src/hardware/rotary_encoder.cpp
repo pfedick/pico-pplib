@@ -8,8 +8,7 @@
 #include "hardware/gpio.h"
 
 #include "picopplib.h"
-#include "picopplib-grafix.h"
-#include "rotary_encoder.h"
+#include "picopplib/hardware/rotary_encoder.h"
 
 static uint32_t instance_count = 0;
 static RotaryEncoder* instances[32];

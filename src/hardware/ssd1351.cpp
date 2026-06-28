@@ -1,4 +1,6 @@
-#include "ssd1351.h"
+#include "picopplib/grafix.h"
+#include "picopplib/hardware/ssd1351.h"
+
 #include <malloc.h>
 #include <string.h>
 
