@@ -176,13 +176,15 @@ bool Color::operator>(const Color& other) const
 const Color operator*(const Color& color, float factor)
 {
     if (factor < 0) factor = 0.0f;
-    return Color(clamp((int)((float)color.r * factor)), clamp((int)((float)color.g * factor)), clamp((int)((float)color.b * factor)));
+    return Color(clamp((int)((float)color.r * factor)), clamp((int)((float)color.g * factor)), clamp((int)((float)color.b * factor)),
+                 color.a);
 }
 
 const Color operator*(float factor, const Color& color)
 {
     if (factor < 0) factor = 0.0;
-    return Color(clamp((int)((float)color.r * factor)), clamp((int)((float)color.g * factor)), clamp((int)((float)color.b * factor)));
+    return Color(clamp((int)((float)color.r * factor)), clamp((int)((float)color.g * factor)), clamp((int)((float)color.b * factor)),
+                 color.a);
 }
 
 const Color operator+(const Color& color1, const Color& color2)
