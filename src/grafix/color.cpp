@@ -42,24 +42,6 @@ static inline int clamp(int value)
     return value;
 }
 
-Color::Color()
-{
-    c = 0;
-}
-
-Color::Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
-{
-    r = red;
-    g = green;
-    b = blue;
-    a = alpha;
-}
-
-Color::Color(uint32_t rgba)
-{
-    c = rgba;
-}
-
 void Color::setColor(const Color& other)
 {
     c = other.c;
@@ -88,6 +70,28 @@ bool Color::match(const Color& other, int tolerance) const
     if (abs(g - other.g) > tolerance) return false;
     if (abs(b - other.b) > tolerance) return false;
     return true;
+}
+
+Color& Color::blend(const Color& background, const Color& foreground, int intensity)
+{
+    int i2 = intensity & 255;
+    int i1 = 255 - i2;
+    r = ((background.r * i1) + (foreground.r * i2)) / 255;
+    g = ((background.g * i1) + (foreground.g * i2)) / 255;
+    b = ((background.b * i1) + (foreground.b * i2)) / 255;
+    a = 255;
+    return *this;
+}
+
+Color& Color::blendf(const Color& background, const Color& foreground, float intensity)
+{
+    float i2 = intensity;
+    float i1 = 1.0f - i2;
+    r = (int)((background.r * i1) + (foreground.r * i2));
+    g = (int)((background.g * i1) + (foreground.g * i2));
+    b = (int)((background.b * i1) + (foreground.b * i2));
+    a = 255;
+    return *this;
 }
 
 Color Color::lerp(const Color& c1, const Color& c2, float factor)
