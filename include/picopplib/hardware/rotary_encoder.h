@@ -38,13 +38,30 @@
 
 class RotaryEncoder
 {
+public:
+    enum Event
+    {
+        EVENT_NONE = 0,
+        EVENT_CW,
+        EVENT_CCW,
+        EVENT_BUTTON_DOWN,
+        EVENT_BUTTON_UP
+    };
+
 private:
     uint8_t clk_pin, dt_pin, switch_pin;
     volatile int encoder_position = 0;
     volatile bool button_pressed = false;
-    volatile uint32_t last_encoder_time = 0;
-    volatile uint8_t encoder_state = 0;
+    volatile uint32_t last_button_time = 0;
+    volatile uint8_t r_state = 0;
     bool is_initialized;
+
+    static const uint8_t QUEUE_SIZE = 32;
+    volatile Event event_queue[QUEUE_SIZE];
+    volatile uint8_t queue_head = 0;
+    volatile uint8_t queue_tail = 0;
+
+    void push_event(Event event);
 
 public:
     RotaryEncoder();
@@ -55,6 +72,9 @@ public:
     int position() const { return encoder_position; }
     bool buttonPressed() const { return button_pressed; }
     void setPosition(int pos);
+
+    bool hasEvent() const { return queue_head != queue_tail; }
+    Event popEvent();
 };
 
 #endif // PICOPPLIB_HARDWARE_ROTARY_ENCODER_H
