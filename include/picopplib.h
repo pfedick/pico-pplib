@@ -70,6 +70,10 @@ public:
     const char* toCharPtr() const;
     void truncate(size_t position);
     unsigned char operator[](size_t pos) const;
+    unsigned char& operator[](size_t pos);
+    unsigned char operator[](int pos) const;
+    unsigned char& operator[](int pos);
+
     void set(size_t pos, unsigned char value);
     unsigned char get(size_t pos) const;
     void memset(int value);
@@ -107,7 +111,6 @@ public:
     operator const void*() const;
     operator const unsigned char*() const;
     operator const char*() const;
-    unsigned char operator[](size_t pos) const;
 };
 
 class Array;

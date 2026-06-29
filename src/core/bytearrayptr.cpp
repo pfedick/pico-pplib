@@ -138,8 +138,7 @@ const void* ByteArrayPtr::adr() const
 void ByteArrayPtr::truncate(size_t position)
 {
     if (position > ptrsize)
-        throw Exception("OverflowException", "ByteArrayPtr::truncate position exceeds size of ByteArray (%zu > %zu)",
-                        position, ptrsize);
+        throw Exception("OverflowException", "ByteArrayPtr::truncate position exceeds size of ByteArray (%zu > %zu)", position, ptrsize);
     ptrsize = position;
 }
 
@@ -220,6 +219,24 @@ unsigned char ByteArrayPtr::operator[](size_t pos) const
     throw Exception("OutOfBoundsEception");
 }
 
+unsigned char& ByteArrayPtr::operator[](size_t pos)
+{
+    if (ptradr != NULL && pos < ptrsize) return static_cast<unsigned char*>(ptradr)[pos];
+    throw Exception("OutOfBoundsEception");
+}
+
+unsigned char ByteArrayPtr::operator[](int pos) const
+{
+    if (ptradr != NULL && pos < ptrsize) return ((unsigned char*)ptradr)[pos];
+    throw Exception("OutOfBoundsEception");
+}
+
+unsigned char& ByteArrayPtr::operator[](int pos)
+{
+    if (ptradr != NULL && pos < ptrsize) return static_cast<unsigned char*>(ptradr)[pos];
+    throw Exception("OutOfBoundsEception");
+}
+
 void ByteArrayPtr::set(size_t pos, unsigned char value)
 {
     if (pos < ptrsize)
@@ -259,8 +276,7 @@ void ByteArrayPtr::memset(int value)
 const char* ByteArrayPtr::map(size_t position, size_t size) const
 {
     if (position + size > ptrsize)
-        throw Exception("OverflowException",
-                        "ByteArrayPtr::map position (%u) + size (%u) exceeds size of ByteArray (%u > %u)", position,
+        throw Exception("OverflowException", "ByteArrayPtr::map position (%u) + size (%u) exceeds size of ByteArray (%u > %u)", position,
                         size, position + size, ptrsize);
     return (const char*)ptradr + position;
 }

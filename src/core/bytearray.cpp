@@ -485,24 +485,6 @@ ByteArray::operator const char*() const
     return (const char*)ptradr;
 }
 
-/*!\brief Einzelnes Byte aus dem Speicherbereich kopieren
- *
- * Mit dem Operator [] kann ein bestimmtes Byte \p pos aus dem Speicherbereich
- * ausgelesen werden. Ist kein Speicher referenziert oder ist \p pos größer als
- * der Speicherblock, wird eine Exception ausgelöst.
- *
- * @param [in] pos Auszulesendes Byte, beginnend mit 0.
- * @return Wert der Speicherstelle
- * \exception OutOfBoundsEception Diese Exception wird geworfen, wenn die mit
- * \p pos angegebene Speicherstelle ausseralb des referenzierten Speichers liegt oder
- * kein Speicher referenziert ist.
- */
-unsigned char ByteArray::operator[](size_t pos) const
-{
-    if (ptradr != NULL && pos < ptrsize) return ((unsigned char*)ptradr)[pos];
-    throw Exception("OutOfBoundsEception");
-}
-
 /*!\brief Speicher allokieren
  *
  * Mit dieser Funktion wird ein neuer Speicherblock mit der Größe von \p size Bytes allokiert
