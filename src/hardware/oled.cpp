@@ -317,12 +317,12 @@ static int main_oled()
     return 0;
 }
 
-Oled::Oled()
+Oled_SSD1306::Oled_SSD1306()
 {
     initialized = false;
 }
 
-void Oled::init(int i2c_sda_pin, int i2c_scl_pin)
+void Oled_SSD1306::init(int i2c_sda_pin, int i2c_scl_pin)
 {
     gpio_set_function(i2c_sda_pin, GPIO_FUNC_I2C);
     gpio_set_function(i2c_scl_pin, GPIO_FUNC_I2C);
@@ -334,7 +334,7 @@ void Oled::init(int i2c_sda_pin, int i2c_scl_pin)
     initialized = true;
 }
 
-void Oled::clearDisplay()
+void Oled_SSD1306::clearDisplay()
 {
     struct render_area frame_area = {start_col : 0, end_col : OLED_WIDTH - 1, start_page : 0, end_page : OLED_NUM_PAGES - 1};
     calc_render_area_buflen(&frame_area);
@@ -345,7 +345,7 @@ void Oled::clearDisplay()
     render(buf, &frame_area);
 }
 
-void Oled::draw(const picopplib::Drawable& img)
+void Oled_SSD1306::draw(const picopplib::Drawable& img)
 {
     if (!img.ptr()) return;
     struct render_area area = {start_col : 0, end_col : OLED_WIDTH - 1, start_page : 0, end_page : OLED_NUM_PAGES - 1};
@@ -353,7 +353,7 @@ void Oled::draw(const picopplib::Drawable& img)
     render(img.ptr(), &area);
 }
 
-bool Oled::isInitialized() const
+bool Oled_SSD1306::isInitialized() const
 {
     return initialized;
 }
