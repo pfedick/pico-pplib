@@ -75,6 +75,7 @@ public:
 
     bool hasEvent() const { return queue_head != queue_tail; }
     Event popEvent();
+    void check_button(); // Muss regelmäßig aufgerufen werden, um den Tasterzustand zu aktualisieren (Debounce)
 };
 
 #endif // PICOPPLIB_HARDWARE_ROTARY_ENCODER_H

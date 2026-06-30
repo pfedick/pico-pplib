@@ -99,11 +99,11 @@ void RotaryEncoder::init(uint8_t clk_pin, uint8_t dt_pin, uint8_t switch_pin)
 
     gpio_set_irq_enabled(clk_pin, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
     gpio_set_irq_enabled(dt_pin, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
-    gpio_set_irq_enabled(switch_pin, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
+    // gpio_set_irq_enabled(switch_pin, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
 
     instances[clk_pin] = this;
     instances[dt_pin] = this;
-    instances[switch_pin] = this;
+    // instances[switch_pin] = this;
     is_initialized = true;
     r_state = R_START;
 }
@@ -163,4 +163,15 @@ RotaryEncoder::Event RotaryEncoder::popEvent()
     Event event = event_queue[queue_tail];
     queue_tail = (queue_tail + 1) % QUEUE_SIZE;
     return event;
+}
+
+void RotaryEncoder::check_button()
+{
+    bool state = !gpio_get(switch_pin);
+    uint32_t now = to_ms_since_boot(get_absolute_time());
+    if (state != button_pressed && last_button_time + 20 < now) {
+        button_pressed = state;
+        push_event(button_pressed ? EVENT_BUTTON_DOWN : EVENT_BUTTON_UP);
+        last_button_time = now;
+    }
 }
