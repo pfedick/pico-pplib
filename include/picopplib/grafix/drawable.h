@@ -105,7 +105,8 @@ public:
     inline uint16_t height() const { return my_height; };
     inline RGBFormat format() const { return rgb_format; };
 
-    bool isEmpty() const;
+    constexpr inline bool isEmpty() const { return (!buffer); }
+    constexpr inline bool notEmpty() const { return (buffer); }
 
     uint8_t* ptr() const;
     Size size() const;
@@ -113,26 +114,43 @@ public:
     Rect rect() const;
     Rect16 rect16() const;
 
-    inline void putPixel(int x, int y, const Color& color) { putPixelImpl(*this, x, y, toNativeColor(color)); }
+    inline void putPixel(int x, int y, const Color& color)
+    {
+        if (putPixelImpl) putPixelImpl(*this, x, y, toNativeColor(color));
+    }
     inline void blendPixel(int x, int y, const Color& color, uint8_t intensity)
     {
-        blendPixelImpl(*this, x, y, toNativeColor(color), intensity);
+        if (blendPixelImpl) blendPixelImpl(*this, x, y, toNativeColor(color), intensity);
     }
-    inline Color getPixel(int x, int y) const { return fromNativeColor(getPixelImpl(*this, x, y)); }
+    inline Color getPixel(int x, int y) const
+    {
+        if (!getPixelImpl) return Color();
+        return fromNativeColor(getPixelImpl(*this, x, y));
+    }
 
-    inline void putPixelDirect(int x, int y, uint32_t native_color) { putPixelImpl(*this, x, y, native_color); }
+    inline void putPixelDirect(int x, int y, uint32_t native_color)
+    {
+        if (putPixelImpl) putPixelImpl(*this, x, y, native_color);
+    }
     inline void blendPixelDirect(int x, int y, uint32_t native_color, uint8_t intensity)
     {
-        blendPixelImpl(*this, x, y, native_color, intensity);
+        if (blendPixelImpl) blendPixelImpl(*this, x, y, native_color, intensity);
     }
-    inline uint32_t getPixelDirect(int x, int y) const { return getPixelImpl(*this, x, y); }
+    inline uint32_t getPixelDirect(int x, int y) const
+    {
+        if (!getPixelImpl) return 0;
+        return getPixelImpl(*this, x, y);
+    }
 
     void clear(const Color& color = Color(0, 0, 0, 0));
 
     // void blendPixel(int x, int y, const Color& c, int brightness);
 
     void drawRect(int x1, int y1, int x2, int y2, const Color& color);
-    inline void fillRect(int x1, int y1, int x2, int y2, const Color& color) { fillRectImpl(*this, x1, y1, x2, y2, toNativeColor(color)); }
+    inline void fillRect(int x1, int y1, int x2, int y2, const Color& color)
+    {
+        if (fillRectImpl) fillRectImpl(*this, x1, y1, x2, y2, toNativeColor(color));
+    }
     void invertRect(int x1, int y1, int x2, int y2);
 
     void line(int x1, int y1, int x2, int y2, const Color& color);

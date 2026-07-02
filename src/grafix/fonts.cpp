@@ -409,6 +409,7 @@ const FontFile* Grafix::findFont(const Font& font) const
  */
 void Drawable::print(const Font& font, int x, int y, const String& text)
 {
+    if (isEmpty()) return;
     Grafix* gfx = GetGrafix();
     const FontFile* file = gfx->findFont(font.name());
     if (!file) return;

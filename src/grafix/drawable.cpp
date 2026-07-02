@@ -410,6 +410,7 @@ Drawable Drawable::getDrawable(const Rect& rect) const
     if (rgb_format.format() == RGBFormat::Monochrome1BitVertical) {
         throw Exception("getDrawable for Monochrome1BitVertical format not supported");
     }
+    if (isEmpty()) return Drawable();
     Rect self_rect(0, 0, my_width, my_height);
     Rect intersect = rect.intersected(self_rect);
     if (intersect.isNull()) {
@@ -426,6 +427,7 @@ Drawable Drawable::getDrawable(const Rect16& rect) const
     if (rgb_format.format() == RGBFormat::Monochrome1BitVertical) {
         throw Exception("getDrawable for Monochrome1BitVertical format not supported");
     }
+    if (isEmpty()) return Drawable();
     Rect16 self_rect(0, 0, my_width, my_height);
     Rect16 intersect = rect.intersected(self_rect);
     if (intersect.isNull()) {
@@ -449,12 +451,6 @@ Drawable Drawable::getDrawable(const Point16& p, const Size16& s) const
 Drawable Drawable::getDrawable(int x1, int y1, int x2, int y2) const
 {
     return getDrawable(Rect(x1, y1, x2 - x1 + 1, y2 - y1 + 1));
-}
-
-bool Drawable::isEmpty() const
-{
-    if (!buffer) return true;
-    return false;
 }
 
 uint32_t Drawable::toNativeColor(const Color& c) const
@@ -545,6 +541,7 @@ Rect16 Drawable::rect16() const
 
 void Drawable::drawRect(int x1, int y1, int x2, int y2, const Color& color)
 {
+    if (!putPixelImpl) return;
     uint32_t native_color = toNativeColor(color);
     for (int x = x1; x <= x2; x++) {
         putPixelImpl(*this, x, y1, native_color);
@@ -559,6 +556,8 @@ void Drawable::drawRect(int x1, int y1, int x2, int y2, const Color& color)
 void Drawable::invertRect(int x1, int y1, int x2, int y2)
 // Das ist nur für 1-Bit Monochrom
 {
+    if (!putPixelImpl) return;
+    if (!getPixelImpl) return;
     for (int y = y1; y <= y2; y++) {
         for (int x = x1; x <= x2; x++) {
             int c = getPixelImpl(*this, x, y);
@@ -578,6 +577,7 @@ static int sgn(int x)
 
 void Drawable::line(int x1, int y1, int x2, int y2, const Color& color)
 {
+    if (!putPixelImpl) return;
     int x, y, t, dx, dy, incx, incy, pdx, pdy, ddx, ddy, es, el, err;
     uint32_t native_color = toNativeColor(color);
     /* Entfernung in beiden Dimensionen berechnen */
@@ -898,6 +898,7 @@ static void WuLineThick(Drawable& draw, float x1, float y1, float x2, float y2, 
 
 void Drawable::lineAA(int x1, int y1, int x2, int y2, const Color& c, int strength)
 {
+    if (!buffer) return;
     if (strength == 1) {
         WuLine(*this, (float)x1, (float)y1, (float)x2, (float)y2, c);
     } else {
@@ -917,6 +918,7 @@ void Drawable::colorGradient(const Rect16& rect, const Color& c1, const Color& c
 
 void Drawable::colorGradient(int x1, int y1, int x2, int y2, const Color& c1, const Color& c2, Orientation orientation)
 {
+    if (!buffer) return;
     Color c;
     uint32_t w1, w2;
     int range;
@@ -988,6 +990,7 @@ void Drawable::blt(const Drawable& source, int x, int y)
 void Drawable::blt(const Drawable& source, const Rect16& srect, int x, int y)
 {
     if (source.isEmpty()) return;
+    if (!buffer) return;
     // Quellrechteck
     Rect16 q;
     if (srect.isNull()) {
@@ -1014,6 +1017,7 @@ void Drawable::bltDiffuse(const Drawable& source, int x, int y, const Color& c)
 
 void Drawable::bltDiffuse(const Drawable& source, const Rect16& srect, int x, int y, const Color& c)
 {
+    if (!buffer) return;
     if (source.isEmpty()) return;
     if (source.rgb_format.format() != RGBFormat::GREY8) return;
     // Quellrechteck
@@ -1047,6 +1051,7 @@ void Drawable::bltAlpha(const Drawable& source, int x, int y)
 
 void Drawable::bltAlpha(const Drawable& source, const Rect16& srect, int x, int y)
 {
+    if (!buffer) return;
     if (source.isEmpty()) return;
     if (source.rgb_format.format() == RGBFormat::Monochrome1BitVertical) return;
     // Quellrechteck
@@ -1085,6 +1090,7 @@ static inline uint8_t clamp_uint8_t(float value)
 
 void Drawable::bltBlend(const Drawable& source, float factor, const Rect16& srect, int x, int y)
 {
+    if (!buffer) return;
     if (source.isEmpty()) return;
     if (source.rgb_format.format() == RGBFormat::Monochrome1BitVertical) return;
     // Quellrechteck
@@ -1113,6 +1119,7 @@ void Drawable::bltBlend(const Drawable& source, float factor, const Rect16& srec
 
 void Drawable::draw(const ImageList& iml, int nr, int x, int y)
 {
+    if (!buffer) return;
     Rect16 r = iml.getRect(nr);
     switch (iml.method) {
     case DrawMethod::BLT:
@@ -1129,6 +1136,7 @@ void Drawable::draw(const ImageList& iml, int nr, int x, int y)
 
 void Drawable::draw(const ImageList& iml, int nr, int x, int y, const Color& diffuse)
 {
+    if (!buffer) return;
     Rect16 r = iml.getRect(nr);
     switch (iml.method) {
     case DrawMethod::BLT:
@@ -1145,6 +1153,7 @@ void Drawable::draw(const ImageList& iml, int nr, int x, int y, const Color& dif
 
 void Drawable::draw(const ImageReference& imgref, int x, int y)
 {
+    if (!buffer) return;
     switch (imgref.draw_method) {
     case DrawMethod::BLT:
         blt(imgref.pixel, imgref.pixel.rect(), x, y);
@@ -1160,6 +1169,7 @@ void Drawable::draw(const ImageReference& imgref, int x, int y)
 
 void Drawable::drawBlend(const ImageReference& imgref, int x, int y, float factor)
 {
+    if (!buffer) return;
     switch (imgref.draw_method) {
     case DrawMethod::BLT:
         blt(imgref.pixel, imgref.pixel.rect(), x, y);
@@ -1178,6 +1188,7 @@ void Drawable::drawBlend(const ImageReference& imgref, int x, int y, float facto
  **************************************************************************/
 void Drawable::elipse(int x, int y, int radx, int rady, const Color& c, bool fill)
 {
+    if (!buffer) return;
     int d;
     int x2 = 0, y2 = 0;
 
@@ -1203,6 +1214,7 @@ void Drawable::elipse(int x, int y, int radx, int rady, const Color& c, bool fil
 
 void Drawable::elipse(int x, int y, int radx, int rady, const Color& c, bool fill, const Color& fillcolor, int start, int end)
 {
+    if (!buffer) return;
     float pi = 3.1415926535f;
     float rad = pi / 180.0f;
 
@@ -1273,6 +1285,7 @@ void Drawable::floodFill(int x, int y, const Color& color, const Color& border)
     /*
      * Quelle des Codes: GD-Library Version 1.2
      */
+    if (!buffer) return;
 
     int lastBorder;
     /* Seek left */
