@@ -179,7 +179,8 @@ void ST7789::init(uint16_t width, uint16_t height, const Config& config, bool us
     spi_speed = config.pin_spi_speed;
     spi_blk = config.pin_spi_blk;
     spi_num = config.spi_num;
-    oled_init();
+    spi_mode = config.spi_mode;
+    init_tft();
     init_pwm();
 }
 
@@ -207,13 +208,25 @@ void ST7789::write(const uint8_t cmd, const uint8_t* data, size_t len)
     gpio_put(spi_cs, 1); // CS deaktivieren (HIGH)
 }
 
-void ST7789::oled_init()
+void ST7789::init_tft()
 {
     uint8_t param[14]; // Größeres Array für längere Parameterlisten
 
-    // Setup SPI - WICHTIG: ST7789 benötigt CPOL_0 und CPHA_0!
     spi_init(spi_num, spi_speed);
-    spi_set_format(spi_num, 8, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST);
+    switch (spi_mode) {
+    case SPIMode::Mode0:
+        spi_set_format(spi_num, 8, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST);
+        break;
+    case SPIMode::Mode1:
+        spi_set_format(spi_num, 8, SPI_CPOL_0, SPI_CPHA_1, SPI_MSB_FIRST);
+        break;
+    case SPIMode::Mode2:
+        spi_set_format(spi_num, 8, SPI_CPOL_1, SPI_CPHA_0, SPI_MSB_FIRST);
+        break;
+    case SPIMode::Mode3:
+        spi_set_format(spi_num, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
+        break;
+    }
     gpio_set_function(spi_sck, GPIO_FUNC_SPI);
     gpio_set_function(spi_data, GPIO_FUNC_SPI);
 
