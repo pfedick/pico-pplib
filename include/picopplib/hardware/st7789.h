@@ -45,7 +45,7 @@ class ST7789
 {
 public:
     static constexpr uint8_t UNUSED_PIN = 255;
-    enum class SPIMode
+    enum class SPIMode : uint8_t
     {
         Mode0 = 0, // CPOL=0, CPHA=0
         Mode1 = 1, // CPOL=0, CPHA=1
@@ -55,18 +55,18 @@ public:
     class Config
     {
     public:
+        spi_inst_t* spi_num;
+        uint32_t spi_speed = 20000000; // Default 20 MHz
         uint8_t pin_spi_dc;
         uint8_t pin_spi_cs;
         uint8_t pin_spi_rst;
         uint8_t pin_spi_sck;
         uint8_t pin_spi_data;
-        uint32_t pin_spi_speed;
         uint8_t pin_spi_blk;               // can be UNUSED_PIN if not used
         SPIMode spi_mode = SPIMode::Mode0; // Default SPI mode
-        spi_inst_t* spi_num;
     };
 
-    enum class Orientation
+    enum class Orientation : uint8_t
     {
         Portrait,         // 0°
         Landscape,        // 90° im Uhrzeigersinn, Default
@@ -76,28 +76,23 @@ public:
 
 private:
     uint8_t* oled_dma[2];
-    uint8_t current_buffer;
-    size_t buffer_size; // kann berechnet werden aus my_width*my_height*2
+    spi_inst_t* spi_num;
+    volatile unsigned int dma_tx;
     uint16_t my_width;
     uint16_t my_height;
-
+    uint8_t current_buffer;
     uint8_t spi_dc;
     uint8_t spi_cs;
-    uint8_t spi_rst;  // kann weg nach init
-    uint8_t spi_sck;  // kann weg nach init
-    uint8_t spi_data; // kann weg nach init
-    uint32_t spi_speed;
     uint8_t spi_blk;
     SPIMode spi_mode;
-    spi_inst_t* spi_num;
 
-    volatile unsigned int dma_tx;
-    dma_channel_config config; // kann weg nach init
+    // dma_channel_config config; // kann weg nach init
     Orientation orientation;
 
     void write(const uint8_t cmd, const uint8_t* data, size_t len);
     void flush_dma(uint8_t* ptr, size_t len);
-    void init_tft();
+    void init_tft(const Config& config);
+    inline size_t get_buffer_size() const { return my_width * my_height * 2; }
     void init_pwm();
 
 public:

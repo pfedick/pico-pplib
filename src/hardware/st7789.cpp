@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <malloc.h>
 #include <string.h>
 #include "pico/stdlib.h"
@@ -131,17 +132,12 @@ ST7789::ST7789()
 {
     my_width = 0;
     my_height = 0;
-    buffer_size = 0;
     oled_dma[0] = nullptr;
     oled_dma[1] = nullptr;
     current_buffer = 0;
     spi_dc = -1;
     spi_cs = -1;
-    spi_rst = -1;
-    spi_sck = -1;
-    spi_data = -1;
     spi_blk = -1;
-    spi_speed = 20000000;
     spi_num = nullptr;
     dma_tx = 0;
     orientation = Orientation::Landscape;
@@ -160,7 +156,7 @@ void ST7789::init(uint16_t width, uint16_t height, const Config& config, bool us
 
     this->my_width = width;
     this->my_height = height;
-    buffer_size = width * height * 2;
+    size_t buffer_size = get_buffer_size();
     oled_dma[0] = (uint8_t*)malloc(buffer_size);
     if (!oled_dma[0]) return;
     memset(oled_dma[0], 0, buffer_size);
@@ -172,15 +168,10 @@ void ST7789::init(uint16_t width, uint16_t height, const Config& config, bool us
     current_buffer = 0;
     spi_dc = config.pin_spi_dc;
     spi_cs = config.pin_spi_cs;
-    spi_rst = config.pin_spi_rst;
-    spi_rst = config.pin_spi_rst;
-    spi_sck = config.pin_spi_sck;
-    spi_data = config.pin_spi_data;
-    spi_speed = config.pin_spi_speed;
     spi_blk = config.pin_spi_blk;
     spi_num = config.spi_num;
     spi_mode = config.spi_mode;
-    init_tft();
+    init_tft(config);
     init_pwm();
 }
 
@@ -208,11 +199,11 @@ void ST7789::write(const uint8_t cmd, const uint8_t* data, size_t len)
     gpio_put(spi_cs, 1); // CS deaktivieren (HIGH)
 }
 
-void ST7789::init_tft()
+void ST7789::init_tft(const Config& config)
 {
     uint8_t param[14]; // Größeres Array für längere Parameterlisten
 
-    spi_init(spi_num, spi_speed);
+    spi_init(spi_num, config.spi_speed);
     switch (spi_mode) {
     case SPIMode::Mode0:
         spi_set_format(spi_num, 8, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST);
@@ -227,8 +218,8 @@ void ST7789::init_tft()
         spi_set_format(spi_num, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
         break;
     }
-    gpio_set_function(spi_sck, GPIO_FUNC_SPI);
-    gpio_set_function(spi_data, GPIO_FUNC_SPI);
+    gpio_set_function(config.pin_spi_sck, GPIO_FUNC_SPI);
+    gpio_set_function(config.pin_spi_data, GPIO_FUNC_SPI);
 
     gpio_init(spi_cs);
     gpio_set_dir(spi_cs, GPIO_OUT);
@@ -239,15 +230,15 @@ void ST7789::init_tft()
     gpio_set_dir(spi_dc, GPIO_OUT);
     gpio_put(spi_dc, 1);
 
-    gpio_init(spi_rst);
-    gpio_set_dir(spi_rst, GPIO_OUT);
+    gpio_init(config.pin_spi_rst);
+    gpio_set_dir(config.pin_spi_rst, GPIO_OUT);
 
     // Hardware Reset
-    gpio_put(spi_rst, 1);
+    gpio_put(config.pin_spi_rst, 1);
     sleep_ms(10);
-    gpio_put(spi_rst, 0);
+    gpio_put(config.pin_spi_rst, 0);
     sleep_ms(10);
-    gpio_put(spi_rst, 1);
+    gpio_put(config.pin_spi_rst, 1);
     sleep_ms(120); // Warten bis Display bereit ist
 
     // Software Reset
@@ -360,10 +351,11 @@ void ST7789::init_tft()
 
     // Setup DMA transfers
     dma_tx = dma_claim_unused_channel(true);
-    config = dma_channel_get_default_config(dma_tx);
-    channel_config_set_transfer_data_size(&config, DMA_SIZE_8);
-    channel_config_set_dreq(&config, spi_get_index(spi_num) ? DREQ_SPI1_TX : DREQ_SPI0_TX);
-    dma_channel_configure(dma_tx, &config, &spi_get_hw(spi_num)->dr, oled_dma[0], buffer_size, false);
+
+    dma_channel_config dma_config = dma_channel_get_default_config(dma_tx);
+    channel_config_set_transfer_data_size(&dma_config, DMA_SIZE_8);
+    channel_config_set_dreq(&dma_config, spi_get_index(spi_num) ? DREQ_SPI1_TX : DREQ_SPI0_TX);
+    dma_channel_configure(dma_tx, &dma_config, &spi_get_hw(spi_num)->dr, oled_dma[0], get_buffer_size(), false);
 }
 
 void ST7789::flush_dma(uint8_t* ptr, size_t len)
@@ -439,6 +431,7 @@ void ST7789::flush_dma(uint8_t* ptr, size_t len)
 
 void ST7789::refresh()
 {
+    size_t buffer_size = get_buffer_size();
     if (oled_dma[0] != nullptr && oled_dma[1] != nullptr) {
         if (current_buffer == 0) {
             flush_dma(oled_dma[0], buffer_size);
@@ -498,7 +491,7 @@ void ST7789::clear(picopplib::Color color)
 {
     uint16_t color565 = ((color.red() & 0xf8) << 8) | ((color.green() & 0xfc) << 3) | ((color.blue() & 0xf8) >> 3);
     if (color565 == 0 || color565 == 0xFFFF) {
-        memset(get_buffer(), color565 & 0xff, buffer_size);
+        memset(get_buffer(), color565 & 0xff, get_buffer_size());
         return;
     }
     uint16_t nativeColor = (color565 >> 8) | (color565 << 8); // Byte swap for SPI transmission
