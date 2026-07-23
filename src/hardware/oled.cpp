@@ -322,6 +322,20 @@ Oled_SSD1306::Oled_SSD1306()
     initialized = false;
 }
 
+bool Oled_SSD1306::probe(int i2c_sda_pin, int i2c_scl_pin)
+{
+    gpio_set_function(i2c_sda_pin, GPIO_FUNC_I2C);
+    gpio_set_function(i2c_scl_pin, GPIO_FUNC_I2C);
+    gpio_pull_up(i2c_sda_pin);
+    gpio_pull_up(i2c_scl_pin);
+    i2c_init(i2c_default, 100 * 1000);
+
+    // check if the device is present on the I2C bus
+    uint8_t buf[1];
+    int ret = i2c_read_blocking(i2c_default, (OLED_ADDR & OLED_READ_MODE), buf, 1, false);
+    return ret >= 0;
+}
+
 void Oled_SSD1306::init(int i2c_sda_pin, int i2c_scl_pin)
 {
     gpio_set_function(i2c_sda_pin, GPIO_FUNC_I2C);

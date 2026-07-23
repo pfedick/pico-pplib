@@ -51,6 +51,8 @@ public:
     void draw(const picopplib::Drawable& img);
 
     bool isInitialized() const;
+
+    static bool probe(int i2c_sda_pin, int i2c_scl_pin);
 };
 
 typedef Oled_SSD1306 Oled;
