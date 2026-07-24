@@ -512,3 +512,10 @@ void ST7789::setBrightness(uint8_t brightness)
     uint channel = pwm_gpio_to_channel(spi_blk);
     pwm_set_chan_level(slice_num, channel, brightness);
 }
+
+void ST7789::setVCom(uint8_t vcom)
+{
+    // VCOM-Wertebereich ist 0x00 (0.1V) bis 0x3F (1.675V)
+    if (vcom > 0x3F) vcom = 0x3F;
+    write(CMD_VCOMS, &vcom, 1);
+}

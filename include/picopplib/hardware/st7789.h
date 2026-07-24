@@ -41,6 +41,13 @@
 #include <stdio.h>
 #include <string.h>
 
+/**@class ST7789
+ * @brief Class to control the ST7789 TFT display controller.
+ *
+ * This class provides an interface to initialize and control the ST7789 TFT display controller.
+ * It supports various configurations, including SPI communication, orientation settings, and
+ * brightness control. The class also provides methods for drawing graphics and text on the display.
+ */
 class ST7789
 {
 public:
@@ -101,6 +108,12 @@ public:
 
     void init(uint16_t width, uint16_t height, const Config& config, bool useDoubleBuffer = false);
     void setBrightness(uint8_t brightness);
+
+    /**@brief Set the VCOM voltage for the display.
+     * @param vcom The VCOM voltage value (0x00 to 0x3F).
+     * @note The VCOM voltage range is from 0x00 (0.1V) to 0x3F (1.675V).
+     */
+    void setVCom(uint8_t vcom); // Wert von 0x00 (0.1V) bis 0x3F (1.675V)
     void setOrientation(Orientation o);
     uint8_t* get_buffer() const;
     inline uint16_t width() { return my_width; };
