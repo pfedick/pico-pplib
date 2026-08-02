@@ -230,16 +230,18 @@ void ST7789::init_tft(const Config& config)
     gpio_set_dir(spi_dc, GPIO_OUT);
     gpio_put(spi_dc, 1);
 
-    gpio_init(config.pin_spi_rst);
-    gpio_set_dir(config.pin_spi_rst, GPIO_OUT);
+    if (config.pin_spi_rst != UNUSED_PIN) {
+        gpio_init(config.pin_spi_rst);
+        gpio_set_dir(config.pin_spi_rst, GPIO_OUT);
 
-    // Hardware Reset
-    gpio_put(config.pin_spi_rst, 1);
-    sleep_ms(10);
-    gpio_put(config.pin_spi_rst, 0);
-    sleep_ms(10);
-    gpio_put(config.pin_spi_rst, 1);
-    sleep_ms(120); // Warten bis Display bereit ist
+        // Hardware Reset
+        gpio_put(config.pin_spi_rst, 1);
+        sleep_ms(10);
+        gpio_put(config.pin_spi_rst, 0);
+        sleep_ms(10);
+        gpio_put(config.pin_spi_rst, 1);
+        sleep_ms(120); // Warten bis Display bereit ist
+    }
 
     // Software Reset
     write(CMD_SWRESET, NULL, 0);
